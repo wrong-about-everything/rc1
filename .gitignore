@@ -1,0 +1,11 @@
+/vendor
+/.idea
+.directory
+.env.dev
+.env.dev.testing_mode
+.env.cicd
+.env.test
+.env.stage
+/test/phpunit.xml
+/tmp
+/logs
