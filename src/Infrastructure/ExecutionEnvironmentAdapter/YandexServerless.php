@@ -4,20 +4,22 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\ExecutionEnvironmentAdapter;
 
+use RC\Infrastructure\UserStory\UserStory;
+
 class YandexServerless
 {
-    private $event;
+    private $userStory;
 
-    public function __construct(array $event, $context)
+    public function __construct(UserStory $userStory)
     {
-        $this->event = $event;
+        $this->userStory = $userStory;
     }
 
     public function response(): array
     {
         return [
-            'statusCode' => 200,
-            'body' => 'Hello, World!',
+            'statusCode' => $this->userStory->response()->code()->value(),
+            'body' => $this->userStory->response()->body(),
         ];
     }
 }

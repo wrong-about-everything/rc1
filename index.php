@@ -16,7 +16,7 @@ function handler(array $event, $context) {
     return
         (new YandexServerless(
             new UserStoryFromRequest(
-                new YandexFormatted($event)
+                new FromYandexServerlessEnvironmentRequest($event)
             )
         ))
             ->response();

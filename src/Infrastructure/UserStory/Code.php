@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\UserStory;
 
-abstract class Error
+abstract class Code
 {
     abstract public function value(): int;
 
-    public function equals(Error $error): bool
+    final public function equals(Code $code): bool
     {
-        return $this->value() === $error->value();
+        return $this->value() === $code->value();
     }
 }

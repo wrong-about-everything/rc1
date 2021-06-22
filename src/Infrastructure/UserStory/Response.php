@@ -8,7 +8,9 @@ interface Response
 {
     public function isSuccessful(): bool;
 
-    public function value(): Response;
+    public function code(): Code;
 
-    public function error(): Error;
+    public function headers(): Headers;
+
+    public function body(): string;
 }

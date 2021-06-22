@@ -10,7 +10,7 @@ class ByRoute implements UserStory
     {
     }
 
-    public function value(): Response
+    public function response(): Response
     {
         // TODO: Implement value() method.
     }
