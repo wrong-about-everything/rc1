@@ -7,8 +7,6 @@ namespace RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Body;
 use RC\Infrastructure\UserStory\Code;
 use RC\Infrastructure\UserStory\Code\Successful as SuccessfulCode;
-use RC\Infrastructure\UserStory\Headers;
-use RC\Infrastructure\UserStory\Headers\Emptie;
 use RC\Infrastructure\UserStory\Response;
 
 class Successful implements Response
@@ -30,9 +28,9 @@ class Successful implements Response
         return new SuccessfulCode();
     }
 
-    public function headers(): Headers
+    public function headers(): array
     {
-        return new Emptie();
+        return [];
     }
 
     public function body(): string

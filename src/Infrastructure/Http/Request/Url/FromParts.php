@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types = 1);
+
+namespace RC\Infrastructure\Http\Request\Url;
+
+use RC\Infrastructure\Http\Request\Url;
+
+class FromParts extends Url
+{
+    private $scheme;
+    private $domainName;
+    private $port;
+    private $path;
+    private $query;
+    private $fragment;
+
+    public function __construct(Scheme $scheme, Host $domainName, Port $port, Path $path, Query $query, Fragment $fragment)
+    {
+        $this->scheme = $scheme;
+        $this->domainName = $domainName;
+        $this->port = $port;
+        $this->path = $path;
+        $this->query = $query;
+        $this->fragment = $fragment;
+    }
+
+    public function value(): string
+    {
+        return
+            ($this->scheme->isSpecified() ? $this->scheme->value() : '')
+                .
+            $this->domainName->value()
+                .
+            ($this->port->isSpecified() ? $this->port->value() : '')
+                .
+            $this->path->value()
+                .
+            ($this->query->isSpecified() ? $this->query->value() : '')
+                .
+            ($this->fragment->isSpecified() ? $this->fragment->value() : '')
+        ;
+    }
+}

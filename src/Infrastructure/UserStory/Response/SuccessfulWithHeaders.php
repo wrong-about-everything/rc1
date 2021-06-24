@@ -7,7 +7,6 @@ namespace RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Body;
 use RC\Infrastructure\UserStory\Code;
 use RC\Infrastructure\UserStory\Code\Successful as SuccessfulCode;
-use RC\Infrastructure\UserStory\Headers;
 use RC\Infrastructure\UserStory\Response;
 
 class SuccessfulWithHeaders implements Response
@@ -15,7 +14,7 @@ class SuccessfulWithHeaders implements Response
     private $body;
     private $headers;
 
-    public function __construct(Body $body, Headers $headers)
+    public function __construct(Body $body, array $headers)
     {
         $this->body = $body;
         $this->headers = $headers;
@@ -31,7 +30,7 @@ class SuccessfulWithHeaders implements Response
         return new SuccessfulCode();
     }
 
-    public function headers(): Headers
+    public function headers(): array
     {
         return $this->headers;
     }

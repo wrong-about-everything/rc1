@@ -10,7 +10,7 @@ interface Response
 
     public function code(): Code;
 
-    public function headers(): Headers;
+    public function headers(): array;
 
     public function body(): string;
 }

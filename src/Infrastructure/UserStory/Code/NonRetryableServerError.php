@@ -6,10 +6,10 @@ namespace RC\Infrastructure\UserStory\Code;
 
 use RC\Infrastructure\UserStory\Code;
 
-class ServerError extends Code
+class NonRetryableServerError extends Code
 {
     public function value(): int
     {
-        return 2;
+        return 3;
     }
 }
