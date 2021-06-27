@@ -13,7 +13,7 @@ interface Request
 
     public function url(): Url;
 
-    public function headers(): array;
+    public function headers(): array/*Map<String, String>*/;
 
     public function body(): string;
 }

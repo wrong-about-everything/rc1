@@ -7,4 +7,6 @@ namespace RC\Infrastructure\UserStory;
 interface UserStory
 {
     public function response(): Response;
+
+    public function exists(): bool;
 }

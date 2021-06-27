@@ -20,7 +20,7 @@ class FromUrl implements Query
             throw new Exception('Url is incorrect');
         }
 
-        $this->query = $queryPart === '' ? new NonSpecified() : new FromString($queryPart);
+        $this->query = $queryPart === null ? new NonSpecified() : new FromString($queryPart);
     }
 
     public function value(): string

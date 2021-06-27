@@ -9,16 +9,16 @@ use RC\Infrastructure\Http\Request\Url;
 class FromParts extends Url
 {
     private $scheme;
-    private $domainName;
+    private $host;
     private $port;
     private $path;
     private $query;
     private $fragment;
 
-    public function __construct(Scheme $scheme, Host $domainName, Port $port, Path $path, Query $query, Fragment $fragment)
+    public function __construct(Scheme $scheme, Host $host, Port $port, Path $path, Query $query, Fragment $fragment)
     {
         $this->scheme = $scheme;
-        $this->domainName = $domainName;
+        $this->host = $host;
         $this->port = $port;
         $this->path = $path;
         $this->query = $query;
@@ -30,11 +30,11 @@ class FromParts extends Url
         return
             ($this->scheme->isSpecified() ? $this->scheme->value() : '')
                 .
-            $this->domainName->value()
+            $this->host->value()
                 .
             ($this->port->isSpecified() ? $this->port->value() : '')
                 .
-            $this->path->value()
+            ($this->path->isSpecified() ? $this->path->value() : '')
                 .
             ($this->query->isSpecified() ? $this->query->value() : '')
                 .

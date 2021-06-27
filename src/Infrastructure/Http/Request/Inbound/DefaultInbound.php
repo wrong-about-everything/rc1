@@ -29,7 +29,7 @@ class DefaultInbound implements Request
             );
     }
 
-    public function headers(): array
+    public function headers(): array/*Map<String, String>*/
     {
         return getallheaders();
     }
@@ -38,5 +38,4 @@ class DefaultInbound implements Request
     {
         return file_get_contents('php://input');
     }
-
 }

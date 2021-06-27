@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace RC\Infrastructure\Http\Request\Url\Path;
 
-use \Exception;
+use Exception;
 use RC\Infrastructure\Http\Request\Url\Path;
 use RC\Infrastructure\Http\Request\Url;
 
