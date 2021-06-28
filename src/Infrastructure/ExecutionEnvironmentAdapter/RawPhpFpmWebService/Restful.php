@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace RC\Infrastructure\ExecutionEnvironmentAdapter\RawPhpFpmWebService;
 
 use RC\Infrastructure\ExecutionEnvironmentAdapter\RawPhpFpmWebService;
-use RC\Infrastructure\UserStory\Header;
+use RC\Infrastructure\Http\Response\Header;
+use RC\Infrastructure\UserStory\Response\RestfulHttp\FromUserStoryResponse;
 use RC\Infrastructure\UserStory\UserStory;
 
 class Restful implements RawPhpFpmWebService
@@ -19,24 +20,22 @@ class Restful implements RawPhpFpmWebService
 
     public function response(): void
     {
+        $restfulHttpResponse = new FromUserStoryResponse($this->userStory->response());
+
         http_response_code(
-            (new HttpCodeFromUserStoryCode(
-                $this->userStory->response()->code()
-            ))
-                ->value()
+            $restfulHttpResponse->code()->value()
         );
 
         array_map(
-            function (Header $userStoryHeader) {
-                $httpHeader = new HttpHeaderFromUserStoryHeader($userStoryHeader);
+            function (Header $httpHeader) {
                 if ($httpHeader->exists()) {
                     header($httpHeader->value());
                 }
             },
-            $this->userStory->response()->headers()
+            $restfulHttpResponse->headers()
         );
 
-        echo json_encode($this->userStory->response()->body());
+        echo json_encode($restfulHttpResponse->body());
 
         die();
     }

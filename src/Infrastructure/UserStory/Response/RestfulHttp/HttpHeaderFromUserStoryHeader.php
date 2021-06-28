@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace RC\Infrastructure\ExecutionEnvironmentAdapter\RawPhpFpmWebService;
+namespace RC\Infrastructure\UserStory\Response\RestfulHttp;
 
+use RC\Infrastructure\ExecutionEnvironmentAdapter\RawPhpFpmWebService\HttpResponseHeaderFromUserStoryResponseHeader;
 use RC\Infrastructure\Http\Response\Header;
 use RC\Infrastructure\UserStory\Header as UserStoryResponseHeader;
 

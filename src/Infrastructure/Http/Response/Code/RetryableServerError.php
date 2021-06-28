@@ -6,10 +6,10 @@ namespace RC\Infrastructure\Http\Response\Code;
 
 use RC\Infrastructure\Http\Response\Code;
 
-class ServerError extends Code
+class RetryableServerError extends Code
 {
     public function value(): int
     {
-        return 500;
+        return 503;
     }
 }

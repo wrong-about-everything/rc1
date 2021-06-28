@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace RC\Tests\Unit\Infrastructure\UserStory;
 
 use PHPUnit\Framework\TestCase;
-use RC\Infrastructure\Http\Request\Inbound\Composite;
+use RC\Infrastructure\Http\Request\Inbound\Composite as CompositeRequest;
 use RC\Infrastructure\Http\Request\Method\Get;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Url\Fragment\NonSpecified as NonSpecifiedFragment;
-use RC\Infrastructure\Http\Request\Url\FromParts;
+use RC\Infrastructure\Http\Request\Url\Composite as CompositeUrl;
 use RC\Infrastructure\Http\Request\Url\Host\FromString;
 use RC\Infrastructure\Http\Request\Url\Path\NonSpecified as NonSpecifiedPath;
 use RC\Infrastructure\Http\Request\Url\Port\FromInt;
@@ -24,7 +24,6 @@ use RC\Tests\Infrastructure\Http\Request\Url\Test;
 use RC\Tests\Infrastructure\Routing\FoundWithNoParams;
 use RC\Tests\Infrastructure\Routing\FoundWithParams;
 use RC\Tests\Infrastructure\Routing\NotFound;
-use RC\Tests\Infrastructure\UserStories\ForGetQueryWithParams;
 use RC\Tests\Infrastructure\UserStories\FromResponse;
 
 class ByRouteTest extends TestCase
@@ -46,7 +45,7 @@ class ByRouteTest extends TestCase
                         }
                     ]
                 ],
-                new Composite(new Get(), new Test(), [], '')
+                new CompositeRequest(new Get(), new Test(), [], '')
             );
 
         $this->assertTrue($userStory->exists());
@@ -74,9 +73,9 @@ class ByRouteTest extends TestCase
                         }
                     ]
                 ],
-                new Composite(
+                new CompositeRequest(
                     new Get(),
-                    new FromParts(
+                    new CompositeUrl(
                         new Http(),
                         new FromString('example.org'),
                         new FromInt(9000),
@@ -117,7 +116,7 @@ class ByRouteTest extends TestCase
                         }
                     ]
                 ],
-                new Composite(new Post(), new Test(), [], 'hello, Vasya!')
+                new CompositeRequest(new Post(), new Test(), [], 'hello, Vasya!')
             );
 
         $this->assertTrue($userStory->exists());
@@ -145,7 +144,7 @@ class ByRouteTest extends TestCase
                         }
                     ]
                 ],
-                new Composite(new Get(), new Test(), [], '')
+                new CompositeRequest(new Get(), new Test(), [], '')
             );
 
         $this->assertFalse($userStory->exists());

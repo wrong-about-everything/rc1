@@ -6,7 +6,7 @@ namespace RC\Infrastructure\Http\Request\Url;
 
 use RC\Infrastructure\Http\Request\Url;
 
-class FromParts extends Url
+class Composite extends Url
 {
     private $scheme;
     private $host;
@@ -36,9 +36,9 @@ class FromParts extends Url
                 .
             ($this->path->isSpecified() ? $this->path->value() : '')
                 .
-            ($this->query->isSpecified() ? $this->query->value() : '')
+            ($this->query->isSpecified() ? ('?' . $this->query->value()) : '')
                 .
-            ($this->fragment->isSpecified() ? $this->fragment->value() : '')
+            ($this->fragment->isSpecified() ? ('#' . $this->fragment->value()) : '')
         ;
     }
 }
