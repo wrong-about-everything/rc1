@@ -20,16 +20,11 @@ class FromUrl implements Path
             throw new Exception('Url is incorrect');
         }
 
-        $this->path = $pathPart === null ? new NonSpecified() : new FromString($pathPart);
+        $this->path = new FromString($pathPart ?? '');
     }
 
     public function value(): string
     {
         return $this->path->value();
-    }
-
-    public function isSpecified(): bool
-    {
-        return $this->path->isSpecified();
     }
 }

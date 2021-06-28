@@ -33,26 +33,26 @@ class RouteByMethodAndPathPatternTest extends TestCase
     public function matchingRoutes(): array
     {
         return [
-//            [
-//                new RouteByMethodAndPathPattern(new Get(), '/hello/vasya'),
-//                new Composite(new Get(), new FromString('https://hello.vasya.ru/hello/vasya'), [], ''),
-//                []
-//            ],
+            [
+                new RouteByMethodAndPathPattern(new Get(), '/hello/vasya'),
+                new Composite(new Get(), new FromString('https://hello.vasya.ru/hello/vasya'), [], ''),
+                []
+            ],
             [
                 new RouteByMethodAndPathPattern(new Post(), 'hello/:id'),
                 new Composite(new Post(), new FromString('https://hello.vasya.ru/hello/vasya'), [], ''),
                 ['vasya']
             ],
-//            [
-//                new RouteByMethodAndPathPattern(new Delete(), '/:help/vasya'),
-//                new Composite(new Delete(), new FromString('https://hello.vasya.ru/hello/vasya'), [], ''),
-//                ['hello']
-//            ],
-//            [
-//                new RouteByMethodAndPathPattern(new Put(), '/hello/vasya/:how/:are/you'),
-//                new Composite(new Put(), new FromString('https://hello.vasya.ru/hello/vasya/i/love/you'), [], ''),
-//                ['i', 'love']
-//            ],
+            [
+                new RouteByMethodAndPathPattern(new Delete(), '/:help/vasya'),
+                new Composite(new Delete(), new FromString('https://hello.vasya.ru/hello/vasya'), [], ''),
+                ['hello']
+            ],
+            [
+                new RouteByMethodAndPathPattern(new Put(), '/hello/vasya/:how/:are/you'),
+                new Composite(new Put(), new FromString('https://hello.vasya.ru/hello/vasya/i/love/you'), [], ''),
+                ['i', 'love']
+            ],
         ];
     }
 

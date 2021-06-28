@@ -54,7 +54,7 @@ class FromYandexServerlessEnvironmentRequest implements Request
                     new Https(),
                     new Localhost(),
                     new NonSpecifiedPort(),
-                    new PathFromString($message['path']),
+                    new PathFromString($message['queryStringParameters']['ad_hoc_path'] ?? ''),
                     new QueryFromArray($message['queryStringParameters']),
                     new NonSpecifiedFragment()
                 ),

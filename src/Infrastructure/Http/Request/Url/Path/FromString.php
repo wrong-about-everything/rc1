@@ -19,9 +19,4 @@ class FromString implements Path
     {
         return $this->value;
     }
-
-    public function isSpecified(): bool
-    {
-        return true;
-    }
 }

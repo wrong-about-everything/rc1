@@ -34,7 +34,7 @@ class Composite extends Url
                 .
             ($this->port->isSpecified() ? $this->port->value() : '')
                 .
-            ($this->path->isSpecified() ? $this->path->value() : '')
+            $this->path->value()
                 .
             ($this->query->isSpecified() ? ('?' . $this->query->value()) : '')
                 .
