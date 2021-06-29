@@ -23,7 +23,7 @@ class FromUserStoryResponse implements Response
         return new HttpCodeFromUserStoryCode($this->userStoryResponse->code());
     }
 
-    public function headers(): array
+    public function headers(): array/*Header[]*/
     {
         return
             array_map(

@@ -31,6 +31,7 @@ class DefaultInbound implements Request
 
     public function headers(): array/*Map<String, String>*/
     {
+        // @todo: getallheaders() returns not all headers. Fix this.
         return getallheaders();
     }
 

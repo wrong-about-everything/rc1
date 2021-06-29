@@ -12,7 +12,7 @@ use SoapServer as NativePhpSoapServer;
  *
  * # Server
  * $server = new SoapServer(null, array('uri' => 'http://test-uri/')); // if first parameter is null, request is assumed to be raw data from POST request
- *  // MyApplication class has all the route names as methods. It acts like an index.php. Each user story returns an stdClass with appropriate fields.
+ *  // MyApplication class has all the route names as methods. It acts like an yc.php. Each user story returns an stdClass with appropriate fields.
  * $server->setClass('MyApplication');
  * $server->handle();
  *

@@ -6,6 +6,11 @@ namespace RC\Infrastructure\Http\Response;
 
 abstract class Header
 {
+    /**
+     * @todo: Add this method
+     */
+    // abstract public function name(): string;
+
     abstract public function value(): string;
 
     abstract public function exists(): bool;

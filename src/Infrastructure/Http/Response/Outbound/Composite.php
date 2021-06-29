@@ -24,7 +24,7 @@ class Composite implements Response
         return $this->code;
     }
 
-    public function headers(): array
+    public function headers(): array/*Header[]*/
     {
         return $this->headers;
     }
