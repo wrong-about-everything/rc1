@@ -53,4 +53,5 @@ var_dump(
     entryPoint(
         ServerRequest::fromGlobals()
     )
+        ->getBody()->getContents()
 );

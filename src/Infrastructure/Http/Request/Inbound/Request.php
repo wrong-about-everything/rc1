@@ -14,7 +14,7 @@ interface Request
     public function url(): Url;
 
     /**
-     * @todo: Do I really need Map<String, String> return type?
+     * @info: Do I really need Map<String, String> return type?
      * This is an request used internally, it should have a format that is comfortable for me.
      * That differs from a Response interface: it should have the most flexible format,
      * because I should be able to convert it to any external format (e.g., psr7).

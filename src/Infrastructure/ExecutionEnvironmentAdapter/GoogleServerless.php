@@ -40,7 +40,7 @@ class GoogleServerless
     public function response(): ResponseInterface
     {
         $httpResponse = new FromUserStoryResponse($this->userStory->response());
-        // @todo: Fix Header class: add name() method
+        // @info: Fix Header class: add name() method
         return new Response($httpResponse->code()->value(), [], $httpResponse->body());
     }
 }

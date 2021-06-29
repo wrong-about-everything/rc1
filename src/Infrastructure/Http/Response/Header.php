@@ -7,7 +7,7 @@ namespace RC\Infrastructure\Http\Response;
 abstract class Header
 {
     /**
-     * @todo: Add this method
+     * @info: Add this method
      */
     // abstract public function name(): string;
 

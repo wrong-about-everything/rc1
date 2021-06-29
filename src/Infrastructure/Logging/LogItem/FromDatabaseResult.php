@@ -11,7 +11,7 @@ use RC\Infrastructure\Logging\LogItem;
 use RC\Infrastructure\Logging\Severity\Error;
 
 /**
- * @todo: Do I need a database result?? Pretty sure I can get away with ImpureValue. That's what database data is anyway.
+ * @info: Do I need a database result?? Pretty sure I can get away with ImpureValue. That's what database data is anyway.
  * So I probably should use `FromNonSuccessfulImpureValue` class.
  */
 class FromDatabaseResult implements LogItem
