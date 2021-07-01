@@ -9,3 +9,6 @@
 /test/phpunit.xml
 /tmp
 /logs
+deploy.sh
+non_sensitive_prod_env_vars
+composer.lock

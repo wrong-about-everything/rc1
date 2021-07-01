@@ -11,7 +11,7 @@ use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Url\Fragment\NonSpecified as NonSpecifiedFragment;
 use RC\Infrastructure\Http\Request\Url\Composite as CompositeUrl;
 use RC\Infrastructure\Http\Request\Url\Host\FromString;
-use RC\Infrastructure\Http\Request\Url\Path\NonSpecified as NonSpecifiedPath;
+use RC\Infrastructure\Http\Request\Url\Path\FromString as Path;
 use RC\Infrastructure\Http\Request\Url\Port\FromInt;
 use RC\Infrastructure\Http\Request\Url\Query;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -79,7 +79,7 @@ class ByRouteTest extends TestCase
                         new Http(),
                         new FromString('example.org'),
                         new FromInt(9000),
-                        new NonSpecifiedPath(),
+                        new Path(''),
                         new FromArray(['filter' => 'registered_at:desc']),
                         new NonSpecifiedFragment()
                     ),

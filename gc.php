@@ -7,7 +7,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 use GuzzleHttp\Psr7\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RC\Domain\YandexServerless\FallbackResponseBody;
+use RC\Domain\UserStory\FallbackResponseBody;
 use RC\Infrastructure\Dotenv\EnvironmentDependentEnvFile;
 use RC\Infrastructure\ExecutionEnvironmentAdapter\GoogleServerless;
 use RC\Infrastructure\Http\Request\Inbound\FromPsrHttpRequest;
@@ -48,10 +48,10 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface {
         ))
             ->response();
 }
-
-var_dump(
-    entryPoint(
-        ServerRequest::fromGlobals()
-    )
-        ->getBody()->getContents()
-);
+// FUNCTION_SOURCE gc.php
+//var_dump(
+//    entryPoint(
+//        ServerRequest::fromGlobals()
+//    )
+//        ->getBody()->getContents()
+//);
