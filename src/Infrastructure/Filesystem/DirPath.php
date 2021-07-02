@@ -7,7 +7,7 @@ namespace RC\Infrastructure\Filesystem;
 abstract class DirPath
 {
     /**
-     * @return string Absolute path value
+     * @return string Absolute canonicalized path value without trailing slash.
      */
     abstract public function value(): string;
 

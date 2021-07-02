@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use GuzzleHttp\Psr7\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RC\Domain\UserStory\FallbackResponseBody;
@@ -48,10 +47,3 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface {
         ))
             ->response();
 }
-// FUNCTION_SOURCE gc.php
-//var_dump(
-//    entryPoint(
-//        ServerRequest::fromGlobals()
-//    )
-//        ->getBody()->getContents()
-//);

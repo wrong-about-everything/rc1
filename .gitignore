@@ -3,9 +3,7 @@
 .directory
 .env.dev
 .env.dev.testing_mode
-.env.cicd
-.env.test
-.env.stage
+.env.prod
 /test/phpunit.xml
 /tmp
 /logs

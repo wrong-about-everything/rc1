@@ -5,6 +5,7 @@
         "ext-bcmath": "*",
         "ext-soap": "*",
         "ext-json": "*",
+        "ext-pdo": "*",
         "ramsey/uuid": "*",
         "wrong-about-everything/meringue": "dev-master",
         "guzzlehttp/guzzle": "*",
