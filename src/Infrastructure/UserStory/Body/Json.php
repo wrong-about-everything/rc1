@@ -19,9 +19,4 @@ class Json extends Body
     {
         return json_encode($this->payload);
     }
-
-    public function exists(): bool
-    {
-        return true;
-    }
 }

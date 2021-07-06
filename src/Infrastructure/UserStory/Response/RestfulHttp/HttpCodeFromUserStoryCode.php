@@ -10,11 +10,13 @@ use RC\Infrastructure\Http\Response\Code\BadRequest;
 use RC\Infrastructure\Http\Response\Code\Ok;
 use RC\Infrastructure\Http\Response\Code\NonRetryableServerError as NonRetryableHttpServerError;
 use RC\Infrastructure\Http\Response\Code\RetryableServerError as RetryableHttpServerError;
+use RC\Infrastructure\Http\Response\Code\Unauthorized as UnauthorizedHttpCode;
 use RC\Infrastructure\UserStory\Code as UserStoryCode;
 use RC\Infrastructure\UserStory\Code\ClientRequestError;
 use RC\Infrastructure\UserStory\Code\NonRetryableServerError;
 use RC\Infrastructure\UserStory\Code\RetryableServerError;
 use RC\Infrastructure\UserStory\Code\Successful;
+use RC\Infrastructure\UserStory\Code\Unauthorized;
 
 class HttpCodeFromUserStoryCode extends Code
 {
@@ -35,6 +37,8 @@ class HttpCodeFromUserStoryCode extends Code
             return (new NonRetryableHttpServerError())->value();
         } elseif ($this->userStoryCode->equals(new ClientRequestError())) {
             return (new BadRequest())->value();
+        } elseif ($this->userStoryCode->equals(new Unauthorized())) {
+            return (new UnauthorizedHttpCode())->value();
         }
 
         throw new Exception(sprintf('Unknown user story code given: %s', $this->userStoryCode->value()));

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use RC\Domain\UserStory\FallbackResponseBody;
+use RC\Domain\UserStory\Body\FallbackResponseBody;
 use RC\Infrastructure\Dotenv\EnvironmentDependentEnvFile;
 use RC\Infrastructure\ExecutionEnvironmentAdapter\YandexServerless;
 use RC\Infrastructure\Http\Request\Inbound\FromYandexServerlessEnvironmentRequest;

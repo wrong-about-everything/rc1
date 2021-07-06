@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\UserStory;
+namespace RC\Domain\UserStory\Body;
 
 use RC\Infrastructure\UserStory\Body;
 

@@ -4,8 +4,8 @@
 .directory
 .env.dev
 .env.dev.testing_mode
-.env.prod
 /test/phpunit.xml
 /tmp
 /logs
 composer.lock
+gc_local.php

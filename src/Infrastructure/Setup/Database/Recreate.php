@@ -134,18 +134,10 @@ class Recreate
         return
             $rootUserPdo
                 ->exec(
-<<<q
-DO
-\$do\$
-begin
-if exists (select 'vasya' from pg_roles where rolname = '{$this->applicationCredentials->username()}') then
-  execute 'drop owned by {$this->applicationCredentials->username()}';
-end if;
-end
-\$do\$;
-
-drop user if exists {$this->applicationCredentials->username()};
-q
+                    sprintf(
+                        'drop role if exists %s;',
+                        $this->applicationCredentials->username()
+                    )
                 );
     }
 
