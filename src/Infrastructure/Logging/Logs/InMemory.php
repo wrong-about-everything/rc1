@@ -28,11 +28,6 @@ class InMemory implements Logs
             );
     }
 
-    public function logId(): LogId
-    {
-        return $this->logId;
-    }
-
     public function all(): array
     {
         return $this->storage;

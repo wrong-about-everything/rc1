@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RC\Domain\UserStory\Authorized;
@@ -16,7 +17,9 @@ use RC\Infrastructure\Http\Request\Inbound\FromPsrHttpRequest;
 use RC\Infrastructure\Http\Request\Inbound\WithPathTakenFromQueryParam;
 use RC\Infrastructure\Http\Request\Method\Get;
 use RC\Infrastructure\Http\Request\Url\Query;
+use RC\Infrastructure\Http\Transport\Guzzle\DefaultGuzzle;
 use RC\Infrastructure\Logging\LogId;
+use RC\Infrastructure\Logging\Logs\EnvironmentDependentLogs;
 use RC\Infrastructure\Logging\Logs\StdOut;
 use RC\Infrastructure\Routing\Route\RouteByMethodAndPathPattern;
 use RC\Infrastructure\Routing\Route\RouteByTelegramBotCommand;
@@ -33,6 +36,12 @@ use RC\UserStories\User\PressesStart\PressesStart;
     ->load();
 
 function entryPoint(ServerRequestInterface $request): ResponseInterface {
+    $logs =
+        new EnvironmentDependentLogs(
+            new ExistentFromAbsolutePath(dirname(__FILE__)),
+            new LogId(new RandomUUID())
+        );
+
     return
         (new GoogleServerless(
             new Authorized(
@@ -49,8 +58,8 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface {
                         ],
                         [
                             new RouteByTelegramBotCommand(new Start()),
-                            function (array $parsedTelegramMessage) {
-                                return new PressesStart($parsedTelegramMessage);
+                            function (array $parsedTelegramMessage) use ($logs) {
+                                return new PressesStart($parsedTelegramMessage, new DefaultGuzzle(new Client()), $logs);
                             }
                         ],
 //                    [

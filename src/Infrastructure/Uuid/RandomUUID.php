@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\Uuid;
 
-use Exception;
 use Ramsey\Uuid\Uuid as RamseyUuid;
 
 class RandomUUID implements UUID
 {
-    /**
-     * @throws Exception
-     */
+    private $value;
+
+    public function __construct()
+    {
+        $this->value = RamseyUuid::uuid4()->toString();
+    }
+
     public function value(): string
     {
-        return RamseyUuid::uuid4()->toString();
+        return $this->value;
     }
 }
