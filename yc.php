@@ -42,7 +42,7 @@ function handler(array $message, $context) {
             ->response();
 }
 
-// @info: make class that converts ordinary http request into yandex-serverless-specific message
+// @todo: make class that converts ordinary http request into yandex-serverless-specific message
 var_dump(
     handler(
         json_decode(

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\Filesystem;
 
+use RC\Infrastructure\ImpureInteractions\ImpureValue;
+
 abstract class DirPath
 {
     /**
-     * @return string Absolute canonicalized path value without trailing slash.
+     * @return ImpureValue Absolute canonicalized path value without trailing slash.
      */
-    abstract public function value(): string;
+    abstract public function value(): ImpureValue;
 
     abstract public function exists(): bool;
 

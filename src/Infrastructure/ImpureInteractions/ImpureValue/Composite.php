@@ -26,7 +26,7 @@ class Composite implements ImpureValue
         return $this->left->isSuccessful() && $this->right->isSuccessful();
     }
 
-    public function value(): PureValue
+    public function pure(): PureValue
     {
         if (!$this->isSuccessful()) {
             throw new Exception('At least one of impure values is not successful, so you can not have their combined value');
@@ -36,13 +36,13 @@ class Composite implements ImpureValue
             new Present(
                 array_merge(
                     (
-                        $this->left->value()->isPresent()
-                            ? (is_scalar($this->left->value()->raw()) ? [$this->left->value()->raw()] : $this->left->value()->raw())
+                        $this->left->pure()->isPresent()
+                            ? (is_scalar($this->left->pure()->raw()) ? [$this->left->pure()->raw()] : $this->left->pure()->raw())
                             : []
                     ),
                     (
-                        $this->right->value()->isPresent()
-                            ? (is_scalar($this->right->value()->raw()) ? [$this->right->value()->raw()] : $this->right->value()->raw())
+                        $this->right->pure()->isPresent()
+                            ? (is_scalar($this->right->pure()->raw()) ? [$this->right->pure()->raw()] : $this->right->pure()->raw())
                             : []
                     )
                 )

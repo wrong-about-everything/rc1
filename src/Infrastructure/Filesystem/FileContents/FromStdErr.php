@@ -4,14 +4,22 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\Filesystem\FileContents;
 
-use Exception;
 use RC\Infrastructure\Filesystem\FileContents;
-use RC\Infrastructure\Filesystem\FilePath;
+use RC\Infrastructure\ImpureInteractions\ImpureValue;
+use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
+use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 
 class FromStdErr implements FileContents
 {
-    public function value(): string
+    private $value;
+
+    public function __construct()
     {
-        return fopen('php://stderr');
+        $this->value = new Successful(new Present(file_get_contents('php://stderr')));
+    }
+
+    public function value(): ImpureValue
+    {
+        return $this->value;
     }
 }

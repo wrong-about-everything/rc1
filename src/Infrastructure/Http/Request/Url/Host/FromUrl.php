@@ -16,7 +16,7 @@ class FromUrl implements Host
     {
         $host = parse_url($uri->value(), PHP_URL_HOST);
 
-        // @info: Is it possible for Url in current implementation to have empty host? Cover this in tests!
+        // @todo: Is it possible for Url in current implementation to have empty host? Cover this in tests!
 //        if ($host === false) {
 //            throw new Exception('Url is incorrect. Fix Url constructor to fix this.');
 //        }

@@ -26,7 +26,7 @@ class WithLogging implements HttpTransport
     public function response(Request $request): Response
     {
         $this->logs
-            ->add(
+            ->receive(
                 new InformationMessageWithData(
                     'Sending external request to ' . $request->url()->value(),
                     [
@@ -43,7 +43,7 @@ class WithLogging implements HttpTransport
         $andThen = new Now();
         if ($response->isAvailable()) {
             $this->logs
-                ->add(
+                ->receive(
                     new InformationMessageWithData(
                         'Response from external service',
                         [
@@ -60,7 +60,7 @@ class WithLogging implements HttpTransport
                 );
         } else {
             $this->logs
-                ->add(
+                ->receive(
                     new InformationMessageWithData(
                         'Response from external service was not obtained',
                         [

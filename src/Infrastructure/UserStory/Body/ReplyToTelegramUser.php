@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace RC\Infrastructure\UserStory\Body;
 
 use RC\Domain\TelegramBot\Method\SendMessage;
+use RC\Infrastructure\ImpureInteractions\PureValue;
+use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\UserStory\Body;
 
+// @todo: Попробовать этот класс вместо http-запроса
 class ReplyToTelegramUser extends Body
 {
     private $chatId;
@@ -18,10 +21,10 @@ class ReplyToTelegramUser extends Body
         $this->reply = $reply;
     }
 
-    public function value(): string
+    public function value(): PureValue
     {
         return
-            json_encode([
+            new Present([
                 'method' => (new SendMessage())->value(),
                 'chat_id' => $this->chatId,
                 'text' => $this->reply,

@@ -41,6 +41,9 @@ class FromUserStoryResponse implements Response
 
     public function body(): string
     {
-        return json_encode($this->userStoryResponse->body());
+        return
+            $this->userStoryResponse->body()->isPresent()
+                ? json_encode($this->userStoryResponse->body()->raw())
+                : '';
     }
 }

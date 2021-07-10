@@ -8,6 +8,9 @@ use Exception;
 use RC\Infrastructure\Filesystem\DirPath;
 use RC\Infrastructure\Filesystem\Filename;
 use RC\Infrastructure\Filesystem\FilePath;
+use RC\Infrastructure\ImpureInteractions\ImpureValue;
+use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
+use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 
 class ExistentFromDirAndFileName extends FilePath
 {
@@ -30,9 +33,9 @@ class ExistentFromDirAndFileName extends FilePath
         $this->filepath = $canonicalized;
     }
 
-    public function value(): string
+    public function value(): ImpureValue
     {
-        return $this->filepath;
+        return new Successful(new Present($this->filepath));
     }
 
     public function exists(): bool

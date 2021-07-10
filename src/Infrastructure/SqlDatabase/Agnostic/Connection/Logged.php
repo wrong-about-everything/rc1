@@ -27,18 +27,18 @@ class Logged implements OpenConnection
 
     public function value(): PDO
     {
-        $this->logs->add(new InformationMessage('Obtaining db connect'));
+        $this->logs->receive(new InformationMessage('Obtaining db connect'));
 
         $everyNow = new Now();
         $r = $this->connection->value();
         $andThen = new Now();
 
         if ($andThen->equalsTo($everyNow)) {
-            $this->logs->add(new InformationMessage('Connection obtaining took just a tiniest bit of time'));
+            $this->logs->receive(new InformationMessage('Connection obtaining took just a tiniest bit of time'));
         } else {
             try {
                 $this->logs
-                    ->add(
+                    ->receive(
                         new InformationMessage(
                             sprintf(
                                 'Connection obtaining took %s seconds',
@@ -47,7 +47,7 @@ class Logged implements OpenConnection
                         )
                     );
             } catch (Throwable $e) {
-                $this->logs->add(new FromThrowable($e));
+                $this->logs->receive(new FromThrowable($e));
             }
         }
 

@@ -33,7 +33,7 @@ class PressesStart extends Existent
 
     public function response(): Response
     {
-        $this->logs->add(new InformationMessage('User presses start scenario started'));
+        $this->logs->receive(new InformationMessage('User presses start scenario started'));
 
         $response =
             $this->httpTransport

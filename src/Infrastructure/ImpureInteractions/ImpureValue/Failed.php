@@ -23,7 +23,7 @@ class Failed implements ImpureValue
         return false;
     }
 
-    public function value(): PureValue
+    public function pure(): PureValue
     {
         throw new Exception('Failed impure value does not have a value.');
     }

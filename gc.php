@@ -11,7 +11,11 @@ use RC\Domain\UserStory\Authorized;
 use RC\Domain\UserStory\Body\FallbackResponseBody;
 use RC\Infrastructure\Dotenv\EnvironmentDependentEnvFile;
 use RC\Infrastructure\ExecutionEnvironmentAdapter\GoogleServerless;
-use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePath;
+use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePathString;
+use RC\Infrastructure\Filesystem\DirPath\ExistentFromNestedDirectoryNames;
+use RC\Infrastructure\Filesystem\Filename\PortableFromString;
+use RC\Infrastructure\Filesystem\FilePath\ExistentFromAbsolutePathString;
+use RC\Infrastructure\Filesystem\FilePath\ExistentFromDirAndFileName;
 use RC\Infrastructure\Http\Request\Inbound\DefaultInbound;
 use RC\Infrastructure\Http\Request\Inbound\FromPsrHttpRequest;
 use RC\Infrastructure\Http\Request\Inbound\WithPathTakenFromQueryParam;
@@ -20,7 +24,8 @@ use RC\Infrastructure\Http\Request\Url\Query;
 use RC\Infrastructure\Http\Transport\Guzzle\DefaultGuzzle;
 use RC\Infrastructure\Logging\LogId;
 use RC\Infrastructure\Logging\Logs\EnvironmentDependentLogs;
-use RC\Infrastructure\Logging\Logs\StdOut;
+use RC\Infrastructure\Logging\Logs\File;
+use RC\Infrastructure\Logging\Logs\GoogleCloudLogs;
 use RC\Infrastructure\Routing\Route\RouteByMethodAndPathPattern;
 use RC\Infrastructure\Routing\Route\RouteByTelegramBotCommand;
 use RC\Infrastructure\TelegramBot\UserCommand\Start;
@@ -30,16 +35,32 @@ use RC\UserStories\Sample;
 use RC\UserStories\User\PressesStart\PressesStart;
 
 (new EnvironmentDependentEnvFile(
-    new ExistentFromAbsolutePath(dirname(__FILE__)),
+    new ExistentFromAbsolutePathString(dirname(__FILE__)),
     new DefaultInbound()
 ))
     ->load();
 
-function entryPoint(ServerRequestInterface $request): ResponseInterface {
+function entryPoint(ServerRequestInterface $request): ResponseInterface
+{
     $logs =
         new EnvironmentDependentLogs(
-            new ExistentFromAbsolutePath(dirname(__FILE__)),
-            new LogId(new RandomUUID())
+            new ExistentFromAbsolutePathString(dirname(__FILE__)),
+            new File(
+                new ExistentFromDirAndFileName(
+                    new ExistentFromNestedDirectoryNames(
+                        new ExistentFromAbsolutePathString(dirname(__FILE__)),
+                        new PortableFromString('logs')
+                    ),
+                    new PortableFromString('log.json')
+                ),
+                new LogId(new RandomUUID())
+            ),
+            new GoogleCloudLogs(
+                'lyrical-bolt-318307',
+                'cloudfunctions.googleapis.com%2Fcloud-functions',
+                new ExistentFromAbsolutePathString(__DIR__ . '/deploy/lyrical-bolt-318307-a42c68ffa3c8.json'),
+                new LogId(new RandomUUID())
+            )
         );
 
     return
@@ -52,8 +73,8 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface {
                                 new Get(),
                                 '/hello/:id/world/:name'
                             ),
-                            function (string $id, string $name, Query $query) {
-                                return new Sample($id, $name, $query);
+                            function (string $id, string $name, Query $query) use ($logs) {
+                                return new Sample($id, $name, $query, $logs);
                             }
                         ],
                         [
@@ -62,17 +83,6 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface {
                                 return new PressesStart($parsedTelegramMessage, new DefaultGuzzle(new Client()), $logs);
                             }
                         ],
-//                    [
-//                        new RouteByJsonFieldValueInPostBody(
-//                            $request->getBody(),
-//                            function (array $parsedRequestData) {
-//                                return $parsedRequestData[];
-//                            }
-//                        ),
-//                        function (string $id, string $name, Query $query) {
-//                            return new Sample($id, $name, $query);
-//                        }
-//                    ],
                     ],
                     new WithPathTakenFromQueryParam(
                         'ad_hoc_path',
@@ -81,8 +91,9 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface {
                 ),
                 new FromPsrHttpRequest($request)
             ),
+            $request,
             new FallbackResponseBody(),
-            new StdOut(new LogId(new RandomUUID()))
+            $logs
         ))
             ->response();
 }

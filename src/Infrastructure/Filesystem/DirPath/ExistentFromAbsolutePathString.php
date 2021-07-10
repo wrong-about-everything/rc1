@@ -6,8 +6,11 @@ namespace RC\Infrastructure\Filesystem\DirPath;
 
 use Exception;
 use RC\Infrastructure\Filesystem\DirPath;
+use RC\Infrastructure\ImpureInteractions\ImpureValue;
+use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
+use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 
-class ExistentFromAbsolutePath extends DirPath
+class ExistentFromAbsolutePathString extends DirPath
 {
     private $path;
 
@@ -27,9 +30,9 @@ class ExistentFromAbsolutePath extends DirPath
         $this->path = $canonicalized;
     }
 
-    public function value(): string
+    public function value(): ImpureValue
     {
-        return $this->path;
+        return new Successful(new Present($this->path));
     }
 
     public function exists(): bool

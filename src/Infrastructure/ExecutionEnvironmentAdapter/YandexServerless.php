@@ -27,7 +27,7 @@ class YandexServerless
         );
         set_exception_handler(
             function (Throwable $throwable) use ($logs) {
-                $logs->add(new FromThrowable($throwable));
+                $logs->receive(new FromThrowable($throwable));
                 throw $throwable;
             }
         );

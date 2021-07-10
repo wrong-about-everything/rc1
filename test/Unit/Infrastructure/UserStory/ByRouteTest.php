@@ -17,7 +17,7 @@ use RC\Infrastructure\Http\Request\Url\Query;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
 use RC\Infrastructure\Http\Request\Url\Query\NonSpecified;
 use RC\Infrastructure\Http\Request\Url\Scheme\Http;
-use RC\Infrastructure\UserStory\Body\Json;
+use RC\Infrastructure\UserStory\Body\Arrray;
 use RC\Infrastructure\UserStory\ByRoute;
 use RC\Infrastructure\UserStory\Response\Successful;
 use RC\Tests\Infrastructure\Http\Request\Url\Test;
@@ -39,7 +39,7 @@ class ByRouteTest extends TestCase
                             return
                                 new FromResponse(
                                     new Successful(
-                                        new Json(['vass' => 'nakvass', 'query' => $query])
+                                        new Arrray(['vass' => 'nakvass'])
                                     )
                                 );
                         }
@@ -51,8 +51,8 @@ class ByRouteTest extends TestCase
         $this->assertTrue($userStory->exists());
         $this->assertTrue($userStory->response()->isSuccessful());
         $this->assertEquals(
-            (new Json(['vass' => 'nakvass', 'query' => new NonSpecified()]))->value(),
-            $userStory->response()->body()
+            (new Arrray(['vass' => 'nakvass']))->value()->raw(),
+            $userStory->response()->body()->raw()
         );
     }
 
@@ -67,7 +67,7 @@ class ByRouteTest extends TestCase
                             return
                                 new FromResponse(
                                     new Successful(
-                                        new Json(['hello' => $there, 'how' => $areYou, 'query' => $query])
+                                        new Arrray(['hello' => $there, 'how' => $areYou])
                                     )
                                 );
                         }
@@ -91,11 +91,11 @@ class ByRouteTest extends TestCase
         $this->assertTrue($userStory->exists());
         $this->assertTrue($userStory->response()->isSuccessful());
         $this->assertEquals(
-            (new Json([
-                'hello' => 'there', 'how' => 'are_you', 'query' => new FromArray(['filter' => 'registered_at:desc'])
+            (new Arrray([
+                'hello' => 'there', 'how' => 'are_you'
             ]))
-                ->value(),
-            $userStory->response()->body()
+                ->value()->raw(),
+            $userStory->response()->body()->raw()
         );
     }
 
@@ -110,7 +110,7 @@ class ByRouteTest extends TestCase
                             return
                                 new FromResponse(
                                     new Successful(
-                                        new Json(['vass' => 'nakvass', 'body' => $body])
+                                        new Arrray(['vass' => 'nakvass', 'body' => $body])
                                     )
                                 );
                         }
@@ -122,7 +122,7 @@ class ByRouteTest extends TestCase
         $this->assertTrue($userStory->exists());
         $this->assertTrue($userStory->response()->isSuccessful());
         $this->assertEquals(
-            (new Json(['vass' => 'nakvass', 'body' => 'hello, Vasya!']))->value(),
+            (new Arrray(['vass' => 'nakvass', 'body' => 'hello, Vasya!']))->value(),
             $userStory->response()->body()
         );
     }
@@ -138,7 +138,7 @@ class ByRouteTest extends TestCase
                             return
                                 new FromResponse(
                                     new Successful(
-                                        new Json(['vass' => 'nakvass'])
+                                        new Arrray(['vass' => 'nakvass'])
                                     )
                                 );
                         }

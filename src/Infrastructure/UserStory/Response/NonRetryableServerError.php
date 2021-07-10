@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\UserStory\Response;
 
+use RC\Infrastructure\ImpureInteractions\PureValue;
 use RC\Infrastructure\UserStory\Code\NonRetryableServerError as ServerErrorCode;
 use RC\Infrastructure\UserStory\Body;
 use RC\Infrastructure\UserStory\Code;
@@ -33,7 +34,7 @@ class NonRetryableServerError implements Response
         return [];
     }
 
-    public function body(): string
+    public function body(): PureValue
     {
         return $this->body->value();
     }

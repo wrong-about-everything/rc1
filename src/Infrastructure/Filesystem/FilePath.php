@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\Filesystem;
 
+use RC\Infrastructure\ImpureInteractions\ImpureValue;
+
 abstract class FilePath
 {
     /**
-     * @return string Absolute path value
+     * @return ImpureValue Absolute path value
      */
-    abstract public function value(): string;
+    abstract public function value(): ImpureValue;
 
     abstract public function exists(): bool;
 

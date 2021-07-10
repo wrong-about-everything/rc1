@@ -11,7 +11,7 @@ use RC\Infrastructure\Logging\LogItem;
 use RC\Infrastructure\Logging\Severity\Error;
 
 /**
- * @info: Do I need a database result?? Pretty sure I can get away with ImpureValue. That's what database data is anyway.
+ * @todo: Do I need a database result?? Pretty sure I can get away with ImpureValue. That's what database data is anyway.
  * So I probably should use `FromNonSuccessfulImpureValue` class.
  */
 class FromDatabaseResult implements LogItem
@@ -30,8 +30,8 @@ class FromDatabaseResult implements LogItem
         return [
             'timestamp' => (new Now())->value(),
             'severity' => (new Error())->value(),
-            'data' => $this->trace(),
             'message' => $this->impureValue->error()->logMessage(),
+            'data' => $this->trace(),
         ];
     }
 

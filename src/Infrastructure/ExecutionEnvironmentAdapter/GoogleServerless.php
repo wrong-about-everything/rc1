@@ -7,6 +7,8 @@ namespace RC\Infrastructure\ExecutionEnvironmentAdapter;
 use Exception;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use RC\Infrastructure\Logging\LogItem\FromIncomingPsrHttpServerRequest;
 use RC\Infrastructure\Logging\LogItem\FromThrowable;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\UserStory\Body;
@@ -18,8 +20,10 @@ use Throwable;
 class GoogleServerless
 {
     private $userStory;
+    private $incomingRequest;
+    private $logs;
 
-    public function __construct(UserStory $userStory, Body $fallbackResponseBody, Logs $logs)
+    public function __construct(UserStory $userStory, ServerRequestInterface $incomingRequest, Body $fallbackResponseBody, Logs $logs)
     {
         set_error_handler(
             function ($errno, $errstr, $errfile, $errline, array $errcontex) {
@@ -29,18 +33,23 @@ class GoogleServerless
         );
         set_exception_handler(
             function (Throwable $throwable) use ($logs) {
-                $logs->add(new FromThrowable($throwable));
+                $logs->receive(new FromThrowable($throwable));
+                $logs->flush();
                 throw $throwable;
             }
         );
 
         $this->userStory = new LazySafetyNet($userStory, $fallbackResponseBody, $logs);
+        $this->incomingRequest = $incomingRequest;
+        $this->logs = $logs;
     }
 
     public function response(): ResponseInterface
     {
+        $this->logs->receive(new FromIncomingPsrHttpServerRequest($this->incomingRequest));
         $httpResponse = new FromUserStoryResponse($this->userStory->response());
-        // @info: Fix Header class: add name() method
+        $this->logs->flush();
+        // @todo: Fix Header class: add name() method
         return new Response($httpResponse->code()->value(), [], $httpResponse->body());
     }
 }

@@ -2,21 +2,22 @@
 
 declare(strict_types=1);
 
-namespace RC\Infrastructure\Filesystem\ModifiedFileContents;
+namespace RC\Infrastructure\Filesystem\FileContents;
 
 use Exception;
+use RC\Infrastructure\Filesystem\FileContents;
 use RC\Infrastructure\Filesystem\FilePath;
-use RC\Infrastructure\Filesystem\ModifiedFileContents;
 use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessage;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 
-class AppendedConcurrentSafelyToExistingFile implements ModifiedFileContents
+class AppendedConcurrentSafelyToExistingFile implements FileContents
 {
     private $filePath;
     private $data;
+    private $cached;
 
     public function __construct(FilePath $filePath, string $data)
     {
@@ -26,13 +27,27 @@ class AppendedConcurrentSafelyToExistingFile implements ModifiedFileContents
 
         $this->filePath = $filePath;
         $this->data = $data;
+        $this->cached = null;
     }
 
     public function value(): ImpureValue
     {
+        if (is_null($this->cached)) {
+            $this->cached = $this->doValue();
+        }
+
+        return $this->cached;
+    }
+
+    private function doValue(): ImpureValue
+    {
+        if (!$this->filePath->value()->isSuccessful()) {
+            return $this->filePath->value();
+        }
+
         $r =
             file_put_contents(
-                $this->filePath->value(),
+                $this->filePath->value()->pure()->raw(),
                 $this->data,
                 FILE_APPEND | LOCK_EX
             );
@@ -40,7 +55,7 @@ class AppendedConcurrentSafelyToExistingFile implements ModifiedFileContents
             return
                 new Failed(
                     new SilentDeclineWithDefaultUserMessage(
-                        sprintf('Write "%s" to %s was not successful', $this->data, $this->filePath->value()),
+                        sprintf('Write "%s" to %s was not successful', $this->data, $this->filePath->value()->pure()->raw()),
                         []
                     )
                 );

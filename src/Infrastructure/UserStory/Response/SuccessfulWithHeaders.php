@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\UserStory\Response;
 
+use RC\Infrastructure\ImpureInteractions\PureValue;
 use RC\Infrastructure\UserStory\Body;
 use RC\Infrastructure\UserStory\Code;
 use RC\Infrastructure\UserStory\Code\Successful as SuccessfulCode;
@@ -35,7 +36,7 @@ class SuccessfulWithHeaders implements Response
         return $this->headers;
     }
 
-    public function body(): string
+    public function body(): PureValue
     {
         return $this->body->value();
     }

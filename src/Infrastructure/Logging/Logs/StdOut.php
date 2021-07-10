@@ -17,7 +17,7 @@ class StdOut implements Logs
         $this->logId = $logId;
     }
 
-    public function add(LogItem $item): void
+    public function receive(LogItem $item): void
     {
         var_dump(
             array_merge(
@@ -25,5 +25,10 @@ class StdOut implements Logs
                 ['log_id' => $this->logId->value()]
             )
         );
+    }
+
+    public function flush(): void
+    {
+        // these logs are not flushable. See GoogleCloudLogs as a counterexample.
     }
 }

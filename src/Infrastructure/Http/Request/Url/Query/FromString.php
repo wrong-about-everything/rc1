@@ -12,7 +12,7 @@ class FromString implements Query
 
     public function __construct(string $value)
     {
-        // @info: validate (probably with with parse_str)
+        // @todo: validate (probably with with parse_str)
         $this->value = $value;
     }
 

@@ -8,6 +8,9 @@ use Exception;
 use RC\Infrastructure\Filesystem\DirPath;
 use RC\Infrastructure\Filesystem\Filename;
 use RC\Infrastructure\Filesystem\FilePath;
+use RC\Infrastructure\ImpureInteractions\ImpureValue;
+use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
+use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 
 class FromDirAndFileName extends FilePath
 {
@@ -24,13 +27,13 @@ class FromDirAndFileName extends FilePath
         $this->filename = $filename;
     }
 
-    public function value(): string
+    public function value(): ImpureValue
     {
-        return sprintf('%s/%s', $this->dirPath->value(), $this->filename->value());
+        return new Successful(new Present(sprintf('%s/%s', $this->dirPath->value(), $this->filename->value())));
     }
 
     public function exists(): bool
     {
-        return is_file($this->value());
+        return is_file($this->value()->pure()->raw());
     }
 }

@@ -14,7 +14,7 @@ set_error_handler(
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\Credentials\ApplicationCredentials;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\Credentials\RootCredentials;
 use RC\Infrastructure\Dotenv\EnvironmentDependentEnvFile;
-use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePath;
+use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePathString;
 use RC\Infrastructure\Filesystem\FilePath\ExistentFromAbsolutePathString;
 use RC\Infrastructure\Http\Request\Inbound\DefaultInbound;
 use RC\Infrastructure\Setup\Database\Recreate;
@@ -28,14 +28,14 @@ if (!file_exists(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . '.env.dev')) 
 }
 
 (new EnvironmentDependentEnvFile(
-    new ExistentFromAbsolutePath(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR),
+    new ExistentFromAbsolutePathString(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR),
     new DefaultInbound()
 ))
     ->load();
 
 $r1 =
     (new Recreate(
-        new ExistentFromAbsolutePath(dirname(dirname(__DIR__))),
+        new ExistentFromAbsolutePathString(dirname(dirname(__DIR__))),
         new Host(getenv('DB_HOST')),
         new FromString(getenv('DB_PORT')),
         new SpecifiedDatabaseName(getenv('DB_NAME')),

@@ -23,7 +23,7 @@ class Successful implements ImpureValue
         return true;
     }
 
-    public function value(): PureValue
+    public function pure(): PureValue
     {
         return $this->pureValue;
     }

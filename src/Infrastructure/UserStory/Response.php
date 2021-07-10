@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\UserStory;
 
+use RC\Infrastructure\ImpureInteractions\PureValue;
+
 interface Response
 {
     public function isSuccessful(): bool;
@@ -12,5 +14,5 @@ interface Response
 
     public function headers(): array;
 
-    public function body(): string;
+    public function body(): PureValue;
 }

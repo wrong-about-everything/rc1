@@ -8,7 +8,7 @@ interface ImpureValue
 {
     public function isSuccessful(): bool;
 
-    public function value(): PureValue;
+    public function pure(): PureValue;
 
     public function error(): Error;
 }

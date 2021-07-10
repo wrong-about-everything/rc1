@@ -11,18 +11,16 @@ use RC\Infrastructure\Logging\Logs;
 class StdErr implements Logs
 {
     private $logId;
-    private $stdErr;
 
     public function __construct(LogId $logId)
     {
         $this->logId = $logId;
-        $this->stdErr = fopen('php://stderr', 'wb');;
     }
 
-    public function add(LogItem $item): void
+    public function receive(LogItem $item): void
     {
         fwrite(
-            $this->stdErr,
+            fopen('php://stderr', 'wb'),
             json_encode(
                 array_merge(
                     $item->value(),
@@ -30,5 +28,10 @@ class StdErr implements Logs
                 )
             )
         );
+    }
+
+    public function flush(): void
+    {
+        // these logs are not flushable. See GoogleCloudLogs as a counterexample.
     }
 }

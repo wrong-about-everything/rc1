@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\UserStory\Body;
 
+use RC\Infrastructure\ImpureInteractions\PureValue;
+use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\UserStory\Body;
 
-class Json extends Body
+class Arrray extends Body
 {
     private $payload;
 
@@ -15,8 +17,8 @@ class Json extends Body
         $this->payload = $payload;
     }
 
-    public function value(): string
+    public function value(): PureValue
     {
-        return json_encode($this->payload);
+        return new Present($this->payload);
     }
 }

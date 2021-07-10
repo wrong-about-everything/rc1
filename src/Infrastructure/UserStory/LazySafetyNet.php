@@ -43,7 +43,7 @@ class LazySafetyNet implements UserStory
         try {
             return $this->userStory->response();
         } catch (Throwable $t) {
-            $this->logs->add(new FromThrowable($t));
+            $this->logs->receive(new FromThrowable($t));
             return new NonRetryableServerError($this->fallbackResponseBody);
         }
     }

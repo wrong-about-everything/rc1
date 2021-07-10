@@ -49,14 +49,11 @@ class FromNonSuccessfulImpureValue implements LogItem
 
     private function data(): array
     {
-        return
-            array_merge(
-                ['context' => $this->impureValue->error()->context()],
-                [
-                    'trace' => $this->exception->getTraceAsString(),
-                    'file' => $this->exception->getFile(),
-                    'line' => $this->exception->getLine(),
-                ]
-            );
+        return [
+            'context' => $this->impureValue->error()->context(),
+            'trace' => $this->exception->getTraceAsString(),
+            'file' => $this->exception->getFile(),
+            'line' => $this->exception->getLine(),
+        ];
     }
 }

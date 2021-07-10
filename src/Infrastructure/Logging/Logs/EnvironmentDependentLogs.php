@@ -5,46 +5,36 @@ declare(strict_types=1);
 namespace RC\Infrastructure\Logging\Logs;
 
 use RC\Infrastructure\Filesystem\DirPath;
-use RC\Infrastructure\Filesystem\DirPath\ExistentFromNestedDirectoryNames;
 use RC\Infrastructure\Filesystem\Filename\PortableFromString;
-use RC\Infrastructure\Filesystem\FilePath\ExistentFromDirAndFileName;
 use RC\Infrastructure\Filesystem\FilePath\FromDirAndFileName;
 use RC\Infrastructure\Logging\LogItem;
-use RC\Infrastructure\Logging\LogId;
 use RC\Infrastructure\Logging\Logs;
 
 class EnvironmentDependentLogs implements Logs
 {
     private $concrete;
-    private $logId;
 
-    public function __construct(DirPath $root, LogId $logId)
+    public function __construct(DirPath $root, Logs $local, Logs $prod)
     {
-        $this->concrete = $this->concrete($root, $logId);
-        $this->logId = $logId;
+        $this->concrete = $this->concrete($root, $local, $prod);
     }
 
-    public function add(LogItem $item): void
+    public function receive(LogItem $item): void
     {
-        $this->concrete->add($item);
+        $this->concrete->receive($item);
     }
 
-    private function concrete(DirPath $root, LogId $logId): Logs
+    public function flush(): void
+    {
+        $this->concrete->flush();
+    }
+
+    private function concrete(DirPath $root, Logs $local, Logs $prod): Logs
     {
         if ((new FromDirAndFileName($root, new PortableFromString('.env.dev')))->exists()) {
-            return
-                new File(
-                    new ExistentFromDirAndFileName(
-                        new ExistentFromNestedDirectoryNames(
-                            $root,
-                            new PortableFromString('logs')
-                        ),
-                        new PortableFromString('log.json')
-                    ),
-                    $logId
-                );
+            return $local;
         }
 
-        return new StdErr($logId);
+        return $prod;
     }
 }

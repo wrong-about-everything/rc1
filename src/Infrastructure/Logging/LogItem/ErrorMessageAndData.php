@@ -24,8 +24,8 @@ class ErrorMessageAndData implements LogItem
         return [
             'timestamp' => (new Now())->value(),
             'severity' => (new Error())->value(),
-            'data' => $this->data,
             'message' => $this->message,
+            'data' => $this->data,
         ];
     }
 }

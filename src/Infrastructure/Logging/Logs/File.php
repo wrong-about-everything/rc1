@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RC\Infrastructure\Logging\Logs;
 
 use RC\Infrastructure\Filesystem\FilePath;
-use RC\Infrastructure\Filesystem\ModifiedFileContents\AppendedConcurrentSafelyToExistingFile;
+use RC\Infrastructure\Filesystem\FileContents\AppendedConcurrentSafelyToExistingFile;
 use RC\Infrastructure\Logging\LogId;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\Logging\LogItem;
@@ -26,7 +26,7 @@ class File implements Logs
         $this->logId = $logId;
     }
 
-    public function add(LogItem $item): void
+    public function receive(LogItem $item): void
     {
         (new AppendedConcurrentSafelyToExistingFile(
             $this->filePath,
@@ -38,5 +38,10 @@ class File implements Logs
             ) . PHP_EOL
         ))
             ->value();
+    }
+
+    public function flush(): void
+    {
+        // these logs are not flushable. See GoogleCloudLogs as a counterexample.
     }
 }

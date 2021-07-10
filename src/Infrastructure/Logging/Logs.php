@@ -6,5 +6,7 @@ namespace RC\Infrastructure\Logging;
 
 interface Logs
 {
-    public function add(LogItem $item): void;
+    public function receive(LogItem $item): void;
+
+    public function flush(): void;
 }
