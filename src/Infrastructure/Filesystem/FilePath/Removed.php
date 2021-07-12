@@ -2,28 +2,23 @@
 
 declare(strict_types=1);
 
-namespace RC\Infrastructure\Filesystem\FileContents;
+namespace RC\Infrastructure\Filesystem\FilePath;
 
-use Exception;
 use RC\Infrastructure\Filesystem\FileContents;
 use RC\Infrastructure\Filesystem\FilePath;
 use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessage;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
-use RC\Infrastructure\ImpureInteractions\PureValue\Present;
+use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 
-class FromFile implements FileContents
+class Removed extends FilePath
 {
     private $filePath;
     private $cached;
 
     public function __construct(FilePath $filePath)
     {
-        if (!$filePath->exists()) {
-            throw new Exception('File does not exist');
-        }
-
         $this->filePath = $filePath;
         $this->cached = null;
     }
@@ -37,23 +32,38 @@ class FromFile implements FileContents
         return $this->cached;
     }
 
+    public function exists(): bool
+    {
+        return $this->filePath->exists();
+    }
+
     private function doValue(): ImpureValue
     {
         if (!$this->filePath->value()->isSuccessful()) {
             return $this->filePath->value();
         }
-
-        $contents = file_get_contents($this->filePath->value()->pure()->raw());
-
-        return
-            $contents === false
-                ?
+        if (!$this->filePath->exists()) {
+            return
                 new Failed(
                     new SilentDeclineWithDefaultUserMessage(
-                        sprintf('Can not read contents of %s', $this->filePath->value()),
+                        sprintf('Can not remove file %s because it does not exist', $this->filePath->value()->pure()->raw()),
                         []
                     )
-                )
-                : new Successful(new Present($contents));
+                );
+        }
+
+        $r = unlink($this->filePath->value()->pure()->raw());
+
+        if ($r === false) {
+            return
+                new Failed(
+                    new SilentDeclineWithDefaultUserMessage(
+                        sprintf('Can not remove %s', $this->filePath->value()->pure()->raw()),
+                        []
+                    )
+                );
+        }
+
+        return new Successful(new Emptie());
     }
 }

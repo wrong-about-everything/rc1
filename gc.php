@@ -11,10 +11,10 @@ use RC\Domain\UserStory\Authorized;
 use RC\Domain\UserStory\Body\FallbackResponseBody;
 use RC\Infrastructure\Dotenv\EnvironmentDependentEnvFile;
 use RC\Infrastructure\ExecutionEnvironmentAdapter\GoogleServerless;
-use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePathString;
-use RC\Infrastructure\Filesystem\DirPath\ExistentFromNestedDirectoryNames;
+use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePathString as ExistentDirPathFromAbsolutePathString;
+use RC\Infrastructure\Filesystem\DirPath\FromNestedDirectoryNames;
 use RC\Infrastructure\Filesystem\Filename\PortableFromString;
-use RC\Infrastructure\Filesystem\FilePath\ExistentFromAbsolutePathString;
+use RC\Infrastructure\Filesystem\FilePath\ExistentFromAbsolutePathString as ExistentFilePathFromAbsolutePathString;
 use RC\Infrastructure\Filesystem\FilePath\ExistentFromDirAndFileName;
 use RC\Infrastructure\Http\Request\Inbound\DefaultInbound;
 use RC\Infrastructure\Http\Request\Inbound\FromPsrHttpRequest;
@@ -35,7 +35,7 @@ use RC\UserStories\Sample;
 use RC\UserStories\User\PressesStart\PressesStart;
 
 (new EnvironmentDependentEnvFile(
-    new ExistentFromAbsolutePathString(dirname(__FILE__)),
+    new ExistentDirPathFromAbsolutePathString(dirname(__FILE__)),
     new DefaultInbound()
 ))
     ->load();
@@ -44,11 +44,11 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
 {
     $logs =
         new EnvironmentDependentLogs(
-            new ExistentFromAbsolutePathString(dirname(__FILE__)),
+            new ExistentDirPathFromAbsolutePathString(dirname(__FILE__)),
             new File(
                 new ExistentFromDirAndFileName(
-                    new ExistentFromNestedDirectoryNames(
-                        new ExistentFromAbsolutePathString(dirname(__FILE__)),
+                    new FromNestedDirectoryNames(
+                        new ExistentDirPathFromAbsolutePathString(dirname(__FILE__)),
                         new PortableFromString('logs')
                     ),
                     new PortableFromString('log.json')
@@ -58,7 +58,7 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
             new GoogleCloudLogs(
                 'lyrical-bolt-318307',
                 'cloudfunctions.googleapis.com%2Fcloud-functions',
-                new ExistentFromAbsolutePathString(__DIR__ . '/deploy/lyrical-bolt-318307-a42c68ffa3c8.json'),
+                new ExistentFilePathFromAbsolutePathString(__DIR__ . '/deploy/lyrical-bolt-318307-a42c68ffa3c8.json'),
                 new LogId(new RandomUUID())
             )
         );

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Infrastructure\Filesystem\FilePath;
+namespace RC\Infrastructure\Filesystem\FileContents;
 
 use RC\Infrastructure\Filesystem\FileContents;
 use RC\Infrastructure\Filesystem\FilePath;
@@ -10,18 +10,16 @@ use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessa
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
-use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
+use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 
-class Created extends FilePath
+class FromFilePath implements FileContents
 {
     private $filePath;
-    private $contents;
     private $cached;
 
-    public function __construct(FilePath $filePath, FileContents $contents)
+    public function __construct(FilePath $filePath)
     {
         $this->filePath = $filePath;
-        $this->contents = $contents;
         $this->cached = null;
     }
 
@@ -34,38 +32,32 @@ class Created extends FilePath
         return $this->cached;
     }
 
-    public function exists(): bool
-    {
-        return $this->filePath->exists();
-    }
-
     private function doValue(): ImpureValue
     {
         if (!$this->filePath->value()->isSuccessful()) {
             return $this->filePath->value();
         }
-        if ($this->filePath->exists()) {
+        if (!$this->filePath->exists()) {
             return
                 new Failed(
                     new SilentDeclineWithDefaultUserMessage(
-                        sprintf('Can not create file %s because it already exists', $this->filePath->value()->pure()->raw()),
+                        sprintf('File %s does not exist', $this->filePath->value()->pure()->raw()),
                         []
                     )
                 );
         }
 
-        $r = file_put_contents($this->filePath->value()->pure()->raw(), $this->contents->value()->pure()->raw(), LOCK_EX);
+        $contents = file_get_contents($this->filePath->value()->pure()->raw());
 
-        if ($r === false) {
-            return
+        return
+            $contents === false
+                ?
                 new Failed(
                     new SilentDeclineWithDefaultUserMessage(
-                        sprintf('Can not write to %s', $this->filePath->value()->pure()->raw()),
+                        sprintf('Can not read contents of %s', $this->filePath->value()),
                         []
                     )
-                );
-        }
-
-        return new Successful(new Emptie());
+                )
+                : new Successful(new Present($contents));
     }
 }

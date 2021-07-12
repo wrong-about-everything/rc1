@@ -6,7 +6,7 @@ namespace RC\Infrastructure\Setup\Database;
 
 use Exception;
 use RC\Infrastructure\Filesystem\DirPath;
-use RC\Infrastructure\Filesystem\FileContents\FromFile;
+use RC\Infrastructure\Filesystem\FileContents\FromFilePath;
 use RC\Infrastructure\Filesystem\FilePath;
 use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessage;
 use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessageFromPdo;
@@ -175,7 +175,7 @@ q
         return
             $rootUserPdo
                 ->exec(
-                    (new FromFile($this->createTablesFile))->value()
+                    (new FromFilePath($this->createTablesFile))->value()
                 );
     }
 

@@ -6,14 +6,14 @@ namespace RC\Tests\Unit\Infrastructure\Filesystem\DirPath;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePathString;
+use RC\Infrastructure\Filesystem\DirPath\FromAbsolutePathString;
 use RC\Infrastructure\Filesystem\DirPath\FromNestedDirectoryNames;
 use RC\Infrastructure\Filesystem\DirPath\Created;
 use RC\Infrastructure\Filesystem\Filename\PortableFromString;
 use RC\Tests\Infrastructure\Environment\Reset;
 use RC\Tests\Infrastructure\Filesystem\DirPath\Tmp;
 
-class ExistentFromAbsolutePathStringTest extends TestCase
+class FromAbsolutePathStringTest extends TestCase
 {
     public function testExistentDirectory()
     {
@@ -26,7 +26,7 @@ class ExistentFromAbsolutePathStringTest extends TestCase
             ->value();
 
         $dir =
-            new ExistentFromAbsolutePathString(
+            new FromAbsolutePathString(
                 (new FromNestedDirectoryNames(
                     new Tmp(),
                     new PortableFromString('kvass')
@@ -46,19 +46,16 @@ class ExistentFromAbsolutePathStringTest extends TestCase
 
     public function testNonExistentDirectory()
     {
-        try {
-            new ExistentFromAbsolutePathString('/tmp/kvass');
-        } catch (Exception $e) {
-            return $this->assertTrue(true);
-        }
+        $dir = new FromAbsolutePathString('/tmp/kvass');
 
-        $this->fail('An exception should have been thrown');
+        $this->assertEquals('/tmp/kvass', $dir->value()->pure()->raw());
+        $this->assertFalse($dir->exists());
     }
 
     public function testInvalidPath()
     {
         try {
-            new ExistentFromAbsolutePathString('s6d5s8dg#$%^&\\');
+            new FromAbsolutePathString('s6d5s8dg#$%^&\\');
         } catch (Exception $e) {
             return $this->assertTrue(true);
         }

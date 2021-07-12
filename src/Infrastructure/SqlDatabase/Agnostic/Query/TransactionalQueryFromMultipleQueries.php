@@ -7,7 +7,7 @@ namespace RC\Infrastructure\SqlDatabase\Agnostic\Query;
 use Exception;
 use RC\Infrastructure\ImpureInteractions\Error\AlarmDeclineWithDefaultUserMessage;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
-use RC\Infrastructure\ImpureInteractions\ImpureValue\Composite;
+use RC\Infrastructure\ImpureInteractions\ImpureValue\Combined;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed as FailedImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
@@ -46,7 +46,7 @@ class TransactionalQueryFromMultipleQueries implements Query
                             throw new Exception($currentResponse->error()); // short-circuiting workaround
                         }
 
-                        return new Composite($compositeResult, $currentResponse);
+                        return new Combined($compositeResult, $currentResponse);
                     },
                     new Successful(new Emptie())
                 )

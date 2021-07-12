@@ -5,24 +5,18 @@ declare(strict_types=1);
 namespace RC\Infrastructure\Filesystem\DirPath;
 
 use RC\Infrastructure\Filesystem\DirPath;
-use RC\Infrastructure\Filesystem\FileContents;
-use RC\Infrastructure\Filesystem\FilePath;
 use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessage;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
-use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
-use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 
 class Created extends DirPath
 {
-    private $filePath;
-    private $contents;
+    private $dirPath;
     private $cached;
 
-    public function __construct(FilePath $filePath, FileContents $contents)
+    public function __construct(DirPath $dirPath)
     {
-        $this->filePath = $filePath;
-        $this->contents = $contents;
+        $this->dirPath = $dirPath;
         $this->cached = null;
     }
 
@@ -37,36 +31,37 @@ class Created extends DirPath
 
     public function exists(): bool
     {
-        return true;
+        $this->value();
+        return $this->dirPath->exists();
     }
 
     private function doValue(): ImpureValue
     {
-        if (!$this->filePath->value()->isSuccessful()) {
-            return $this->filePath->value();
+        if (!$this->dirPath->value()->isSuccessful()) {
+            return $this->dirPath->value();
         }
-        if ($this->filePath->exists()) {
+        if ($this->dirPath->exists()) {
             return
                 new Failed(
                     new SilentDeclineWithDefaultUserMessage(
-                        sprintf('Can not create file %s because it already exists', $this->filePath->value()),
+                        sprintf('Can not create dir %s because it already exists', $this->dirPath->value()->pure()->raw()),
                         []
                     )
                 );
         }
 
-        $r = file_put_contents($this->filePath->value()->pure()->raw(), $this->contents->value()->pure()->raw(), LOCK_EX);
+        $r = mkdir($this->dirPath->value()->pure()->raw());
 
         if ($r === false) {
             return
                 new Failed(
                     new SilentDeclineWithDefaultUserMessage(
-                        sprintf('Can not write to %s', $this->filePath->value()->pure()->raw()),
+                        sprintf('Can not create dir %s', $this->dirPath->value()->pure()->raw()),
                         []
                     )
                 );
         }
 
-        return new Successful(new Emptie());
+        return $this->dirPath->value();
     }
 }

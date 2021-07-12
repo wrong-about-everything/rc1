@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace RC\Infrastructure\Filesystem\FilePath;
+namespace RC\Infrastructure\Filesystem\DirPath;
 
-use RC\Infrastructure\Filesystem\FilePath;
+use RC\Infrastructure\Filesystem\DirPath;
 use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessage;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
 
-class Copied extends FilePath
+class Moved extends DirPath
 {
     private $origin;
     private $destination;
     private $cached;
 
-    public function __construct(FilePath $origin, FilePath $destination)
+    public function __construct(DirPath $origin, DirPath $destination)
     {
         $this->origin = $origin;
         $this->destination = $destination;
@@ -46,7 +46,7 @@ class Copied extends FilePath
             return
                 new Failed(
                     new SilentDeclineWithDefaultUserMessage(
-                        sprintf('Can not copy file %s because it does not exist', $this->origin->value()->pure()->raw()),
+                        sprintf('Can not move dir %s because it does not exist', $this->origin->value()->pure()->raw()),
                         []
                     )
                 );
@@ -58,19 +58,19 @@ class Copied extends FilePath
             return
                 new Failed(
                     new SilentDeclineWithDefaultUserMessage(
-                        sprintf('Can not copy file to %s because it already exists', $this->destination->value()->pure()->raw()),
+                        sprintf('Can not move dir to %s because it already exists', $this->destination->value()->pure()->raw()),
                         []
                     )
                 );
         }
 
-        $r = copy($this->origin->value()->pure()->raw(), $this->destination->value()->pure()->raw());
+        $r = rename($this->origin->value()->pure()->raw(), $this->destination->value()->pure()->raw());
 
         if ($r === false) {
             return
                 new Failed(
                     new SilentDeclineWithDefaultUserMessage(
-                        sprintf('Can not copy file to %s', $this->destination->value()->pure()->raw()),
+                        sprintf('Can not move dir to %s', $this->destination->value()->pure()->raw()),
                         []
                     )
                 );

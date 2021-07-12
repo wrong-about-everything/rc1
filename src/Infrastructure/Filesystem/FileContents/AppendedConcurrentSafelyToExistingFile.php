@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\Filesystem\FileContents;
 
-use Exception;
 use RC\Infrastructure\Filesystem\FileContents;
 use RC\Infrastructure\Filesystem\FilePath;
 use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessage;
@@ -21,10 +20,6 @@ class AppendedConcurrentSafelyToExistingFile implements FileContents
 
     public function __construct(FilePath $filePath, string $data)
     {
-        if (!$filePath->exists()) {
-            throw new Exception('File does not exist');
-        }
-
         $this->filePath = $filePath;
         $this->data = $data;
         $this->cached = null;
@@ -41,6 +36,9 @@ class AppendedConcurrentSafelyToExistingFile implements FileContents
 
     private function doValue(): ImpureValue
     {
+        if (!$this->filePath->exists()) {
+            return new Failed(new SilentDeclineWithDefaultUserMessage('File does not exist', []));
+        }
         if (!$this->filePath->value()->isSuccessful()) {
             return $this->filePath->value();
         }

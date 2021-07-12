@@ -10,7 +10,7 @@ use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 
-class ExistentFromAbsolutePathString extends DirPath
+class FromAbsolutePathString extends DirPath
 {
     private $path;
 
@@ -19,15 +19,8 @@ class ExistentFromAbsolutePathString extends DirPath
         if (preg_match('/^(\/[A-Za-z0-9._-]+)+$/', $path) === 0) {
             throw new Exception(sprintf('Dir path %s is invalid. You must specify a valid absolute path, for example /usr/lib/gcc.', $path));
         }
-        $canonicalized = realpath($path);
-        if ($canonicalized === false) {
-            throw new Exception(sprintf('%s does not exist', $path));
-        }
-        if (!is_dir($canonicalized)) {
-            throw new Exception(sprintf('%s is not a directory', $path));
-        }
 
-        $this->path = $canonicalized;
+        $this->path = $path;
     }
 
     public function value(): ImpureValue
@@ -37,6 +30,6 @@ class ExistentFromAbsolutePathString extends DirPath
 
     public function exists(): bool
     {
-        return true;
+        return is_dir($this->path);
     }
 }

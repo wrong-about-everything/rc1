@@ -16,8 +16,8 @@ class ExistentFromAbsolutePathString extends FilePath
 
     public function __construct(string $path)
     {
-        if ($path[0] !== '/') {
-            throw new Exception(sprintf('%s must be an absolute path', $path));
+        if (preg_match('/^(\/[A-Za-z0-9._-]+)+$/', $path) === 0) {
+            throw new Exception(sprintf('Dir path %s is invalid. You must specify a valid absolute path, for example /usr/lib/cpp.', $path));
         }
         $canonicalized = realpath($path);
         if ($canonicalized === false) {

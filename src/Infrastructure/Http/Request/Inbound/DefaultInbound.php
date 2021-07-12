@@ -30,7 +30,7 @@ class DefaultInbound implements Request
     }
 
     /**
-     * Taken from here: https://github.com/ralouphie/getallheaders
+     * Taken shamelessly from here: https://github.com/ralouphie/getallheaders
      */
     public function headers(): array/*Map<String, String>*/
     {

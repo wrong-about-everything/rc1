@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace RC\Tests\Unit\Infrastructure\Filesystem\DirPath;
 
-use Exception;
 use PHPUnit\Framework\TestCase;
-use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePathString;
 use RC\Infrastructure\Filesystem\DirPath\FromNestedDirectoryNames;
 use RC\Infrastructure\Filesystem\DirPath\Created;
 use RC\Infrastructure\Filesystem\Filename\PortableFromString;
 use RC\Tests\Infrastructure\Environment\Reset;
 use RC\Tests\Infrastructure\Filesystem\DirPath\Tmp;
 
-class ExistentFromAbsolutePathStringTest extends TestCase
+class FromNestedDirectoryNamesTest extends TestCase
 {
     public function testExistentDirectory()
     {
@@ -26,12 +24,9 @@ class ExistentFromAbsolutePathStringTest extends TestCase
             ->value();
 
         $dir =
-            new ExistentFromAbsolutePathString(
-                (new FromNestedDirectoryNames(
-                    new Tmp(),
-                    new PortableFromString('kvass')
-                ))
-                    ->value()->pure()->raw()
+            new FromNestedDirectoryNames(
+                new Tmp(),
+                new PortableFromString('kvass')
             );
 
         $this->assertEquals(
@@ -46,24 +41,14 @@ class ExistentFromAbsolutePathStringTest extends TestCase
 
     public function testNonExistentDirectory()
     {
-        try {
-            new ExistentFromAbsolutePathString('/tmp/kvass');
-        } catch (Exception $e) {
-            return $this->assertTrue(true);
-        }
+        $dir =
+            new FromNestedDirectoryNames(
+                new Tmp(),
+                new PortableFromString('kvass')
+            );
 
-        $this->fail('An exception should have been thrown');
-    }
-
-    public function testInvalidPath()
-    {
-        try {
-            new ExistentFromAbsolutePathString('s6d5s8dg#$%^&\\');
-        } catch (Exception $e) {
-            return $this->assertTrue(true);
-        }
-
-        $this->fail('An exception should have been thrown');
+        $this->assertEquals('/tmp/project_custom_temp_dir/kvass', $dir->value()->pure()->raw());
+        $this->assertFalse($dir->exists());
     }
 
     protected function setUp(): void

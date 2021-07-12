@@ -13,6 +13,10 @@ abstract class DirPath
      */
     abstract public function value(): ImpureValue;
 
+    /**
+     * If method `value()` has an implied side effect and it was not called before `exists()`,
+     * it is implicitly invoked when `exists()` is called.
+     */
     abstract public function exists(): bool;
 
     final public function equals(DirPath $dirPath): bool
