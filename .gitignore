@@ -10,3 +10,4 @@ deploy.sh
 /logs
 composer.lock
 gc_local.php
+test/.phpunit.result.cache

@@ -11,27 +11,22 @@ set_error_handler(
     E_ALL
 );
 
+use Dotenv\Dotenv as OneAndOnly;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\Credentials\ApplicationCredentials;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\Credentials\RootCredentials;
-use RC\Infrastructure\Dotenv\EnvironmentDependentEnvFile;
 use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePathString as DirPath;
 use RC\Infrastructure\Filesystem\FilePath\ExistentFromAbsolutePathString as FilePath;
-use RC\Infrastructure\Http\Request\Inbound\DefaultInbound;
 use RC\Infrastructure\Setup\Database\Recreate;
 use RC\Infrastructure\SqlDatabase\Agnostic\Connection\Port\FromString;
 use RC\Infrastructure\SqlDatabase\Agnostic\Connection\DatabaseName\SpecifiedDatabaseName;
 use RC\Infrastructure\SqlDatabase\Agnostic\Connection\Host\FromString as Host;
 use RC\Infrastructure\SqlDatabase\Agnostic\Connection\Credentials\DefaultCredentials;
 
-if (!file_exists(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . '.env.dev')) {
+if (!file_exists(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . '.env.dev.testing_mode')) {
     throw new Exception('It seems you run this file outside of dev environment. You can not do that.');
 }
 
-(new EnvironmentDependentEnvFile(
-    new DirPath(dirname(dirname(__DIR__))),
-    new DefaultInbound()
-))
-    ->load();
+OneAndOnly::createUnsafeImmutable((new DirPath(dirname(dirname(__DIR__))))->value()->pure()->raw(), '.env.dev.testing_mode')->load();
 
 $r1 =
     (new Recreate(

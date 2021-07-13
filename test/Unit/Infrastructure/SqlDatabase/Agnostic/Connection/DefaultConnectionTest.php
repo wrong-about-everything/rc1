@@ -16,19 +16,19 @@ class DefaultConnectionTest extends TestCase
 {
     public function testSuccessfulConnection()
     {
-        var_dump(getenv('DB_HOST'));
-        die();
         try {
             $connection =
                 new DefaultConnection(
                     new FromString(getenv('DB_HOST')),
                     new PortFromString(getenv('DB_PORT')),
-                    new SpecifiedDatabaseName('orders_delivery'),
-                    new DefaultCredentials('orders_delivery', '123456')
+                    new SpecifiedDatabaseName('rc'),
+                    new DefaultCredentials('rc', '123456')
                 )
             ;
             $pdo = $connection->value();
         } catch (Throwable $e) {
+            var_dump($e->getMessage());
+            var_dump($e->getTraceAsString());
             return $this->fail('Failed to open connection');
         }
 
