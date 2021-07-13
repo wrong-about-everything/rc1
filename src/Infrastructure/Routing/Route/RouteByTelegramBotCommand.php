@@ -28,8 +28,10 @@ class RouteByTelegramBotCommand implements Route
             return new NotMatch();
         }
 
+        $userCommand = new FromTelegramMessage($httpRequest->body());
+
         return
-            (new FromTelegramMessage($httpRequest->body()))->equals($this->command)
+            $userCommand->exists() && $userCommand->equals($this->command)
                 ?
                     new Match(
                         [json_decode($httpRequest->body(), true)]

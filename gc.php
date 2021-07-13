@@ -21,6 +21,7 @@ use RC\Infrastructure\Http\Request\Inbound\FromPsrHttpRequest;
 use RC\Infrastructure\Http\Request\Inbound\WithPathTakenFromQueryParam;
 use RC\Infrastructure\Http\Request\Method\Get;
 use RC\Infrastructure\Http\Request\Url\Query;
+use RC\Infrastructure\Http\Transport\EnvironmentDependentTransport;
 use RC\Infrastructure\Http\Transport\Guzzle\DefaultGuzzle;
 use RC\Infrastructure\Logging\LogId;
 use RC\Infrastructure\Logging\Logs\EnvironmentDependentLogs;
@@ -62,6 +63,7 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                 new LogId(new RandomUUID())
             )
         );
+    $transport = new EnvironmentDependentTransport(new ExistentDirPathFromAbsolutePathString(dirname(__FILE__)), $logs);
 
     return
         (new GoogleServerless(
@@ -79,8 +81,8 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                         ],
                         [
                             new RouteByTelegramBotCommand(new Start()),
-                            function (array $parsedTelegramMessage) use ($logs) {
-                                return new PressesStart($parsedTelegramMessage, new DefaultGuzzle(new Client()), $logs);
+                            function (array $parsedTelegramMessage) use ($transport, $logs) {
+                                return new PressesStart($parsedTelegramMessage, $transport, $logs);
                             }
                         ],
                     ],

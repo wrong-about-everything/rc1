@@ -48,15 +48,6 @@ class GoogleCloudLogs implements Logs
 
     public function flush(): void
     {
-        var_dump('Flush his called');
-        var_dump(
-            array_map(
-                function (Entry $e) {
-                    return $e->info();
-                },
-                $this->receivedLogsEntries
-            )
-        );
         $this->logger->writeBatch($this->receivedLogsEntries);
     }
 }
