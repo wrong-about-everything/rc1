@@ -28,7 +28,7 @@ if (!file_exists(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . '.env.dev')) 
 }
 
 (new EnvironmentDependentEnvFile(
-    new DirPath(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR),
+    new DirPath(dirname(dirname(__DIR__))),
     new DefaultInbound()
 ))
     ->load();

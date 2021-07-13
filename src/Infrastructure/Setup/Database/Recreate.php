@@ -175,7 +175,7 @@ q
         return
             $rootUserPdo
                 ->exec(
-                    (new FromFilePath($this->createTablesFile))->value()
+                    (new FromFilePath($this->createTablesFile))->value()->pure()->raw()
                 );
     }
 

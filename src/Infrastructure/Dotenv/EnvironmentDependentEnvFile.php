@@ -28,9 +28,9 @@ class EnvironmentDependentEnvFile implements DotEnv
     {
         if ((new FromDirAndFileName($root, new PortableFromString('.env.dev')))->exists()) {
             if (isset($incomingRequest->headers()['X-This-Is-Functional-Test']) && $incomingRequest->headers()['X-This-Is-Functional-Test'] === '1') {
-                return new DefaultEnvFile(OneAndOnly::createUnsafeImmutable($root->value(), '.env.dev.testing_mode'));
+                return new DefaultEnvFile(OneAndOnly::createUnsafeImmutable($root->value()->pure()->raw(), '.env.dev.testing_mode'));
             } else {
-                return new DefaultEnvFile(OneAndOnly::createUnsafeImmutable($root->value(), '.env.dev'));
+                return new DefaultEnvFile(OneAndOnly::createUnsafeImmutable($root->value()->pure()->raw(), '.env.dev'));
             }
         }
 
