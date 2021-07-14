@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\TelegramBot\Method;
+namespace RC\Infrastructure\TelegramBot\Method;
 
 abstract class Method
 {

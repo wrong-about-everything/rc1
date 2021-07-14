@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Domain\TelegramBot\UserCommand;
 
+use RC\Domain\TelegramBot\AvailableTelegramBotCommands;
 use RC\Infrastructure\TelegramBot\UserCommand\FromTelegramMessage as UserCommandFromMessage;
 use RC\Infrastructure\TelegramBot\UserCommand\UserCommand;
 

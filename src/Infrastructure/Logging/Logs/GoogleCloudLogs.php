@@ -26,7 +26,7 @@ class GoogleCloudLogs implements Logs
         $this->logger =
             (new LoggingClient([
                 'projectId' => $projectId,
-                'keyFilePath' => $keyFilePath->value()
+                'keyFilePath' => $keyFilePath->value()->pure()->raw()
             ]))
                 ->logger($logName);
     }

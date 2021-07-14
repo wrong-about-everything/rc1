@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace RC\Infrastructure\TelegramBot\UserCommand;
+namespace RC\Infrastructure\TelegramBot\AvailableTelegramBotCommands;
+
+use RC\Infrastructure\TelegramBot\UserCommand\UserCommand;
 
 interface AvailableTelegramBotCommands
 {

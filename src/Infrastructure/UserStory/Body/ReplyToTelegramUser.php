@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\UserStory\Body;
 
-use RC\Domain\TelegramBot\Method\SendMessage;
+use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\ImpureInteractions\PureValue;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\UserStory\Body;

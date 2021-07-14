@@ -28,7 +28,7 @@ class FromIncomingPsrHttpServerRequest implements LogItem
                 'method' => $this->serverRequest->getMethod(),
                 'url' => $this->serverRequest->getRequestTarget(),
                 'headers' => $this->serverRequest->getHeaders(),
-                'body' => $this->serverRequest->getBody()->getContents(),
+                'body' => $this->serverRequest->getBody()->__toString(),
             ],
         ];
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\UserStories\User\PressesStart;
 
-use RC\Domain\TelegramBot\Method\SendMessage;
+use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -13,7 +13,6 @@ use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\TelegramBot\BotApiUrl;
 use RC\Infrastructure\UserStory\Body\Emptie;
-use RC\Infrastructure\UserStory\Body\ReplyToTelegramUser;
 use RC\Infrastructure\UserStory\Existent;
 use RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Response\Successful;

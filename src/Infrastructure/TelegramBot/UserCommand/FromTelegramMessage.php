@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\TelegramBot\UserCommand;
 
+use RC\Infrastructure\TelegramBot\AvailableTelegramBotCommands\AvailableTelegramBotCommands;
+
 class FromTelegramMessage extends UserCommand
 {
     private $concrete;

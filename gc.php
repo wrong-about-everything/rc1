@@ -27,12 +27,14 @@ use RC\Infrastructure\Logging\LogId;
 use RC\Infrastructure\Logging\Logs\EnvironmentDependentLogs;
 use RC\Infrastructure\Logging\Logs\File;
 use RC\Infrastructure\Logging\Logs\GoogleCloudLogs;
+use RC\Infrastructure\Routing\Route\MatchingAnyPostRequest;
 use RC\Infrastructure\Routing\Route\RouteByMethodAndPathPattern;
 use RC\Infrastructure\Routing\Route\RouteByTelegramBotCommand;
 use RC\Infrastructure\TelegramBot\UserCommand\Start;
 use RC\Infrastructure\UserStory\ByRoute;
 use RC\Infrastructure\Uuid\RandomUUID;
 use RC\UserStories\Sample;
+use RC\UserStories\SomeoneSentUnknownPostRequest;
 use RC\UserStories\User\PressesStart\PressesStart;
 
 (new EnvironmentDependentEnvFile(
@@ -83,6 +85,12 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                             new RouteByTelegramBotCommand(new Start()),
                             function (array $parsedTelegramMessage) use ($transport, $logs) {
                                 return new PressesStart($parsedTelegramMessage, $transport, $logs);
+                            }
+                        ],
+                        [
+                            new MatchingAnyPostRequest(),
+                            function (string $message) use ($logs) {
+                                return new SomeoneSentUnknownPostRequest($message, $logs);
                             }
                         ],
                     ],
