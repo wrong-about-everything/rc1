@@ -5,13 +5,23 @@ declare(strict_types=1);
 namespace RC\Tests\Infrastructure\Environment;
 
 use Exception;
+use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
+use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Tests\Infrastructure\Filesystem\DirPath\Tmp;
 
 class Reset
 {
+    private $connection;
+
+    public function __construct(OpenConnection $connection)
+    {
+        $this->connection = $connection;
+    }
+
     public function run(): void
     {
         $this->removeTmpContents();
+        $this->truncateTables();
     }
 
     private function removeTmpContents()
@@ -37,5 +47,26 @@ class Reset
             },
             $dirContents
         );
+    }
+
+    private function truncateTables()
+    {
+        $response =
+            (new SingleMutating(
+                <<<q
+truncate
+    sample_table
+
+    cascade
+q
+                ,
+                [],
+                $this->connection
+            ))
+                ->response();
+
+        if (!$response->isSuccessful()) {
+            throw new Exception($response->error()->logMessage());
+        }
     }
 }

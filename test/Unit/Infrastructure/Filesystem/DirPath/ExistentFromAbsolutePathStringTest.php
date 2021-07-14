@@ -6,6 +6,7 @@ namespace RC\Tests\Unit\Infrastructure\Filesystem\DirPath;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePathString;
 use RC\Infrastructure\Filesystem\DirPath\FromNestedDirectoryNames;
 use RC\Infrastructure\Filesystem\DirPath\Created;
@@ -68,6 +69,6 @@ class ExistentFromAbsolutePathStringTest extends TestCase
 
     protected function setUp(): void
     {
-        (new Reset())->run();
+        (new Reset(new RootConnection()))->run();
     }
 }

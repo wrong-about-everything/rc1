@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RC\Tests\Unit\Infrastructure\Filesystem\DirPath;
 
 use PHPUnit\Framework\TestCase;
+use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Infrastructure\Filesystem\DirPath\Moved;
 use RC\Infrastructure\Filesystem\DirPath\Created;
 use RC\Infrastructure\Filesystem\DirPath\FromNestedDirectoryNames;
@@ -70,6 +71,6 @@ class MovedTest extends TestCase
 
     protected function setUp(): void
     {
-        (new Reset())->run();
+        (new Reset(new RootConnection()))->run();
     }
 }

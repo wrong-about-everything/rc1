@@ -6,47 +6,42 @@ namespace RC\Tests\Unit\Infrastructure\SqlDatabase\Agnostic\Query;
 
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use RC\Infrastructure\SqlDatabase\Agnostic\Query\Mutating;
+use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
+use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
+use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
+use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
-use RC\Infrastructure\SqlDatabase\Agnostic\Connection\OrdersDeliveryConnection;
-use RC\Tests\Infrastructure\Storage\Postgres\ResetOmsEnvironment;
+use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutatingQueryWithMultipleValueSets;
+use RC\Tests\Infrastructure\Environment\Reset;
 
 class SelectingTest extends TestCase
 {
-    public function testSelectSuccessfullyEmptyData()
+    public function testWhenThereIsNoDataThenEmptyArrayReturned()
     {
-        $result =
+        $response =
             (new Selecting(
-                'select from _order where id = ?',
-                array(
-                    Uuid::uuid4()->toString()
-                )
+                'select id from sample_table where id = ?',
+                [Uuid::uuid4()->toString()],
+                new ApplicationConnection()
             ))
-                ->result(
-                    (new OrdersDeliveryConnection())
-                        ->open()
-                )
-        ;
+                ->response();
 
-        $this->assertTrue($result->isSuccessful());
-        $this->assertEmpty($result->value());
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEmpty($response->pure()->raw());
     }
 
     public function testSelectSuccessfullyWithASingleValueInsideInClause()
     {
-        $result =
+        $response =
             (new Selecting(
-                'select from _order where id in (?)',
-                [Uuid::uuid4()->toString()]
+                'select id from sample_table where id in (?)',
+                [Uuid::uuid4()->toString()],
+                new ApplicationConnection()
             ))
-                ->result(
-                    (new OrdersDeliveryConnection())
-                        ->open()
-                )
-        ;
+                ->response();
 
-        $this->assertTrue($result->isSuccessful());
-        $this->assertEmpty($result->value());
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEmpty($response->pure()->raw());
     }
 
     /**
@@ -54,23 +49,28 @@ class SelectingTest extends TestCase
      */
     public function testSelectSuccessfullyWithSeveralValuesInsideInClause(string $query, array $parameters, array $uuids)
     {
-        foreach ($uuids as $uuid) {
-            $this->seed($uuid);
-        }
+        $connection = new ApplicationConnection();
+        $this->seed($uuids, $connection);
 
-        $result =
+        $response =
             (new Selecting(
                 $query,
-                $parameters
+                $parameters,
+                $connection
             ))
-                ->result(
-                    (new OrdersDeliveryConnection())
-                        ->open()
-                )
-        ;
+                ->response();
 
-        $this->assertTrue($result->isSuccessful());
-        $this->assertNotEmpty($result->value());
+        $this->assertTrue($response->isSuccessful());
+        $this->assertNotEmpty($response->pure()->raw());
+        $this->assertEquals(
+            array_map(
+                function (string $uuid) {
+                    return ['id' => $uuid];
+                },
+                $uuids
+            ),
+            $response->pure()->raw()
+        );
     }
 
     public function parametersInArrays()
@@ -80,119 +80,93 @@ class SelectingTest extends TestCase
         $uuid3 = Uuid::uuid4()->toString();
         $uuid4 = Uuid::uuid4()->toString();
 
-        return
+        return [
             [
+                'select id from sample_table where id = ? or id in (?) or id = ?',
                 [
-                    'select from _order where id = ? or id in (?) or id = ?',
-                    [
-                        $uuid1,
-                        [$uuid2, $uuid3],
-                        $uuid4,
-                    ],
-                    [
-                        $uuid1,
-                        $uuid2,
-                        $uuid3,
-                        $uuid4
-                    ]
+                    $uuid1,
+                    [$uuid2, $uuid3],
+                    $uuid4,
                 ],
                 [
-                    'select from _order where id = ? or id in (?) or id = ? or id in (?)',
-                    [
-                        $uuid1,
-                        [$uuid2, $uuid3],
-                        $uuid4,
-                        [$uuid1, $uuid2],
-                    ],
-                    [
-                        $uuid1,
-                        $uuid2,
-                        $uuid3,
-                        $uuid4
-                    ]
-                ],
-                [
-                    'select from _order where id = ? or id in (?) or id in (?)',
-                    [
-                        $uuid1,
-                        [$uuid2, $uuid3],
-                        [$uuid4],
-                    ],
-                    [
-                        $uuid1,
-                        $uuid2,
-                        $uuid3,
-                        $uuid4
-                    ]
-                ],
-                [
-                    'select from _order where id = ? or id = ? or id in (?)',
-                    [
-                        $uuid1,
-                        $uuid4,
-                        [$uuid2, $uuid3],
-                    ],
-                    [
-                        $uuid1,
-                        $uuid2,
-                        $uuid3,
-                        $uuid4
-                    ]
-                ],
-                [
-                    'select from _order where id in (?) or id in (?) or id in (?)',
-                    [
-                        [$uuid1],
-                        [$uuid2, $uuid3],
-                        [$uuid4],
-                    ],
-                    [
-                        $uuid1,
-                        $uuid2,
-                        $uuid3,
-                        $uuid4,
-                    ]
-                ],
-                [
-                    'select id from _order where id in (?) or id = ? or id in (?)',
-                    [
-                        0 => [$uuid1, $uuid2],
-                        1 => $uuid3,
-                        3 => [$uuid4],
-                    ],
-                    [
-                        $uuid1,
-                        $uuid2,
-                        $uuid3,
-                        $uuid4,
-                    ]
+                    $uuid1,
+                    $uuid2,
+                    $uuid3,
+                    $uuid4
                 ]
-            ];
-    }
-
-    protected function setUp()
-    {
-        (new ResetOmsEnvironment(new OrdersDeliveryConnection()))->run();
-    }
-
-    public function testSelectSuccessfullyNonEmptyData()
-    {
-        $uuid = Uuid::uuid4()->toString();
-        $this->seed($uuid);
-
-        $result =
-            (new Selecting(
-                'select from _order where id = ?',
-                array($uuid)
-            ))
-                ->result(
-                    (new OrdersDeliveryConnection())
-                        ->open()
-                )
-        ;
-
-        $this->assertTrue($result->isSuccessful());
-        $this->assertNotEmpty($result->value());
+            ],
+            [
+                'select id from sample_table where id = ? or id in (?) or id = ? or id in (?)',
+                [
+                    $uuid1,
+                    [$uuid2, $uuid3],
+                    $uuid4,
+                    [$uuid1, $uuid2],
+                ],
+                [
+                    $uuid1,
+                    $uuid2,
+                    $uuid3,
+                    $uuid4
+                ]
+            ],
+            [
+                'select id from sample_table where id = ? or id in (?) or id in (?)',
+                [
+                    $uuid1,
+                    [$uuid2, $uuid3],
+                    [$uuid4],
+                ],
+                [
+                    $uuid1,
+                    $uuid2,
+                    $uuid3,
+                    $uuid4
+                ]
+            ],
+            [
+                'select id from sample_table where id = ? or id = ? or id in (?)',
+                [
+                    $uuid1,
+                    $uuid4,
+                    [$uuid2, $uuid3],
+                ],
+                [
+                    $uuid1,
+                    $uuid2,
+                    $uuid3,
+                    $uuid4
+                ]
+            ],
+            [
+                'select id from sample_table where id in (?) or id in (?) or id in (?)',
+                [
+                    [$uuid1],
+                    [$uuid2, $uuid3],
+                    [$uuid4],
+                ],
+                [
+                    $uuid1,
+                    $uuid2,
+                    $uuid3,
+                    $uuid4,
+                ]
+            ],
+            [
+                'select id from sample_table where id in (?) or id = ? or id in (?)',
+                [
+                    0 => [$uuid1, $uuid2],
+                    1 => $uuid3,
+                    3 => [$uuid4],
+                ],
+                [
+                    $uuid1,
+                    $uuid2,
+                    $uuid3,
+                    $uuid4,
+                ]
+            ]
+        ];
     }
 
     /**
@@ -203,15 +177,10 @@ class SelectingTest extends TestCase
         $result =
             (new Selecting(
                 $query,
-                array(
-                    Uuid::uuid4()->toString()
-                )
+                [Uuid::uuid4()->toString()],
+                new ApplicationConnection()
             ))
-                ->result(
-                    (new OrdersDeliveryConnection())
-                        ->open()
-                )
-        ;
+                ->response();
 
         $this->assertFalse($result->isSuccessful());
         $this->assertNotEmpty($result->error());
@@ -220,25 +189,33 @@ class SelectingTest extends TestCase
     public function invalidQuery()
     {
         return [
-            ['ssssssssssselect from _order where id = ?'],
-            ['select from "orrrrrrrrrrrrrrrder" where id = ?'],
-            ['select from _order where idddddddddddd = ?'],
-            ['select from _order where idddddddddddd = (?'],
+            ['ssssssssssselect id from sample_table where id = ?'],
+            ['select id from "orrrrrrrrrrrrrrrder" where id = ?'],
+            ['select id from sample_table where idddddddddddd = ?'],
+            ['select id from sample_table where idddddddddddd = (?'],
         ];
     }
 
-    private function seed(string $uuid)
+    protected function setUp(): void
     {
-        (new Mutating(
-            'insert into _order values (?, ?)',
-            array(
-                $uuid,
-                json_encode([])
-            )
+        (new Reset(new RootConnection()))->run();
+    }
+
+    private function seed(array $uuids, OpenConnection $connection)
+    {
+        (new SingleMutatingQueryWithMultipleValueSets(
+            'insert into sample_table values (?, ?)',
+            array_map(
+                function (string $uuid) {
+                    return [
+                        $uuid,
+                        sprintf('hey, %s', $uuid)
+                    ];
+                },
+                $uuids
+            ),
+            $connection
         ))
-            ->result(
-                (new OrdersDeliveryConnection())
-                    ->open()
-            );
+            ->response();
     }
 }

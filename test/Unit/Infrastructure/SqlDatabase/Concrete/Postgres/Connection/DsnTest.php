@@ -10,7 +10,7 @@ use RC\Infrastructure\SqlDatabase\Agnostic\Connection\DatabaseName\SpecifiedData
 use RC\Infrastructure\SqlDatabase\Concrete\Postgres\Connection\Dsn;
 use RC\Infrastructure\SqlDatabase\Agnostic\Connection\Host\FromString;
 use RC\Infrastructure\SqlDatabase\Agnostic\Connection\Port\DefaultPort;
-use RC\Infrastructure\SqlDatabase\Agnostic\Connection\Port\SpecifiedPort;
+use RC\Infrastructure\SqlDatabase\Agnostic\Connection\Port\FromString as SpecifiedPort;
 
 class DsnTest extends TestCase
 {
@@ -20,7 +20,7 @@ class DsnTest extends TestCase
             'pgsql:host=localcoast;port=5432;dbname=vasya',
             (new Dsn(
                 new FromString('localcoast'),
-                new SpecifiedPort(5432),
+                new SpecifiedPort('5432'),
                 new SpecifiedDatabaseName('vasya')
             ))
                 ->value()
@@ -59,7 +59,7 @@ class DsnTest extends TestCase
             'pgsql:host=localcoast;port=5432',
             (new Dsn(
                 new FromString('localcoast'),
-                new SpecifiedPort(5432),
+                new SpecifiedPort('5432'),
                 new NonSpecifiedDatabaseName()
             ))
                 ->value()

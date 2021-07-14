@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace RC\Tests\Unit\Infrastructure\SqlDatabase\Agnostic\Query;
 
 use PHPUnit\Framework\TestCase;
-use RC\Infrastructure\SqlDatabase\Agnostic\Query\QueryWithCorrectQuestionMarksQuantityInClausesWithArrays;
+use RC\Infrastructure\SqlDatabase\Agnostic\Query\QueryStringWithCorrectQuestionMarksQuantityInClausesWithArrays;
 
-class QueryWithCorrectQuestionMarksQuantityInClausesWithArraysTest extends TestCase
+class QueryStringWithCorrectQuestionMarksQuantityInClausesWithArraysTest extends TestCase
 {
     public function testQueryWithSingleStrictEqualityCondition()
     {
         $queryValue =
-            (new QueryWithCorrectQuestionMarksQuantityInClausesWithArrays(
+            (new QueryStringWithCorrectQuestionMarksQuantityInClausesWithArrays(
                 'select from _order where id = ?',
                 [1]
             ))
@@ -25,7 +25,7 @@ class QueryWithCorrectQuestionMarksQuantityInClausesWithArraysTest extends TestC
     public function testQueryWithSingleInCondition()
     {
         $queryValue =
-            (new QueryWithCorrectQuestionMarksQuantityInClausesWithArrays(
+            (new QueryStringWithCorrectQuestionMarksQuantityInClausesWithArrays(
                 'select from _order where id in (?)',
                 [[1, 2]]
             ))
@@ -37,7 +37,7 @@ class QueryWithCorrectQuestionMarksQuantityInClausesWithArraysTest extends TestC
     public function testQueryWithMixedConditions()
     {
         $queryValue =
-            (new QueryWithCorrectQuestionMarksQuantityInClausesWithArrays(
+            (new QueryStringWithCorrectQuestionMarksQuantityInClausesWithArrays(
                 'select from _order where vasya in (?) and fedya = ? and tolya in (?) and jenya = ?',
                 [[1, 2], 3, [4, 5], 6]
             ))
@@ -50,7 +50,7 @@ class QueryWithCorrectQuestionMarksQuantityInClausesWithArraysTest extends TestC
     public function testQueryWithNamedParameter()
     {
         $queryValue =
-            (new QueryWithCorrectQuestionMarksQuantityInClausesWithArrays(
+            (new QueryStringWithCorrectQuestionMarksQuantityInClausesWithArrays(
                 'select status from _order where data#>>\'{guest,phone}\' = :phone order by registered_at desc limit :limit',
                 [[1, 2], 3, [4, 5], 6]
             ))

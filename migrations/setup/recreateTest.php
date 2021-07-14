@@ -12,6 +12,8 @@ set_error_handler(
 );
 
 use Dotenv\Dotenv as OneAndOnly;
+use RC\Domain\Infrastructure\Setup\Database\Seed;
+use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\Credentials\ApplicationCredentials;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\Credentials\RootCredentials;
 use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePathString as DirPath;
@@ -46,12 +48,9 @@ if (!$r1->isSuccessful()) {
     die();
 }
 
-die('Go have some food, dirt.');
-
 $r2 =
-    (new SeedOrdersDelivery(
-        new FromString(dirname(dirname(__DIR__))),
-        new FromString(getenv('DB_PORT'))
+    (new Seed(
+        new ApplicationConnection()
     ))
         ->value();
 
@@ -59,6 +58,8 @@ if (!$r2->isSuccessful()) {
     var_dump($r2->error()->value());
     die();
 }
+
+die('OK, I stop here for now, fix this if you wan to use migration');
 
 exec(
     sprintf(
