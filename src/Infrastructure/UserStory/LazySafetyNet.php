@@ -12,14 +12,14 @@ use Throwable;
 class LazySafetyNet implements UserStory
 {
     private $userStory;
-    private $fallbackResponseBody;
+    private $fallbackResponse;
     private $logs;
     private $response;
 
-    public function __construct(UserStory $userStory, Body $fallbackResponseBody, Logs $logs)
+    public function __construct(UserStory $userStory, Response $fallbackResponse, Logs $logs)
     {
         $this->userStory = $userStory;
-        $this->fallbackResponseBody = $fallbackResponseBody;
+        $this->fallbackResponse = $fallbackResponse;
         $this->logs = $logs;
         $this->response = null;
     }
@@ -44,7 +44,7 @@ class LazySafetyNet implements UserStory
             return $this->userStory->response();
         } catch (Throwable $t) {
             $this->logs->receive(new FromThrowable($t));
-            return new NonRetryableServerError($this->fallbackResponseBody);
+            return $this->fallbackResponse;
         }
     }
 }

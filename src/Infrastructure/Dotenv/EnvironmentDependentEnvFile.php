@@ -14,9 +14,9 @@ class EnvironmentDependentEnvFile implements DotEnv
 {
     private $concreteDotEnv;
 
-    public function __construct(DirPath $root, Request $incomingRequest)
+    public function __construct(DirPath $root, Request $inboundRequest)
     {
-        $this->concreteDotEnv = $this->concrete($root, $incomingRequest);
+        $this->concreteDotEnv = $this->concrete($root, $inboundRequest);
     }
 
     public function load(): void
@@ -24,10 +24,10 @@ class EnvironmentDependentEnvFile implements DotEnv
         $this->concreteDotEnv->load();
     }
 
-    private function concrete(DirPath $root, Request $incomingRequest): DotEnv
+    private function concrete(DirPath $root, Request $inboundRequest): DotEnv
     {
         if ((new FromDirAndFileName($root, new PortableFromString('.env.dev')))->exists()) {
-            if (isset($incomingRequest->headers()['X-This-Is-Functional-Test']) && $incomingRequest->headers()['X-This-Is-Functional-Test'] === '1') {
+            if (isset($inboundRequest->headers()['X-This-Is-Functional-Test']) && $inboundRequest->headers()['X-This-Is-Functional-Test'] === '1') {
                 return new DefaultEnvFile(OneAndOnly::createUnsafeImmutable($root->value()->pure()->raw(), '.env.dev.testing_mode'));
             } else {
                 return new DefaultEnvFile(OneAndOnly::createUnsafeImmutable($root->value()->pure()->raw(), '.env.dev'));

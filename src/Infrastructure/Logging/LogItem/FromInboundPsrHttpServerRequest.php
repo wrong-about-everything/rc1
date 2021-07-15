@@ -9,7 +9,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use RC\Infrastructure\Logging\LogItem;
 use RC\Infrastructure\Logging\Severity\Info;
 
-class FromIncomingPsrHttpServerRequest implements LogItem
+class FromInboundPsrHttpServerRequest implements LogItem
 {
     private $serverRequest;
 
@@ -23,7 +23,7 @@ class FromIncomingPsrHttpServerRequest implements LogItem
         return [
             'timestamp' => (new Now())->value(),
             'severity' => (new Info())->value(),
-            'message' => 'Incoming http request',
+            'message' => 'Inbound http request',
             'data' => [
                 'method' => $this->serverRequest->getMethod(),
                 'url' => $this->serverRequest->getRequestTarget(),

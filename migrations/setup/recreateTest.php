@@ -55,7 +55,7 @@ $r2 =
         ->value();
 
 if (!$r2->isSuccessful()) {
-    var_dump($r2->error()->value());
+    var_dump($r2->error()->logMessage());
     die();
 }
 

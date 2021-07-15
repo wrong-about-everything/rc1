@@ -7,8 +7,8 @@ namespace RC\Infrastructure\ExecutionEnvironmentAdapter;
 use Exception;
 use RC\Infrastructure\Logging\LogItem\FromThrowable;
 use RC\Infrastructure\Logging\Logs;
-use RC\Infrastructure\UserStory\Body;
 use RC\Infrastructure\UserStory\LazySafetyNet;
+use RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Response\RestfulHttp\FromUserStoryResponse;
 use RC\Infrastructure\UserStory\UserStory;
 use Throwable;
@@ -17,7 +17,7 @@ class YandexServerless
 {
     private $userStory;
 
-    public function __construct(UserStory $userStory, Body $fallbackResponseBody, Logs $logs)
+    public function __construct(UserStory $userStory, Response $fallbackResponse, Logs $logs)
     {
         set_error_handler(
             function ($errno, $errstr, $errfile, $errline, array $errcontex) {
@@ -32,7 +32,7 @@ class YandexServerless
             }
         );
 
-        $this->userStory = new LazySafetyNet($userStory, $fallbackResponseBody, $logs);
+        $this->userStory = new LazySafetyNet($userStory, $fallbackResponse, $logs);
     }
 
     public function response(): array

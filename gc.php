@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RC\Domain\UserStory\Authorized;
-use RC\Domain\UserStory\Body\FallbackResponseBody;
+use RC\Domain\UserStory\Body\TelegramFallbackResponseBody;
 use RC\Infrastructure\Dotenv\EnvironmentDependentEnvFile;
 use RC\Infrastructure\ExecutionEnvironmentAdapter\GoogleServerless;
 use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePathString as ExistentDirPathFromAbsolutePathString;
@@ -22,7 +21,6 @@ use RC\Infrastructure\Http\Request\Inbound\WithPathTakenFromQueryParam;
 use RC\Infrastructure\Http\Request\Method\Get;
 use RC\Infrastructure\Http\Request\Url\Query;
 use RC\Infrastructure\Http\Transport\EnvironmentDependentTransport;
-use RC\Infrastructure\Http\Transport\Guzzle\DefaultGuzzle;
 use RC\Infrastructure\Logging\LogId;
 use RC\Infrastructure\Logging\Logs\EnvironmentDependentLogs;
 use RC\Infrastructure\Logging\Logs\File;
@@ -32,6 +30,7 @@ use RC\Infrastructure\Routing\Route\RouteByMethodAndPathPattern;
 use RC\Infrastructure\Routing\Route\RouteByTelegramBotCommand;
 use RC\Infrastructure\TelegramBot\UserCommand\Start;
 use RC\Infrastructure\UserStory\ByRoute;
+use RC\Infrastructure\UserStory\Response\Successful;
 use RC\Infrastructure\Uuid\RandomUUID;
 use RC\UserStories\Sample;
 use RC\UserStories\SomeoneSentUnknownPostRequest;
@@ -83,8 +82,8 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                         ],
                         [
                             new RouteByTelegramBotCommand(new Start()),
-                            function (array $parsedTelegramMessage) use ($transport, $logs) {
-                                return new PressesStart($parsedTelegramMessage, $transport, $logs);
+                            function (array $parsedTelegramMessage, string $botId) use ($transport, $logs) {
+                                return new PressesStart($parsedTelegramMessage, $botId, $transport, $logs);
                             }
                         ],
                         [
@@ -102,7 +101,7 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                 new FromPsrHttpRequest($request)
             ),
             $request,
-            new FallbackResponseBody(),
+            new Successful(new TelegramFallbackResponseBody()),
             $logs
         ))
             ->response();

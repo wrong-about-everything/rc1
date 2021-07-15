@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\TelegramBot;
 
+use RC\Infrastructure\TelegramBot\BotToken\BotToken;
 use RC\Infrastructure\TelegramBot\Method\Method;
 use RC\Infrastructure\Http\Request\Url;
 use RC\Infrastructure\Http\Request\Url\Query;
@@ -12,11 +13,13 @@ class BotApiUrl extends Url
 {
     private $method;
     private $query;
+    private $botToken;
 
-    public function __construct(Method $method, Query $query)
+    public function __construct(Method $method, Query $query, BotToken $botToken)
     {
         $this->method = $method;
         $this->query = $query;
+        $this->botToken = $botToken;
     }
 
     public function value(): string
@@ -24,7 +27,7 @@ class BotApiUrl extends Url
         return
             sprintf(
                 'https://api.telegram.org/bot%s/%s?%s',
-                getenv('BOT_TOKEN'),
+                $this->botToken->value(),
                 $this->method->value(),
                 $this->query->value()
             );

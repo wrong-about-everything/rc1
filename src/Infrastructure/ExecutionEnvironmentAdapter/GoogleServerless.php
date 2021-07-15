@@ -8,22 +8,24 @@ use Exception;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RC\Infrastructure\Logging\LogItem\FromIncomingPsrHttpServerRequest;
+use RC\Infrastructure\Logging\LogItem\FromInboundPsrHttpServerRequest;
+use RC\Infrastructure\Logging\LogItem\FromOutboundHttpResponse;
 use RC\Infrastructure\Logging\LogItem\FromThrowable;
 use RC\Infrastructure\Logging\Logs;
-use RC\Infrastructure\UserStory\Body;
 use RC\Infrastructure\UserStory\LazySafetyNet;
+use RC\Infrastructure\UserStory\Response as UserStoryResponse;
 use RC\Infrastructure\UserStory\Response\RestfulHttp\FromUserStoryResponse;
 use RC\Infrastructure\UserStory\UserStory;
 use Throwable;
 
+// @todo: In case of ANY error, return 200 OK. Otherwise telegram ceases to process any further messages!
 class GoogleServerless
 {
     private $userStory;
-    private $incomingRequest;
+    private $inboundRequest;
     private $logs;
 
-    public function __construct(UserStory $userStory, ServerRequestInterface $incomingRequest, Body $fallbackResponseBody, Logs $logs)
+    public function __construct(UserStory $userStory, ServerRequestInterface $inboundRequest, UserStoryResponse $fallbackResponse, Logs $logs)
     {
         set_error_handler(
             function ($errno, $errstr, $errfile, $errline, array $errcontex) {
@@ -39,15 +41,16 @@ class GoogleServerless
             }
         );
 
-        $this->userStory = new LazySafetyNet($userStory, $fallbackResponseBody, $logs);
-        $this->incomingRequest = $incomingRequest;
+        $this->userStory = new LazySafetyNet($userStory, $fallbackResponse, $logs);
+        $this->inboundRequest = $inboundRequest;
         $this->logs = $logs;
     }
 
     public function response(): ResponseInterface
     {
-        $this->logs->receive(new FromIncomingPsrHttpServerRequest($this->incomingRequest));
+        $this->logs->receive(new FromInboundPsrHttpServerRequest($this->inboundRequest));
         $httpResponse = new FromUserStoryResponse($this->userStory->response());
+        $this->logs->receive(new FromOutboundHttpResponse($httpResponse));
         $this->logs->flush();
         // @todo: Fix Header class: add name() method
         return new Response($httpResponse->code()->value(), [], $httpResponse->body());

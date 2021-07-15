@@ -6,7 +6,7 @@ namespace RC\Tests\Unit\Infrastructure\ExecutionEnvironmentAdapter;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
-use RC\Domain\UserStory\Body\FallbackResponseBody;
+use RC\Domain\UserStory\Body\TelegramFallbackResponseBody;
 use RC\Infrastructure\ExecutionEnvironmentAdapter\GoogleServerless;
 use RC\Infrastructure\Logging\Logs\DevNull;
 use RC\Infrastructure\UserStory\Body\Arrray;
@@ -23,7 +23,7 @@ class GoogleCloudServerlessTest extends TestCase
             (new GoogleServerless(
                 new FromResponse(new Successful(new Arrray(['hello']))),
                 new ServerRequest('get', 'vasya'),
-                new FallbackResponseBody(),
+                new Successful(new TelegramFallbackResponseBody()),
                 new DevNull()
             ))
                 ->response();
@@ -44,7 +44,7 @@ class GoogleCloudServerlessTest extends TestCase
             (new GoogleServerless(
                 new FromResponse(new NonRetryableServerError(new Arrray(['jopa']))),
                 new ServerRequest('get', 'vasya'),
-                new FallbackResponseBody(),
+                new Successful(new TelegramFallbackResponseBody()),
                 new DevNull()
             ))
                 ->response();
@@ -65,17 +65,17 @@ class GoogleCloudServerlessTest extends TestCase
             (new GoogleServerless(
                 new ThrowingException(),
                 new ServerRequest('get', 'vasya'),
-                new FallbackResponseBody(),
+                new Successful(new TelegramFallbackResponseBody()),
                 new DevNull()
             ))
                 ->response();
 
         $this->assertEquals(
-            500,
+            200,
             $response->getStatusCode()
         );
         $this->assertEquals(
-            json_encode('Произошла ужасная ошибка. Если вы её видите, значит мы уже чиним.'),
+            json_encode('Простите, у нас что-то сломалось. Скорее всего, мы об этом уже знаем, но на всякий случай, напишите пожалуйста об этом в @gorgonzola_support.'),
             $response->getBody()->getContents()
         );
     }

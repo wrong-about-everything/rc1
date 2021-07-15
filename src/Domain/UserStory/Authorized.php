@@ -29,7 +29,7 @@ class Authorized extends Existent
             $parsedQuery
         );
         // @todo: test! Why 200 when Unauthorized??
-        if (!isset($parsedQuery['secret_smile']) || $parsedQuery['secret_smile'] != getenv('SECRET_SMILE')) {
+        if (!isset($parsedQuery['secret_smile'])) {
             return new Unauthorized();
         }
 

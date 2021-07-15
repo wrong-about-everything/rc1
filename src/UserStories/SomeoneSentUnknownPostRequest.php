@@ -11,6 +11,13 @@ use RC\Infrastructure\UserStory\Existent;
 use RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Response\Successful;
 
+/**
+ * This is a catch-all class from telegram bot user.
+ * @todo:
+ *  1. Output a message with info about whether a user is registered or not
+ *  2. Show all available commands
+ *  3. In case of some unexpected query, give a link to a support bot/chat/etc.
+ */
 class SomeoneSentUnknownPostRequest extends Existent
 {
     private $body;
