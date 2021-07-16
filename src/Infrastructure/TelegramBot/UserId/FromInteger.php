@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\TelegramBot\UserId;
 
-class FromInteger extends UserId
+use RC\Infrastructure\ImpureInteractions\ImpureValue;
+use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
+use RC\Infrastructure\ImpureInteractions\PureValue\Present;
+
+class FromInteger extends TelegramUserId
 {
     private $id;
 
@@ -13,9 +17,9 @@ class FromInteger extends UserId
         $this->id = $id;
     }
 
-    public function value(): int
+    public function value(): ImpureValue
     {
-        return $this->id;
+        return new Successful(new Present($this->id));
     }
 
     public function exists(): bool

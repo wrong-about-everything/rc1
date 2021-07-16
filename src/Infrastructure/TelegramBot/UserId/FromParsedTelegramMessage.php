@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\TelegramBot\UserId;
 
-class FromParsedTelegramMessage extends UserId
+use RC\Infrastructure\ImpureInteractions\ImpureValue;
+
+class FromParsedTelegramMessage extends TelegramUserId
 {
     private $concrete;
 
@@ -17,7 +19,7 @@ class FromParsedTelegramMessage extends UserId
         ;
     }
 
-    public function value(): int
+    public function value(): ImpureValue
     {
         return $this->concrete->value();
     }

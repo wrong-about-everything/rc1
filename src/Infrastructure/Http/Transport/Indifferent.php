@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace RC\Infrastructure\Http\Transport;
 
+use RC\Infrastructure\Http\Request\Outbound\EagerlyInvoked;
 use RC\Infrastructure\Http\Request\Outbound\Request;
 use RC\Infrastructure\Http\Response\Code\Ok;
 use RC\Infrastructure\Http\Response\Inbound\Response;
@@ -21,7 +22,7 @@ class Indifferent implements FakeTransport
 
     public function response(Request $request): Response
     {
-        $this->requests[] = $request;
+        $this->requests[] = new EagerlyInvoked($request);
         return new DefaultResponse(new Ok(), [], '');
     }
 

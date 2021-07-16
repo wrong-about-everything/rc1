@@ -1,3 +1,4 @@
+-- do not touch it, it is for tests
 create table sample_table (
   id uuid primary key,
   test_field text
@@ -6,7 +7,7 @@ create table sample_table (
 create table "bot" (
   id uuid primary key,
   token text,
-  is_private bool,
+  is_private bool default false,
   name text
 );
 
@@ -29,6 +30,29 @@ create table user_bot (
 
   primary key (user_id, bot_id)
 );
+
+create table registration_question (
+  id uuid primary key,
+  profile_record_type smallint,
+  bot_id uuid,
+  ordinal_number smallint,
+  text text
+);
+
+create table user_registration_progress (
+  registration_question_id uuid,
+  user_id uuid,
+
+  primary key (registration_question_id, user_id)
+);
+
+create table user_profile (
+  user_id uuid primary key,
+  position smallint,
+  experience smallint,
+  about text
+);
+
 
 grant usage, select on all sequences in schema public to rc;
 grant select, insert, update on all tables in schema public to rc;

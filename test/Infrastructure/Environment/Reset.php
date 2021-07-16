@@ -55,7 +55,14 @@ class Reset
             (new SingleMutating(
                 <<<q
 truncate
-    sample_table
+    sample_table,
+    bot,
+    "group",
+    "user",
+    user_bot,
+    registration_question,
+    user_registration_progress,
+    user_profile
 
     cascade
 q

@@ -23,11 +23,6 @@ class Seed
 
     public function value(): ImpureValue
     {
-        $insertInSampleTableResponse = $this->insertInSampleTable();
-        if (!$insertInSampleTableResponse->isSuccessful()) {
-            return $insertInSampleTableResponse;
-        }
-
         $addGorgonzolaBot = $this->addGorgonzolaBot();
         if (!$addGorgonzolaBot->isSuccessful()) {
             return $addGorgonzolaBot;
@@ -39,17 +34,6 @@ class Seed
         }
 
         return new Successful(new Emptie());
-    }
-
-    private function insertInSampleTable()
-    {
-        return
-            (new SingleMutating(
-                'insert into sample_table values (?, ?)',
-                [(new RandomUUID())->value(), 'vasya'],
-                $this->connection
-            ))
-                ->response();
     }
 
     private function addGorgonzolaBot()

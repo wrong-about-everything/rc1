@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace RC\Tests\Infrastructure\Stub;
 
-use RC\Infrastructure\TelegramBot\ChatId\ChatId;
-use RC\Infrastructure\TelegramBot\UserId\UserId;
+use RC\Infrastructure\TelegramBot\UserId\TelegramUserId;
 
 class StartMessage
 {
     private $userId;
-    private $chatId;
 
-    public function __construct(UserId $userId, ChatId $chatId)
+    public function __construct(TelegramUserId $userId)
     {
         $this->userId = $userId;
-        $this->chatId = $chatId;
     }
 
     public function value(): array
@@ -55,8 +52,8 @@ class StartMessage
 }
 q
                     ,
-                    $this->userId->value(),
-                    $this->chatId->value()
+                    $this->userId->value()->pure()->raw(),
+                    $this->userId->value()->pure()->raw()
                 ),
                 true
             );

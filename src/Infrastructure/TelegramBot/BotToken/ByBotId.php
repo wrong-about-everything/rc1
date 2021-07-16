@@ -6,6 +6,7 @@ namespace RC\Infrastructure\TelegramBot\BotToken;
 
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
+use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
@@ -42,8 +43,11 @@ class ByBotId extends ImpureBotToken
                 $this->connection
             ))
                 ->response();
-        if (!$response->isSuccessful() || !isset($response->pure()->raw()[0])) {
+        if (!$response->isSuccessful()) {
             return $response;
+        }
+        if (!isset($response->pure()->raw()[0])) {
+            return new Successful(new Emptie());
         }
 
         return new Successful(new Present($response->pure()->raw()[0]['token']));

@@ -8,7 +8,6 @@ use RC\Domain\TelegramBot\Reply\ActualRegistrationStep;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\BotId\FromString;
-use RC\Infrastructure\TelegramBot\ChatId\FromMessage;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
@@ -44,7 +43,6 @@ class PressesStart extends Existent
             (new ActualRegistrationStep(
                 new FromParsedTelegramMessage($this->message),
                 new FromString(new UuidFromString($this->botId)),
-                new FromMessage($this->message),
                 $this->connection,
                 $this->httpTransport
             ))

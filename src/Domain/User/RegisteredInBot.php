@@ -8,7 +8,7 @@ use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Infrastructure\TelegramBot\BotId\BotId;
-use RC\Infrastructure\TelegramBot\UserId\UserId;
+use RC\Infrastructure\TelegramBot\UserId\TelegramUserId;
 
 class RegisteredInBot implements User
 {
@@ -16,7 +16,7 @@ class RegisteredInBot implements User
     private $botId;
     private $connection;
 
-    public function __construct(UserId $userId, BotId $botId, OpenConnection $connection)
+    public function __construct(TelegramUserId $userId, BotId $botId, OpenConnection $connection)
     {
         $this->userId = $userId;
         $this->botId = $botId;
