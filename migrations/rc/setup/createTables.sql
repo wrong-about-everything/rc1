@@ -19,9 +19,12 @@ create table "group" (
 
 create table "user" (
   id uuid primary key,
-  name text,
+  first_name text,
+  last_name text,
   telegram_id int,
-  telegram_handle text
+  telegram_handle text,
+
+  unique (telegram_id)
 );
 
 create table user_bot (

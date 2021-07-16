@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Infrastructure\TelegramBot\BotId;
+namespace RC\Domain\BotId;
 
 abstract class BotId
 {

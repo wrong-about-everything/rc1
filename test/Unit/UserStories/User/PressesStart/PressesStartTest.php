@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
+use RC\Domain\User\RegisteredInBot;
 use RC\Domain\UserProfileRecordType\Experience;
 use RC\Domain\UserProfileRecordType\Position;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
@@ -15,8 +16,9 @@ use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
 use RC\Infrastructure\Http\Transport\Indifferent;
 use RC\Infrastructure\Logging\LogId;
 use RC\Infrastructure\Logging\Logs\InMemory;
-use RC\Infrastructure\TelegramBot\BotId\BotId;
-use RC\Infrastructure\TelegramBot\BotId\FromString;
+use RC\Domain\BotId\BotId;
+use RC\Domain\BotId\FromUuid;
+use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\UserId\FromInteger;
 use RC\Infrastructure\TelegramBot\UserId\TelegramUserId;
 use RC\Infrastructure\Uuid\Fixed;
@@ -56,6 +58,7 @@ class PressesStartTest extends TestCase
                 ->response();
 
         $this->assertTrue($response->isSuccessful());
+        $this->assertUserExists($this->telegramUserId(), $this->botId(), $connection);
         $this->assertEquals(
             'Какая у вас должность?',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
@@ -84,6 +87,15 @@ class PressesStartTest extends TestCase
 
     private function botId(): BotId
     {
-        return new FromString(new Fixed());
+        return new FromUuid(new Fixed());
+    }
+
+    private function assertUserExists(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
+    {
+        $user = (new RegisteredInBot($telegramUserId, $botId, $connection))->value();
+        $this->assertTrue($user->pure()->isPresent());
+        $this->assertEquals('Vadim', $user->pure()->raw()['first_name']);
+        $this->assertEquals('Samokhin', $user->pure()->raw()['last_name']);
+        $this->assertEquals('dremuchee_bydlo', $user->pure()->raw()['telegram_handle']);
     }
 }

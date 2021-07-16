@@ -10,7 +10,7 @@ use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
-use RC\Infrastructure\TelegramBot\BotId\BotId;
+use RC\Domain\BotId\BotId;
 
 class ByBotId extends ImpureBotToken
 {

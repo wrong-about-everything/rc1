@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace RC\Infrastructure\TelegramBot\BotId;
+namespace RC\Domain\BotId;
 
 use RC\Infrastructure\Uuid\UUID;
 
-class FromString extends BotId
+class FromUuid extends BotId
 {
     private $botId;
 

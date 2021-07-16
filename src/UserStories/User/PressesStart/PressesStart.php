@@ -7,10 +7,11 @@ namespace RC\UserStories\User\PressesStart;
 use RC\Domain\TelegramBot\Reply\ActualRegistrationStep;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
-use RC\Infrastructure\TelegramBot\BotId\FromString;
+use RC\Domain\BotId\FromUuid;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
+use RC\Infrastructure\TelegramBot\UserId\AddedIfNotYet;
 use RC\Infrastructure\TelegramBot\UserId\FromParsedTelegramMessage;
 use RC\Infrastructure\UserStory\Body\Emptie;
 use RC\Infrastructure\UserStory\Existent;
@@ -41,8 +42,15 @@ class PressesStart extends Existent
 
         $reply =
             (new ActualRegistrationStep(
-                new FromParsedTelegramMessage($this->message),
-                new FromString(new UuidFromString($this->botId)),
+                new AddedIfNotYet(
+                    new FromParsedTelegramMessage($this->message),
+                    new FromUuid(new UuidFromString($this->botId)),
+                    $this->message['message']['from']['first_name'],
+                    $this->message['message']['from']['last_name'],
+                    $this->message['message']['from']['username'],
+                    $this->connection
+                ),
+                new FromUuid(new UuidFromString($this->botId)),
                 $this->connection,
                 $this->httpTransport
             ))

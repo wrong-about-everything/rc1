@@ -16,7 +16,7 @@ use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\BotApiUrl;
-use RC\Infrastructure\TelegramBot\BotId\BotId;
+use RC\Domain\BotId\BotId;
 use RC\Infrastructure\TelegramBot\BotToken\ByBotId;
 use RC\Infrastructure\TelegramBot\BotToken\FromImpure;
 use RC\Infrastructure\TelegramBot\BotToken\ImpureBotToken;
@@ -41,6 +41,10 @@ class ActualRegistrationStep implements Reply
 
     public function value(): ImpureValue
     {
+        if (!$this->telegramUserId->value()->isSuccessful()) {
+            return $this->telegramUserId->value();
+        }
+
         $botToken = new ByBotId($this->botId, $this->connection);
         if (!$botToken->value()->isSuccessful() || !$botToken->value()->pure()->isPresent()) {
             return $botToken->value();
