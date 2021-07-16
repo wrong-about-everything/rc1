@@ -94,7 +94,7 @@ class ActualRegistrationStep implements Reply
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Вы уже заполнили всю информацию о себе. <Дать инфу, зареган ли чувак на какое-то событие или нет. Если нет -- написать что пинганём>️',
+                                'text' => 'Вы уже зарегистрировались. Если вы хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
                             ]),
                             new FromImpure($botToken)
                         ),

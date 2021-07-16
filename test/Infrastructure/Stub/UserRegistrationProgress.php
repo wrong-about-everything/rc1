@@ -8,7 +8,7 @@ use Exception;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutatingQueryWithMultipleValueSets;
 
-class User
+class UserRegistrationProgress
 {
     private $connection;
 
@@ -21,11 +21,11 @@ class User
     {
         $response =
             (new SingleMutatingQueryWithMultipleValueSets(
-                'insert into "user" (id, name, telegram_id, telegram_chat_id, telegram_handle) values (?, ?, ?, ?, ?)',
+                'insert into user_registration_progress (registration_question_id, user_id) values (?, ?)',
                 array_map(
                     function (array $record) {
                         $values = array_merge($this->defaultValues(), $record);
-                        return [$values['id'], $values['name'], $values['telegram_id'], $values['telegram_chat_id'], $values['telegram_handle']];
+                        return [$values['registration_question_id'], $values['user_id']];
                     },
                     $records
                 ),
@@ -33,14 +33,12 @@ class User
             ))
                 ->response();
         if (!$response->isSuccessful()) {
-            throw new Exception(sprintf('Error while inserting user records: %s', $response->error()->logMessage()));
+            throw new Exception(sprintf('Error while inserting UserRegistrationProgress: %s', $response->error()->logMessage()));
         }
     }
 
     private function defaultValues()
     {
-        return [
-            'name' => 'Vasily III the Greatest'
-        ];
+        return [];
     }
 }
