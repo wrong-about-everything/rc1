@@ -1,4 +1,4 @@
--- do not touch it, it is for tests
+-- do not remove it, it is for tests
 create table sample_table (
   id uuid primary key,
   test_field text
@@ -17,6 +17,7 @@ create table "group" (
   name text
 );
 
+-- @todo: rename to telegram_user
 create table "user" (
   id uuid primary key,
   first_name text,
@@ -27,9 +28,13 @@ create table "user" (
   unique (telegram_id)
 );
 
-create table user_bot (
+create table bot_user (
   user_id uuid,
   bot_id uuid,
+  position smallint,
+  experience smallint,
+  about text,
+  status int,
 
   primary key (user_id, bot_id)
 );
@@ -47,13 +52,6 @@ create table user_registration_progress (
   user_id uuid,
 
   primary key (registration_question_id, user_id)
-);
-
-create table user_profile (
-  user_id uuid primary key,
-  position smallint,
-  experience smallint,
-  about text
 );
 
 

@@ -22,7 +22,8 @@ use RC\Infrastructure\TelegramBot\BotToken\FromImpure;
 use RC\Infrastructure\TelegramBot\BotToken\ImpureBotToken;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\TelegramBot\Reply\Reply;
-use RC\Infrastructure\TelegramBot\UserId\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Impure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\FromImpure as PureTelegramUserIdFromImpure;
 
 class ActualRegistrationStep implements Reply
 {
@@ -45,17 +46,18 @@ class ActualRegistrationStep implements Reply
             return $this->telegramUserId->value();
         }
 
+        $currentRegistrationQuestionResponse = new CurrentRegistrationQuestion(new PureTelegramUserIdFromImpure($this->telegramUserId), $this->botId, $this->connection);
+        if (!$currentRegistrationQuestionResponse->value()->isSuccessful()) {
+            return $currentRegistrationQuestionResponse->value();
+        }
+
         $botToken = new ByBotId($this->botId, $this->connection);
         if (!$botToken->value()->isSuccessful() || !$botToken->value()->pure()->isPresent()) {
             return $botToken->value();
         }
 
-        $currentRegistrationQuestionResponse = new CurrentRegistrationQuestion($this->telegramUserId, $this->botId, $this->connection);
-        if (!$currentRegistrationQuestionResponse->value()->isSuccessful()) {
-            return $currentRegistrationQuestionResponse->value();
-        }
         if (!$currentRegistrationQuestionResponse->value()->pure()->isPresent()) {
-            return $this->userIsAllSet($botToken);
+            return $this->notifyUserThatHeIsAllSet($botToken);
         }
 
         $response =
@@ -83,9 +85,9 @@ class ActualRegistrationStep implements Reply
         return new Successful(new Emptie());
     }
 
-    private function userIsAllSet(ImpureBotToken $botToken)
+    private function notifyUserThatHeIsAllSet(ImpureBotToken $botToken)
     {
-        $response =
+        $telegramResponse =
             $this->httpTransport
                 ->response(
                     new OutboundRequest(
@@ -102,7 +104,8 @@ class ActualRegistrationStep implements Reply
                         ''
                     )
                 );
-        if (!$response->isAvailable()) {
+
+        if (!$telegramResponse->isAvailable()) {
             return new Failed(new SilentDeclineWithDefaultUserMessage('Response from telegram is not available', []));
         }
 

@@ -11,7 +11,7 @@ use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Domain\BotId\BotId;
-use RC\Infrastructure\TelegramBot\UserId\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
 class CurrentRegistrationQuestion implements RegistrationQuestion
 {
@@ -41,14 +41,10 @@ class CurrentRegistrationQuestion implements RegistrationQuestion
 
     private function doValue(): ImpureValue
     {
-        if (!$this->telegramUserId->value()->isSuccessful()) {
-            return $this->telegramUserId->value();
-        }
-
         $registrationQuestion =
             (new Selecting(
                 <<<q
-        select *
+        select rq.*
         from registration_question rq
             left join user_registration_progress urp on rq.id = urp.registration_question_id
             left join "user" u on urp.user_id = u.id and u.telegram_id = ?
@@ -57,7 +53,7 @@ class CurrentRegistrationQuestion implements RegistrationQuestion
         limit 1
         q
                 ,
-                [$this->telegramUserId->value()->pure()->raw(), $this->botId->value()],
+                [$this->telegramUserId->value(), $this->botId->value()],
                 $this->connection
             ))
                 ->response();

@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace RC\UserStories\User\PressesStart;
+namespace RC\UserStories\User\SendsArbitraryMessage;
 
+use RC\Domain\RegistrationQuestion\CurrentRegistrationQuestion;
 use RC\Domain\TelegramBot\Reply\ActualRegistrationStep;
+use RC\Domain\TelegramBot\UserMessage\SavedAnswerToQuestion;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Domain\BotId\FromUuid;
@@ -13,15 +15,16 @@ use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\TelegramBot\BotToken\ByBotId;
 use RC\Infrastructure\TelegramBot\Reply\Sorry;
-use RC\Infrastructure\TelegramBot\UserId\Impure\AddedIfNotYet;
+use RC\Infrastructure\TelegramBot\UserId\Impure\FromPure;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
+use RC\Infrastructure\TelegramBot\UserMessage\FromParsedTelegramMessage as UserMessage;
 use RC\Infrastructure\UserStory\Body\Emptie;
 use RC\Infrastructure\UserStory\Existent;
 use RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Response\Successful;
 use RC\Infrastructure\Uuid\FromString as UuidFromString;
 
-class PressesStart extends Existent
+class SendsArbitraryMessage extends Existent
 {
     private $message;
     private $botId;
@@ -40,18 +43,29 @@ class PressesStart extends Existent
 
     public function response(): Response
     {
-        $this->logs->receive(new InformationMessage('User presses start scenario started'));
+        $this->logs->receive(new InformationMessage('User sends arbitrary message scenario started'));
+
+        $savedAnswerValue =
+            (new SavedAnswerToQuestion(
+                new FromParsedTelegramMessage($this->message),
+                new FromUuid(new UuidFromString($this->botId)),
+                new UserMessage($this->message),
+                new CurrentRegistrationQuestion(
+                    new FromParsedTelegramMessage($this->message),
+                    new FromUuid(new UuidFromString($this->botId)),
+                    $this->connection
+                ),
+                $this->connection
+            ))
+                ->value();
+        if (!$savedAnswerValue->isSuccessful()) {
+            $this->logs->receive(new FromNonSuccessfulImpureValue($savedAnswerValue));
+            $this->sorry();
+        }
 
         $reply =
             (new ActualRegistrationStep(
-                new AddedIfNotYet(
-                    new FromParsedTelegramMessage($this->message),
-                    new FromUuid(new UuidFromString($this->botId)),
-                    $this->message['message']['from']['first_name'],
-                    $this->message['message']['from']['last_name'],
-                    $this->message['message']['from']['username'],
-                    $this->connection
-                ),
+                new FromPure(new FromParsedTelegramMessage($this->message)),
                 new FromUuid(new UuidFromString($this->botId)),
                 $this->connection,
                 $this->httpTransport
@@ -59,27 +73,28 @@ class PressesStart extends Existent
                 ->value();
         if (!$reply->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($reply));
-            $sorryValue = $this->sorry()->value();
-            if (!$sorryValue->isSuccessful()) {
-                $this->logs->receive(new FromNonSuccessfulImpureValue($sorryValue));
-            }
+            $this->sorry();
         }
 
-        $this->logs->receive(new InformationMessage('User presses start scenario finished'));
+        $this->logs->receive(new InformationMessage('User sends arbitrary message scenario finished'));
 
         return new Successful(new Emptie());
     }
 
     private function sorry()
     {
-        return
-            new Sorry(
+        $sorryValue =
+            (new Sorry(
                 new FromParsedTelegramMessage($this->message),
                 new ByBotId(
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->connection
                 ),
                 $this->httpTransport
-            );
+            ))
+                ->value();
+        if (!$sorryValue->isSuccessful()) {
+            $this->logs->receive(new FromNonSuccessfulImpureValue($sorryValue));
+        }
     }
 }

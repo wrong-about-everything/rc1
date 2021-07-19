@@ -6,6 +6,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\UserStory\Authorized;
 use RC\Domain\UserStory\Body\TelegramFallbackResponseBody;
 use RC\Infrastructure\Dotenv\EnvironmentDependentEnvFile;
@@ -25,6 +26,7 @@ use RC\Infrastructure\Logging\LogId;
 use RC\Infrastructure\Logging\Logs\EnvironmentDependentLogs;
 use RC\Infrastructure\Logging\Logs\File;
 use RC\Infrastructure\Logging\Logs\GoogleCloudLogs;
+use RC\Infrastructure\Routing\Route\ArbitraryTelegramUserMessageRoute;
 use RC\Infrastructure\Routing\Route\MatchingAnyPostRequest;
 use RC\Infrastructure\Routing\Route\RouteByMethodAndPathPattern;
 use RC\Infrastructure\Routing\Route\RouteByTelegramBotCommand;
@@ -35,6 +37,7 @@ use RC\Infrastructure\Uuid\RandomUUID;
 use RC\UserStories\Sample;
 use RC\UserStories\SomeoneSentUnknownPostRequest;
 use RC\UserStories\User\PressesStart\PressesStart;
+use RC\UserStories\User\SendsArbitraryMessage\SendsArbitraryMessage;
 
 (new EnvironmentDependentEnvFile(
     new ExistentDirPathFromAbsolutePathString(dirname(__FILE__)),
@@ -83,7 +86,13 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                         [
                             new RouteByTelegramBotCommand(new Start()),
                             function (array $parsedTelegramMessage, string $botId) use ($transport, $logs) {
-                                return new PressesStart($parsedTelegramMessage, $botId, $transport, $logs);
+                                return new PressesStart($parsedTelegramMessage, $botId, $transport, new ApplicationConnection(), $logs);
+                            }
+                        ],
+                        [
+                            new ArbitraryTelegramUserMessageRoute(),
+                            function (array $parsedTelegramMessage, string $botId) use ($transport, $logs) {
+                                return new SendsArbitraryMessage($parsedTelegramMessage, $botId, $transport, new ApplicationConnection(), $logs);
                             }
                         ],
                         [

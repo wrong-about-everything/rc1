@@ -43,7 +43,7 @@ class TransactionalQueryFromMultipleQueries implements Query
                     function (ImpureValue $compositeResult, Query $query) use ($dbh) {
                         $currentResponse = $query->response();
                         if (!$currentResponse->isSuccessful()) {
-                            throw new Exception($currentResponse->error()); // short-circuiting workaround
+                            throw new Exception($currentResponse->error()->logMessage()); // short-circuiting workaround
                         }
 
                         return new Combined($compositeResult, $currentResponse);

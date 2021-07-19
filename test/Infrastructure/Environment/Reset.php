@@ -59,10 +59,9 @@ truncate
     bot,
     "group",
     "user",
-    user_bot,
+    bot_user,
     registration_question,
-    user_registration_progress,
-    user_profile
+    user_registration_progress
 
     cascade
 q

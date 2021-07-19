@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\User;
+namespace RC\Domain\BotUser;
 
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
@@ -13,7 +13,7 @@ use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Domain\BotId\BotId;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class RegisteredInBot implements User
+class ByTelegramUserId implements BotUser
 {
     private $telegramUserId;
     private $botId;
@@ -42,10 +42,10 @@ class RegisteredInBot implements User
         $response =
             (new Selecting(
                 <<<q
-select u.*
+select bu.*
 from
-    "user" u join bot_user ub on u.id = ub.user_id
-where u.telegram_id = ? and ub.bot_id = ?
+    bot_user bu join "user" u on u.id = bu.user_id
+where u.telegram_id = ? and bu.bot_id = ?
 q
                 ,
                 [$this->telegramUserId->value(), $this->botId->value()],

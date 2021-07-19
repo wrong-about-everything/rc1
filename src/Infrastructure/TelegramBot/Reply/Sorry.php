@@ -16,24 +16,36 @@ use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\TelegramBot\BotApiUrl;
 use RC\Infrastructure\TelegramBot\BotToken\FromImpure;
 use RC\Infrastructure\TelegramBot\BotToken\ImpureBotToken;
-use RC\Infrastructure\TelegramBot\ChatId\ChatId;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
+use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
 // @todo: завести супортового бота!
+// @todo: add tests
 class Sorry implements Reply
 {
-    private $chatId;
+    private $telegramUserId;
     private $botToken;
     private $httpTransport;
+    private $cached;
 
-    public function __construct(ChatId $chatId, ImpureBotToken $botToken, HttpTransport $httpTransport)
+    public function __construct(TelegramUserId $telegramUserId, ImpureBotToken $botToken, HttpTransport $httpTransport)
     {
-        $this->chatId = $chatId;
+        $this->telegramUserId = $telegramUserId;
         $this->botToken = $botToken;
         $this->httpTransport = $httpTransport;
+        $this->cached = null;
     }
 
     public function value(): ImpureValue
+    {
+        if (is_null($this->cached)) {
+            $this->cached = $this->doValue();
+        }
+
+        return $this->cached;
+    }
+
+    private function doValue()
     {
         if (!$this->botToken->value()->isSuccessful()) {
             return $this->botToken->value();
@@ -47,7 +59,7 @@ class Sorry implements Reply
                         new BotApiUrl(
                             new SendMessage(),
                             new FromArray([
-                                'chat_id' => $this->chatId->value(),
+                                'chat_id' => $this->telegramUserId->value(),
                                 'text' => 'Простите, у нас что-то сломалось. Попробуйте ещё пару раз, и если не заработает -- напишите, пожалуйста, в @gorgonzola_support_bot',
                             ]),
                             new FromImpure($this->botToken)
