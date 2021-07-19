@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\Position\Impure;
+namespace RC\Domain\Experience\Impure;
 
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 
-class NonSuccessful extends Position
+class NonSuccessful extends Experience
 {
     private $nonSuccessfulValue;
 

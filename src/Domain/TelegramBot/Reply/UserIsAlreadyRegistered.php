@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RC\Domain\TelegramBot\Reply;
 
-use RC\Domain\RegistrationQuestion\CurrentRegistrationQuestion;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -19,13 +18,11 @@ use RC\Infrastructure\TelegramBot\BotApiUrl;
 use RC\Domain\BotId\BotId;
 use RC\Infrastructure\TelegramBot\BotToken\ByBotId;
 use RC\Infrastructure\TelegramBot\BotToken\FromImpure;
-use RC\Infrastructure\TelegramBot\BotToken\ImpureBotToken;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\TelegramBot\Reply\Reply;
-use RC\Infrastructure\TelegramBot\UserId\Impure\TelegramUserId;
-use RC\Infrastructure\TelegramBot\UserId\Pure\FromImpure as PureTelegramUserIdFromImpure;
+use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class ActualRegistrationStep implements Reply
+class UserIsAlreadyRegistered implements Reply
 {
     private $telegramUserId;
     private $botId;
@@ -42,51 +39,11 @@ class ActualRegistrationStep implements Reply
 
     public function value(): ImpureValue
     {
-        if (!$this->telegramUserId->value()->isSuccessful()) {
-            return $this->telegramUserId->value();
-        }
-
-        $currentRegistrationQuestionResponse = new CurrentRegistrationQuestion(new PureTelegramUserIdFromImpure($this->telegramUserId), $this->botId, $this->connection);
-        if (!$currentRegistrationQuestionResponse->value()->isSuccessful()) {
-            return $currentRegistrationQuestionResponse->value();
-        }
-
         $botToken = new ByBotId($this->botId, $this->connection);
         if (!$botToken->value()->isSuccessful() || !$botToken->value()->pure()->isPresent()) {
             return $botToken->value();
         }
 
-        if (!$currentRegistrationQuestionResponse->value()->pure()->isPresent()) {
-            return $this->notifyUserThatHeIsAllSet($botToken);
-        }
-
-        $response =
-            $this->httpTransport
-                ->response(
-                    new OutboundRequest(
-                        new Post(),
-                        new BotApiUrl(
-                            new SendMessage(),
-                            new FromArray([
-                                'chat_id' => $this->telegramUserId->value(),
-                                'text' => $currentRegistrationQuestionResponse->value()->pure()->raw()['text'],
-                            ]),
-                            new FromImpure($botToken)
-                        ),
-                        [],
-                        ''
-                    )
-                );
-        if (!$response->isAvailable()) {
-            return new Failed(new SilentDeclineWithDefaultUserMessage('Response from telegram is not available', []));
-        }
-        // @todo: validate telegram response!
-
-        return new Successful(new Emptie());
-    }
-
-    private function notifyUserThatHeIsAllSet(ImpureBotToken $botToken)
-    {
         $telegramResponse =
             $this->httpTransport
                 ->response(
@@ -96,7 +53,7 @@ class ActualRegistrationStep implements Reply
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Вы уже зарегистрировались. Если вы хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+                                'text' => 'Вы уже зарегистрированы. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
                             ]),
                             new FromImpure($botToken)
                         ),

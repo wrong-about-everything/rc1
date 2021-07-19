@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace RC\Infrastructure\TelegramBot\UserId\Impure;
+namespace RC\Domain\BotUser;
 
 use Ramsey\Uuid\Uuid;
 use RC\Domain\BotId\BotId;
+use RC\Domain\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\TransactionalQueryFromMultipleQueries;
-use RC\Infrastructure\TelegramBot\UserId\Impure\TelegramUserId as ImpureTelegramUserId;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId as PureTelegramUserId;
 
-class AddedIfNotYet extends ImpureTelegramUserId
+class AddedIfNotYet implements BotUser
 {
     private $telegramUserId;
     private $botId;
@@ -45,13 +45,13 @@ class AddedIfNotYet extends ImpureTelegramUserId
         return $this->cached;
     }
 
-    public function exists(): bool
-    {
-        return $this->telegramUserId->exists();
-    }
-
     private function doValue()
     {
+        $botUserFromDb = new ByTelegramUserId($this->telegramUserId, $this->botId, $this->connection);
+        if (!$botUserFromDb->value()->isSuccessful() || $botUserFromDb->value()->pure()->isPresent()) {
+            return $botUserFromDb->value();
+        }
+
         $generatedId = Uuid::uuid4()->toString();
 
         $registerUserResponse =
@@ -61,6 +61,7 @@ class AddedIfNotYet extends ImpureTelegramUserId
                         <<<q
 insert into "user" (id, first_name, last_name, telegram_id, telegram_handle)
 values (?, ?, ?, ?, ?)
+-- user might already exist, but bot user does not
 on conflict(telegram_id) do nothing
 q
                         ,
@@ -69,12 +70,11 @@ q
                     ),
                     new SingleMutating(
                         <<<q
-insert into bot_user (user_id, bot_id)
-values (?, ?)
-on conflict(user_id, bot_id) do nothing
+insert into bot_user (user_id, bot_id, status)
+values (?, ?, ?)
 q
                         ,
-                        [$generatedId, $this->botId->value()],
+                        [$generatedId, $this->botId->value(), (new RegistrationIsInProgress())->value()],
                         $this->connection
                     )
                 ],
@@ -85,6 +85,6 @@ q
             return $registerUserResponse;
         }
 
-        return (new FromPure($this->telegramUserId))->value();
+        return (new ByTelegramUserId($this->telegramUserId, $this->botId, $this->connection))->value();
     }
 }

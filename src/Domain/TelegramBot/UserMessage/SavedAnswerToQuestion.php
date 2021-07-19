@@ -6,6 +6,7 @@ namespace RC\Domain\TelegramBot\UserMessage;
 
 use Exception;
 use RC\Domain\BotId\BotId;
+use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
 use RC\Domain\RegistrationQuestion\RegistrationQuestion;
 use RC\Domain\RegistrationQuestionId\Impure\FromRegistrationQuestion as RegistrationQuestionId;
 use RC\Domain\RegistrationQuestionId\Pure\FromImpure;
@@ -15,8 +16,10 @@ use RC\Domain\UserProfileRecordType\Impure\FromRegistrationQuestion as ProfileRe
 use RC\Domain\UserProfileRecordType\Pure\About;
 use RC\Domain\UserProfileRecordType\Pure\Experience;
 use RC\Domain\UserProfileRecordType\Pure\Position;
+use RC\Domain\UserStatus\Pure\Registered;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
+use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\TransactionalQueryFromMultipleQueries;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
@@ -46,7 +49,7 @@ class SavedAnswerToQuestion implements UserMessage
             return $registrationQuestionId->value();
         }
 
-        $updateProgressResponse = $this->updateProgressResponse(new FromImpure($registrationQuestionId));
+        $updateProgressResponse = $this->persistenceResponse(new FromImpure($registrationQuestionId));
         if (!$updateProgressResponse->isSuccessful()) {
             return $updateProgressResponse;
         }
@@ -59,7 +62,7 @@ class SavedAnswerToQuestion implements UserMessage
         return $this->userMessage->exists();
     }
 
-    private function updateProgressResponse(PureRegistrationQuestionId $registrationQuestionId)
+    private function persistenceResponse(PureRegistrationQuestionId $registrationQuestionId)
     {
         return
             (new TransactionalQueryFromMultipleQueries(

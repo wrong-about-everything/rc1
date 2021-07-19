@@ -6,6 +6,7 @@ namespace RC\Tests\Infrastructure\Stub\Table;
 
 use Exception;
 use RC\Domain\BotId\BotId;
+use RC\Domain\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 
@@ -20,9 +21,9 @@ class BotUser
         $this->connection = $connection;
     }
 
-    public function insert(array $record)
+    public function insert(array $user, array $botUser)
     {
-        $values = array_merge($this->defaultValues(), $record);
+        $values = array_merge($this->defaultValues(), $user);
         $userId = $values['id'];
         $userInsertResponse =
             (new SingleMutating(
@@ -36,8 +37,8 @@ class BotUser
         }
         $userBotInsertResponse =
             (new SingleMutating(
-                'insert into "bot_user" (user_id, bot_id) values (?, ?)',
-                [$userId, $this->botId->value()],
+                'insert into "bot_user" (user_id, bot_id, position, experience, about, status) values (?, ?, ?, ?, ?, ?)',
+                [$userId, $this->botId->value(), $botUser['position'] ?? null, $botUser['experience'] ?? null, $botUser['about'] ?? null, $botUser['status'] ?? (new RegistrationIsInProgress())->value()],
                 $this->connection
             ))
                 ->response();

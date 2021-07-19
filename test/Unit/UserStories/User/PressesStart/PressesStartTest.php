@@ -12,14 +12,13 @@ use RC\Domain\BotUser\ByTelegramUserId;
 use RC\Domain\User\RegisteredInBot;
 use RC\Domain\UserProfileRecordType\Pure\Experience;
 use RC\Domain\UserProfileRecordType\Pure\Position;
+use RC\Domain\UserStatus\Pure\Registered;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
 use RC\Infrastructure\Http\Transport\Indifferent;
-use RC\Infrastructure\Logging\LogId;
 use RC\Infrastructure\Logging\Logs\DevNull;
 use RC\Domain\BotId\BotId;
 use RC\Domain\BotId\FromUuid;
-use RC\Infrastructure\Logging\Logs\StdOut;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
@@ -60,6 +59,7 @@ class PressesStartTest extends TestCase
 
         $this->assertTrue($response->isSuccessful());
         $this->assertUserExists($this->telegramUserId(), $this->botId(), $connection);
+        $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
             'Какая у вас должность?',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
@@ -75,7 +75,8 @@ class PressesStartTest extends TestCase
             ]);
         (new BotUser($this->botId(), $connection))
             ->insert(
-                ['id' => Uuid::uuid4()->toString(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo']
+                ['id' => Uuid::uuid4()->toString(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+                []
             );
         (new RegistrationQuestion($connection))
             ->insert([
@@ -96,6 +97,7 @@ class PressesStartTest extends TestCase
 
         $this->assertTrue($response->isSuccessful());
         $this->assertUserExists($this->telegramUserId(), $this->botId(), $connection);
+        $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
             'Какая у вас должность?',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
@@ -112,7 +114,8 @@ class PressesStartTest extends TestCase
         $userId = Uuid::uuid4()->toString();
         (new BotUser($this->botId(), $connection))
             ->insert(
-                ['id' => $userId, 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo']
+                ['id' => $userId, 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+                []
             );
         $firstRegistrationQuestionId = Uuid::uuid4()->toString();
         (new RegistrationQuestion($connection))
@@ -138,6 +141,7 @@ class PressesStartTest extends TestCase
 
         $this->assertTrue($response->isSuccessful());
         $this->assertUserExists($this->telegramUserId(), $this->botId(), $connection);
+        $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
             'А опыт?',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
@@ -154,7 +158,8 @@ class PressesStartTest extends TestCase
         $userId = Uuid::uuid4()->toString();
         (new BotUser($this->botId(), $connection))
             ->insert(
-                ['id' => $userId, 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo']
+                ['id' => $userId, 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+                []
             );
         $firstRegistrationQuestionId = Uuid::uuid4()->toString();
         $secondRegistrationQuestionId = Uuid::uuid4()->toString();
@@ -183,6 +188,7 @@ class PressesStartTest extends TestCase
 
         $this->assertTrue($response->isSuccessful());
         $this->assertUserExists($this->telegramUserId(), $this->botId(), $connection);
+        $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
             'А опыт?',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
@@ -199,7 +205,8 @@ class PressesStartTest extends TestCase
         $userId = Uuid::uuid4()->toString();
         (new BotUser($this->botId(), $connection))
             ->insert(
-                ['id' => $userId, 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo']
+                ['id' => $userId, 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+                ['status' => (new Registered())->value()]
             );
         $firstRegistrationQuestionId = Uuid::uuid4()->toString();
         $secondRegistrationQuestionId = Uuid::uuid4()->toString();
@@ -227,8 +234,9 @@ class PressesStartTest extends TestCase
 
         $this->assertTrue($response->isSuccessful());
         $this->assertUserExists($this->telegramUserId(), $this->botId(), $connection);
+        $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'Вы уже зарегистрировались. Если вы хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Вы уже зарегистрированы. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
     }

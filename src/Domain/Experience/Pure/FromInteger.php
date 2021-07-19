@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\UserStatus;
+namespace RC\Domain\Experience\Pure;
 
-class FromInteger extends UserStatus
+class FromInteger extends Experience
 {
     private $concrete;
 
-    public function __construct(int $status)
+    public function __construct(int $experience)
     {
-        $this->concrete = isset($this->all()[$status]) ? $this->all()[$status] : new NonExistent();
+        $this->concrete = isset($this->all()[$experience]) ? $this->all()[$experience] : new NonExistent();
     }
 
     public function value(): int
@@ -26,7 +26,7 @@ class FromInteger extends UserStatus
     private function all()
     {
         return [
-            (new Registered())->value() => new Registered()
+            (new LessThatAYear())->value() => new LessThatAYear()
         ];
     }
 }

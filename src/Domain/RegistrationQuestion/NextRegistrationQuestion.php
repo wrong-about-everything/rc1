@@ -13,7 +13,7 @@ use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Domain\BotId\BotId;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class CurrentRegistrationQuestion implements RegistrationQuestion
+class NextRegistrationQuestion implements RegistrationQuestion
 {
     private $telegramUserId;
     private $botId;

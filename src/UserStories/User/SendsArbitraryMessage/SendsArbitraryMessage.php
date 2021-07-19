@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace RC\UserStories\User\SendsArbitraryMessage;
 
-use RC\Domain\RegistrationQuestion\CurrentRegistrationQuestion;
-use RC\Domain\TelegramBot\Reply\ActualRegistrationStep;
+use RC\Domain\BotUser\ByTelegramUserId;
+use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
+use RC\Domain\TelegramBot\Reply\UserIsAlreadyRegistered;
 use RC\Domain\TelegramBot\UserMessage\SavedAnswerToQuestion;
+use RC\Domain\UserStatus\Impure\FromBotUser;
+use RC\Domain\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
+use RC\Domain\UserStatus\Pure\Registered;
+use RC\Domain\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Domain\BotId\FromUuid;
@@ -15,7 +20,6 @@ use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\TelegramBot\BotToken\ByBotId;
 use RC\Infrastructure\TelegramBot\Reply\Sorry;
-use RC\Infrastructure\TelegramBot\UserId\Impure\FromPure;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
 use RC\Infrastructure\TelegramBot\UserMessage\FromParsedTelegramMessage as UserMessage;
 use RC\Infrastructure\UserStory\Body\Emptie;
@@ -45,12 +49,69 @@ class SendsArbitraryMessage extends Existent
     {
         $this->logs->receive(new InformationMessage('User sends arbitrary message scenario started'));
 
+        $userStatus = $this->userStatus();
+        if (!$userStatus->value()->isSuccessful()) {
+            $this->logs->receive(new FromNonSuccessfulImpureValue($userStatus->value()));
+            $this->sorry()->value();
+            return new Successful(new Emptie());
+        }
+
+        if ($userStatus->equals(new ImpureUserStatusFromPure(new RegistrationIsInProgress()))) {
+            $registrationStepValue = $this->registrationStep();
+            if (!$registrationStepValue->isSuccessful()) {
+                $this->logs->receive(new FromNonSuccessfulImpureValue($registrationStepValue));
+                $this->sorry()->value();
+                return new Successful(new Emptie());
+            }
+        } elseif ($userStatus->equals(new ImpureUserStatusFromPure(new Registered()))) {
+            $userIsAlreadyRegisteredValue = $this->userIsAlreadyRegisteredReply()->value();
+            if (!$userIsAlreadyRegisteredValue->isSuccessful()) {
+                $this->logs->receive(new FromNonSuccessfulImpureValue($userIsAlreadyRegisteredValue));
+                $this->sorry()->value();
+                return new Successful(new Emptie());
+            }
+        }
+
+        $this->logs->receive(new InformationMessage('User sends arbitrary message scenario finished'));
+
+        return new Successful(new Emptie());
+    }
+
+    private function userStatus()
+    {
+        return
+            new FromBotUser(
+                new ByTelegramUserId(
+                    new FromParsedTelegramMessage($this->message),
+                    new FromUuid(new UuidFromString($this->botId)),
+                    $this->connection
+                )
+            );
+    }
+
+    private function sorry()
+    {
+        return
+            new Sorry(
+                new FromParsedTelegramMessage($this->message),
+                new ByBotId(
+                    new FromUuid(new UuidFromString($this->botId)),
+                    $this->connection
+                ),
+                $this->httpTransport
+            );
+    }
+
+    private function registrationStep()
+    {
+        $this->logs->receive(new InformationMessage('User is not registered. Run registration saga.'));
+
         $savedAnswerValue =
             (new SavedAnswerToQuestion(
                 new FromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),
                 new UserMessage($this->message),
-                new CurrentRegistrationQuestion(
+                new NextRegistrationQuestion(
                     new FromParsedTelegramMessage($this->message),
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->connection
@@ -63,38 +124,36 @@ class SendsArbitraryMessage extends Existent
             $this->sorry();
         }
 
-        $reply =
-            (new ActualRegistrationStep(
-                new FromPure(new FromParsedTelegramMessage($this->message)),
-                new FromUuid(new UuidFromString($this->botId)),
-                $this->connection,
-                $this->httpTransport
-            ))
-                ->value();
-        if (!$reply->isSuccessful()) {
-            $this->logs->receive(new FromNonSuccessfulImpureValue($reply));
+        $nextReply = $this->nextReply()->value();
+        if (!$nextReply->isSuccessful()) {
+            $this->logs->receive(new FromNonSuccessfulImpureValue($nextReply));
             $this->sorry();
         }
 
-        $this->logs->receive(new InformationMessage('User sends arbitrary message scenario finished'));
+        $this->logs->receive(new InformationMessage('Registration saga step has finished.'));
 
         return new Successful(new Emptie());
     }
 
-    private function sorry()
+    private function nextReply()
     {
-        $sorryValue =
-            (new Sorry(
+        return
+            new NextReply(
                 new FromParsedTelegramMessage($this->message),
-                new ByBotId(
-                    new FromUuid(new UuidFromString($this->botId)),
-                    $this->connection
-                ),
+                new FromUuid(new UuidFromString($this->botId)),
+                $this->httpTransport,
+                $this->connection
+            );
+    }
+
+    private function userIsAlreadyRegisteredReply()
+    {
+        return
+            new UserIsAlreadyRegistered(
+                new FromParsedTelegramMessage($this->message),
+                new FromUuid(new UuidFromString($this->botId)),
+                $this->connection,
                 $this->httpTransport
-            ))
-                ->value();
-        if (!$sorryValue->isSuccessful()) {
-            $this->logs->receive(new FromNonSuccessfulImpureValue($sorryValue));
-        }
+            );
     }
 }

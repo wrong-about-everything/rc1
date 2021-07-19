@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace RC\UserStories\User\PressesStart;
 
-use RC\Domain\TelegramBot\Reply\ActualRegistrationStep;
+use RC\Domain\TelegramBot\Reply\NextRegistrationQuestionReply;
+use RC\Domain\TelegramBot\Reply\UserIsAlreadyRegistered;
+use RC\Domain\UserStatus\Impure\FromBotUser;
+use RC\Domain\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
+use RC\Domain\UserStatus\Pure\Registered;
+use RC\Domain\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Domain\BotId\FromUuid;
@@ -13,7 +18,7 @@ use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\TelegramBot\BotToken\ByBotId;
 use RC\Infrastructure\TelegramBot\Reply\Sorry;
-use RC\Infrastructure\TelegramBot\UserId\Impure\AddedIfNotYet;
+use RC\Domain\BotUser\AddedIfNotYet;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
 use RC\Infrastructure\UserStory\Body\Emptie;
 use RC\Infrastructure\UserStory\Existent;
@@ -42,8 +47,38 @@ class PressesStart extends Existent
     {
         $this->logs->receive(new InformationMessage('User presses start scenario started'));
 
-        $reply =
-            (new ActualRegistrationStep(
+        $userStatus = $this->userStatus();
+        if (!$userStatus->value()->isSuccessful()) {
+            $this->logs->receive(new FromNonSuccessfulImpureValue($userStatus->value()));
+            $this->sorry()->value();
+            return new Successful(new Emptie());
+        }
+
+        if ($userStatus->equals(new ImpureUserStatusFromPure(new RegistrationIsInProgress()))) {
+            $registrationStepValue = $this->registrationStep()->value();
+            if (!$registrationStepValue->isSuccessful()) {
+                $this->logs->receive(new FromNonSuccessfulImpureValue($registrationStepValue));
+                $this->sorry()->value();
+                return new Successful(new Emptie());
+            }
+        } elseif ($userStatus->equals(new ImpureUserStatusFromPure(new Registered()))) {
+            $userIsAlreadyRegisteredValue = $this->userIsAlreadyRegisteredReply()->value();
+            if (!$userIsAlreadyRegisteredValue->isSuccessful()) {
+                $this->logs->receive(new FromNonSuccessfulImpureValue($userIsAlreadyRegisteredValue));
+                $this->sorry()->value();
+                return new Successful(new Emptie());
+            }
+        }
+
+        $this->logs->receive(new InformationMessage('User presses start scenario finished'));
+
+        return new Successful(new Emptie());
+    }
+
+    private function userStatus()
+    {
+        return
+            new FromBotUser(
                 new AddedIfNotYet(
                     new FromParsedTelegramMessage($this->message),
                     new FromUuid(new UuidFromString($this->botId)),
@@ -51,23 +86,30 @@ class PressesStart extends Existent
                     $this->message['message']['from']['last_name'],
                     $this->message['message']['from']['username'],
                     $this->connection
-                ),
+                )
+            );
+    }
+
+    private function registrationStep()
+    {
+        return
+            new NextRegistrationQuestionReply(
+                new FromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),
                 $this->connection,
                 $this->httpTransport
-            ))
-                ->value();
-        if (!$reply->isSuccessful()) {
-            $this->logs->receive(new FromNonSuccessfulImpureValue($reply));
-            $sorryValue = $this->sorry()->value();
-            if (!$sorryValue->isSuccessful()) {
-                $this->logs->receive(new FromNonSuccessfulImpureValue($sorryValue));
-            }
-        }
+            );
+    }
 
-        $this->logs->receive(new InformationMessage('User presses start scenario finished'));
-
-        return new Successful(new Emptie());
+    private function userIsAlreadyRegisteredReply()
+    {
+        return
+            new UserIsAlreadyRegistered(
+                new FromParsedTelegramMessage($this->message),
+                new FromUuid(new UuidFromString($this->botId)),
+                $this->connection,
+                $this->httpTransport
+            );
     }
 
     private function sorry()
