@@ -44,7 +44,9 @@ use RC\Tests\Infrastructure\Stub\Table\Bot;
 use RC\Tests\Infrastructure\Stub\Table\BotUser;
 use RC\Tests\Infrastructure\Stub\Table\RegistrationQuestion;
 use RC\Tests\Infrastructure\Stub\Table\UserRegistrationProgress;
+use RC\Tests\Infrastructure\Stub\TelegramMessage\StartCommandMessage;
 use RC\Tests\Infrastructure\Stub\TelegramMessage\UserMessage;
+use RC\UserStories\User\PressesStart\PressesStart;
 use RC\UserStories\User\SendsArbitraryMessage\SendsArbitraryMessage;
 
 class SendsArbitraryMessageTest extends TestCase
@@ -135,6 +137,35 @@ class SendsArbitraryMessageTest extends TestCase
 
     public function testWhenRegisteredUserSendsArbitraryMessageThenHeSeesStatusInfo()
     {
+        $connection = new ApplicationConnection();
+        (new Bot($connection))
+            ->insert([
+                ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
+            ]);
+        $userId = Uuid::uuid4()->toString();
+        (new BotUser($this->botId(), $connection))
+            ->insert(
+                ['id' => $userId, 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+                ['status' => (new Registered())->value()]
+            );
+        $transport = new Indifferent();
+
+        $response =
+            (new SendsArbitraryMessage(
+                (new UserMessage($this->telegramUserId(), (string) (new LessThatAYear())->value()))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertCount(1, $transport->sentRequests());
+        $this->assertEquals(
+            'Вы уже зарегистрированы. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+        );
     }
 
     protected function setUp(): void
