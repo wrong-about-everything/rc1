@@ -4,8 +4,18 @@ declare(strict_types=1);
 
 namespace RC\Domain\TelegramBot\Reply;
 
+use RC\Domain\AvailablePositions\ByBotId as AvailablePositions;
+use RC\Domain\AvailableExperiences\ByBotId as AvailableExperiences;
+use RC\Domain\Experience\Pure\FromInteger as ExperienceFromInteger;
+use RC\Domain\ExperienceName\FromExperience;
+use RC\Domain\Position\Pure\FromInteger;
+use RC\Domain\PositionName\FromPosition;
 use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
 use RC\Domain\RegistrationQuestion\RegistrationQuestion;
+use RC\Domain\UserProfileRecordType\Impure\FromPure;
+use RC\Domain\UserProfileRecordType\Impure\FromRegistrationQuestion;
+use RC\Domain\UserProfileRecordType\Pure\Experience;
+use RC\Domain\UserProfileRecordType\Pure\Position;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -25,6 +35,7 @@ use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\TelegramBot\Reply\Reply;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
+// @todo: Добавить логирование при любом завершении скрипта
 class NextRegistrationQuestionReply implements Reply
 {
     private $telegramUserId;
@@ -61,7 +72,7 @@ class NextRegistrationQuestionReply implements Reply
         return new Successful(new Emptie());
     }
 
-    private function ask(RegistrationQuestion $currentRegistrationQuestion, ImpureBotToken $botToken)
+    private function ask(RegistrationQuestion $nextRegistrationQuestion, ImpureBotToken $botToken)
     {
         return
             $this->httpTransport
@@ -70,15 +81,61 @@ class NextRegistrationQuestionReply implements Reply
                         new Post(),
                         new BotApiUrl(
                             new SendMessage(),
-                            new FromArray([
-                                'chat_id' => $this->telegramUserId->value(),
-                                'text' => $currentRegistrationQuestion->value()->pure()->raw()['text'],
-                            ]),
+                            new FromArray(
+                                array_merge(
+                                    [
+                                        'chat_id' => $this->telegramUserId->value(),
+                                        'text' => $nextRegistrationQuestion->value()->pure()->raw()['text'],
+                                    ],
+                                    $this->replyMarkup($nextRegistrationQuestion)
+                                )
+                            ),
                             new FromImpure($botToken)
                         ),
                         [],
                         ''
                     )
                 );
+    }
+
+    private function replyMarkup(RegistrationQuestion $nextRegistrationQuestion)
+    {
+        $answerOptions = $this->answerOptions($nextRegistrationQuestion);
+
+        if (empty($answerOptions)) {
+            return [];
+        }
+
+        return [
+            'reply_markup' =>
+                json_encode([
+                    'keyboard' => $answerOptions,
+                    'resize_keyboard' => true,
+                    'one_time_keyboard' => true,
+                ])
+        ];
+    }
+
+    private function answerOptions(RegistrationQuestion $currentRegistrationQuestion)
+    {
+        if ((new FromRegistrationQuestion($currentRegistrationQuestion))->equals(new FromPure(new Position()))) {
+            return
+                array_map(
+                    function (int $position) {
+                        return [['text' => (new FromPosition(new FromInteger($position)))->value()]];
+                    },
+                    (new AvailablePositions($this->botId, $this->connection))->value()->pure()->raw()
+                );
+        } elseif ((new FromRegistrationQuestion($currentRegistrationQuestion))->equals(new FromPure(new Experience()))) {
+            return
+                array_map(
+                    function (int $experience) {
+                        return [['text' => (new FromExperience(new ExperienceFromInteger($experience)))->value()]];
+                    },
+                    (new AvailableExperiences($this->botId, $this->connection))->value()->pure()->raw()
+                );
+        }
+
+        return [];
     }
 }

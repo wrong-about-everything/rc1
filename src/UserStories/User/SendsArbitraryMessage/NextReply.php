@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace RC\UserStories\User\SendsArbitraryMessage;
 
 use RC\Domain\BotId\BotId;
-use RC\Domain\BotId\FromUuid;
 use RC\Domain\TelegramBot\Reply\NextRegistrationQuestionReply;
 use RC\Domain\TelegramBot\Reply\RegistrationCongratulations;
 use RC\Domain\UserStatus\Impure\FromBotUser;
@@ -15,9 +14,7 @@ use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\Reply\Reply;
-use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
-use RC\Infrastructure\Uuid\FromString as UuidFromString;
 
 class NextReply implements Reply
 {
@@ -36,7 +33,7 @@ class NextReply implements Reply
 
     public function value(): ImpureValue
     {
-        if ($this->userIsRegistered()) {
+        if ($this->noMoreQuestionsLeft()) {
             return $this->congratulations();
         } else {
             return
@@ -62,7 +59,7 @@ class NextReply implements Reply
                 ->value();
     }
 
-    private function userIsRegistered()
+    private function noMoreQuestionsLeft()
     {
         return
             (new FromBotUser(

@@ -26,7 +26,9 @@ class FromInteger extends Position
     private function all()
     {
         return [
-            (new ProductManager())->value() => new ProductManager()
+            (new ProductManager())->value() => new ProductManager(),
+            (new ProductDesigner())->value() => new ProductDesigner(),
+            (new Analyst())->value() => new Analyst(),
         ];
     }
 }

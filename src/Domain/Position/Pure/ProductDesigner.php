@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\Experience\Pure;
+namespace RC\Domain\Position\Pure;
 
-class LessThatAYear extends Experience
+class ProductDesigner extends Position
 {
     public function value(): int
     {
-        return 0;
+        return 2;
     }
 
     public function exists(): bool

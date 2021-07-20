@@ -8,7 +8,9 @@ create table "bot" (
   id uuid primary key,
   token text,
   is_private bool default false,
-  name text
+  name text,
+  available_positions jsonb,
+  available_experiences jsonb
 );
 
 create table "group" (

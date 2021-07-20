@@ -26,7 +26,10 @@ class FromInteger extends Experience
     private function all()
     {
         return [
-            (new LessThatAYear())->value() => new LessThatAYear()
+            (new LessThanAYear())->value() => new LessThanAYear(),
+            (new BetweenAYearAndThree())->value() => new BetweenAYearAndThree(),
+            (new BetweenThreeYearsAndSix())->value() => new BetweenThreeYearsAndSix(),
+            (new GreaterThanSix())->value() => new GreaterThanSix(),
         ];
     }
 }

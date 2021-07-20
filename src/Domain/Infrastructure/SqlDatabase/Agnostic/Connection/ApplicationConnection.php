@@ -40,3 +40,4 @@ class ApplicationConnection implements OpenConnection
         return $this->pdo;
     }
 }
+

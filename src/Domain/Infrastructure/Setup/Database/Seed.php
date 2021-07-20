@@ -5,6 +5,14 @@ declare(strict_types=1);
 namespace RC\Domain\Infrastructure\Setup\Database;
 
 use Ramsey\Uuid\Uuid;
+use RC\Domain\Experience\Pure\BetweenAYearAndThree;
+use RC\Domain\Experience\Pure\BetweenThreeYearsAndSix;
+use RC\Domain\Experience\Pure\GreaterThanSix;
+use RC\Domain\Experience\Pure\LessThanAYear;
+use RC\Domain\Position\Pure\Analyst;
+use RC\Domain\Position\Pure\ProductDesigner;
+use RC\Domain\Position\Pure\ProductManager;
+use RC\Domain\UserProfileRecordType\Pure\Position;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
@@ -33,6 +41,11 @@ class Seed
             return $addAnalysisParadysisGroup;
         }
 
+        $addQuestions = $this->addQuestions();
+        if (!$addQuestions->isSuccessful()) {
+            return $addQuestions;
+        }
+
         return new Successful(new Emptie());
     }
 
@@ -40,8 +53,14 @@ class Seed
     {
         return
             (new SingleMutating(
-                'insert into bot values (?, ?, \'false\', ?)',
-                ['1f6d0fd5-3179-47fb-b92d-f6bec4e8f016', '1884532101:AAGUQlhCa87lAZNhMws9vKCpjrDihcmJRK4', '@gorgonzola_sandwich_bot'],
+                'insert into bot values (?, ?, \'false\', ?, ?, ?)',
+                [
+                    '1f6d0fd5-3179-47fb-b92d-f6bec4e8f016',
+                    '1884532101:AAGlJklZYP5j72nC2UcvB0IbD05i70kQqWc',
+                    '@gorgonzola_sandwich_bot',
+                    json_encode([(new ProductManager())->value(), (new ProductDesigner())->value(), (new Analyst())->value(), ]),
+                    json_encode([(new LessThanAYear())->value(), (new BetweenAYearAndThree())->value(), (new BetweenThreeYearsAndSix())->value(), (new GreaterThanSix())->value(), ])
+                ],
                 $this->connection
             ))
                 ->response();
@@ -53,6 +72,17 @@ class Seed
             (new SingleMutating(
                 'insert into "group" values (?, ?, ?)',
                 [Uuid::uuid4()->toString(), '1f6d0fd5-3179-47fb-b92d-f6bec4e8f016', 'Analysis Paradysis'],
+                $this->connection
+            ))
+                ->response();
+    }
+
+    private function addQuestions()
+    {
+        return
+            (new SingleMutating(
+                'insert into registration_question (id, profile_record_type, bot_id, ordinal_number, text) values (?, ?, ?, ?, ?)',
+                [Uuid::uuid4()->toString(), (new Position())->value(), '1f6d0fd5-3179-47fb-b92d-f6bec4e8f016', 1, 'Кем работаете?'],
                 $this->connection
             ))
                 ->response();

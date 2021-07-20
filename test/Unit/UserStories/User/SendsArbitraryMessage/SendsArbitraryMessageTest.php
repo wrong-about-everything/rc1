@@ -10,7 +10,7 @@ use RC\Domain\BotUser\ByTelegramUserId;
 use RC\Domain\Experience\Impure\FromBotUser as ExperienceFromBotUser;
 use RC\Domain\Experience\Impure\FromPure as ImpureExperienceFromPure;
 use RC\Domain\Experience\Pure\Experience as UserExperience;
-use RC\Domain\Experience\Pure\LessThatAYear;
+use RC\Domain\Experience\Pure\LessThanAYear;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\Position\Impure\FromBotUser;
@@ -115,7 +115,7 @@ class SendsArbitraryMessageTest extends TestCase
 
         $response =
             (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), (string) (new LessThatAYear())->value()))->value(),
+                (new UserMessage($this->telegramUserId(), (string) (new LessThanAYear())->value()))->value(),
                 $this->botId()->value(),
                 $transport,
                 $connection,
@@ -126,7 +126,7 @@ class SendsArbitraryMessageTest extends TestCase
         $this->assertTrue($response->isSuccessful());
         $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionId(), $connection);
         $this->assertPositionIs($this->telegramUserId(), $this->botId(), new ProductManager(), $connection);
-        $this->assertExperienceIs($this->telegramUserId(), $this->botId(), new LessThatAYear(), $connection);
+        $this->assertExperienceIs($this->telegramUserId(), $this->botId(), new LessThanAYear(), $connection);
         $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
@@ -152,7 +152,7 @@ class SendsArbitraryMessageTest extends TestCase
 
         $response =
             (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), (string) (new LessThatAYear())->value()))->value(),
+                (new UserMessage($this->telegramUserId(), (string) (new LessThanAYear())->value()))->value(),
                 $this->botId()->value(),
                 $transport,
                 $connection,
