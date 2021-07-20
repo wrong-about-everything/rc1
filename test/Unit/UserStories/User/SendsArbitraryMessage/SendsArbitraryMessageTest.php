@@ -11,12 +11,14 @@ use RC\Domain\Experience\Impure\FromBotUser as ExperienceFromBotUser;
 use RC\Domain\Experience\Impure\FromPure as ImpureExperienceFromPure;
 use RC\Domain\Experience\Pure\Experience as UserExperience;
 use RC\Domain\Experience\Pure\LessThanAYear;
+use RC\Domain\ExperienceName\LessThanAYearName;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\Position\Impure\FromBotUser;
 use RC\Domain\Position\Impure\FromPure;
 use RC\Domain\Position\Pure\Position as UserPosition;
 use RC\Domain\Position\Pure\ProductManager;
+use RC\Domain\PositionName\ProductManagerName;
 use RC\Domain\RegistrationQuestionId\Impure\FromString as RegistrationQuestionIdFromString;
 use RC\Domain\RegistrationQuestionId\Impure\RegistrationQuestionId;
 use RC\Domain\UserId\FromUuid as UserIdFromUuid;
@@ -44,9 +46,7 @@ use RC\Tests\Infrastructure\Stub\Table\Bot;
 use RC\Tests\Infrastructure\Stub\Table\BotUser;
 use RC\Tests\Infrastructure\Stub\Table\RegistrationQuestion;
 use RC\Tests\Infrastructure\Stub\Table\UserRegistrationProgress;
-use RC\Tests\Infrastructure\Stub\TelegramMessage\StartCommandMessage;
 use RC\Tests\Infrastructure\Stub\TelegramMessage\UserMessage;
-use RC\UserStories\User\PressesStart\PressesStart;
 use RC\UserStories\User\SendsArbitraryMessage\SendsArbitraryMessage;
 
 class SendsArbitraryMessageTest extends TestCase
@@ -72,7 +72,7 @@ class SendsArbitraryMessageTest extends TestCase
 
         $response =
             (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), (string) (new ProductManager())->value()))->value(),
+                (new UserMessage($this->telegramUserId(), (new ProductManagerName())->value()))->value(),
                 $this->botId()->value(),
                 $transport,
                 $connection,
@@ -115,7 +115,7 @@ class SendsArbitraryMessageTest extends TestCase
 
         $response =
             (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), (string) (new LessThanAYear())->value()))->value(),
+                (new UserMessage($this->telegramUserId(), (new LessThanAYearName())->value()))->value(),
                 $this->botId()->value(),
                 $transport,
                 $connection,
@@ -152,7 +152,7 @@ class SendsArbitraryMessageTest extends TestCase
 
         $response =
             (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), (string) (new LessThanAYear())->value()))->value(),
+                (new UserMessage($this->telegramUserId(), (new LessThanAYearName())->value()))->value(),
                 $this->botId()->value(),
                 $transport,
                 $connection,

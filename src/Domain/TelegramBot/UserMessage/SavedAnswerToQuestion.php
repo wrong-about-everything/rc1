@@ -6,6 +6,10 @@ namespace RC\Domain\TelegramBot\UserMessage;
 
 use Exception;
 use RC\Domain\BotId\BotId;
+use RC\Domain\Experience\Pure\FromExperienceName;
+use RC\Domain\ExperienceName\FromString as ExperienceName;
+use RC\Domain\Position\Pure\FromPositionName;
+use RC\Domain\PositionName\FromString;
 use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
 use RC\Domain\RegistrationQuestion\RegistrationQuestion;
 use RC\Domain\RegistrationQuestionId\Impure\FromRegistrationQuestion as RegistrationQuestionId;
@@ -76,46 +80,54 @@ q
                         [$registrationQuestionId->value(), $this->telegramUserId->value()],
                         $this->connection
                     ),
-                    new SingleMutating(
-                        $this->updateUserBotQuery(),
-                        [$this->userMessage->value()->pure()->raw(), $this->telegramUserId->value(), $this->botId->value()],
-                        $this->connection
-                    )
+                    $this->updateBotUserQuery(),
                 ],
                 $this->connection
             ))
                 ->response();
     }
 
-    private function updateUserBotQuery()
+    private function updateBotUserQuery()
     {
         if ((new ProfileRecordType($this->question))->equals(new FromPure(new Position()))) {
             return
-                <<<q
+                new SingleMutating(
+                    <<<q
 update bot_user
 set position = ?
 from "user"
 where "user".id = bot_user.user_id and "user".telegram_id = ? and bot_user.bot_id = ?
 q
-                ;
+                    ,
+                    [(new FromPositionName(new FromString($this->userMessage->value()->pure()->raw())))->value(), $this->telegramUserId->value(), $this->botId->value()],
+                    $this->connection
+                );
         } elseif ((new ProfileRecordType($this->question))->equals(new FromPure(new Experience()))) {
             return
-                <<<q
+                new SingleMutating(
+                    <<<q
 update bot_user
 set experience = ?
 from "user"
 where "user".id = bot_user.user_id and "user".telegram_id = ? and bot_user.bot_id = ?
 q
-                ;
+                    ,
+                    [(new FromExperienceName(new ExperienceName($this->userMessage->value()->pure()->raw())))->value(), $this->telegramUserId->value(), $this->botId->value()],
+                    $this->connection
+                );
         } elseif ((new ProfileRecordType($this->question))->equals(new FromPure(new About()))) {
             return
-                <<<q
+                new SingleMutating(
+                    <<<q
 update bot_user
 set about = ?
 from "user"
 where "user".id = bot_user.user_id and "user".telegram_id = ? and bot_user.bot_id = ?
 q
-                ;
+                                    ,
+                    [$this->userMessage->value()->pure()->raw(), $this->telegramUserId->value(), $this->botId->value()],
+                    $this->connection
+                );
         }
 
         throw new Exception(sprintf('Unknown user profile record type given: %s', (new ProfileRecordType($this->question))->value()->pure()->raw()));

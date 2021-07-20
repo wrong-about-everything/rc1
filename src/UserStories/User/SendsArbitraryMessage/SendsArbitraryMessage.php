@@ -12,6 +12,9 @@ use RC\Domain\UserStatus\Impure\FromBotUser;
 use RC\Domain\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
 use RC\Domain\UserStatus\Pure\Registered;
 use RC\Domain\UserStatus\Pure\RegistrationIsInProgress;
+use RC\Infrastructure\ImpureInteractions\ImpureValue;
+use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful as SuccessfulValue;
+use RC\Infrastructure\ImpureInteractions\PureValue\Emptie as EmptieValue;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Domain\BotId\FromUuid;
@@ -102,7 +105,7 @@ class SendsArbitraryMessage extends Existent
             );
     }
 
-    private function registrationStep()
+    private function registrationStep(): ImpureValue
     {
         $this->logs->receive(new InformationMessage('User is not registered. Run registration saga.'));
 
@@ -132,7 +135,7 @@ class SendsArbitraryMessage extends Existent
 
         $this->logs->receive(new InformationMessage('Registration saga step has finished.'));
 
-        return new Successful(new Emptie());
+        return new SuccessfulValue(new EmptieValue());
     }
 
     private function nextReply()
