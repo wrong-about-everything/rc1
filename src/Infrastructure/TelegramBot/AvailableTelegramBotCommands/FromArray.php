@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\TelegramBot\AvailableTelegramBotCommands;
 
-use RC\Infrastructure\TelegramBot\AvailableTelegramBotCommands\AvailableTelegramBotCommands;
 use RC\Infrastructure\TelegramBot\UserCommand\UserCommand;
 
 class FromArray implements AvailableTelegramBotCommands

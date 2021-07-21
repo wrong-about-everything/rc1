@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace RC\UserStories\User\PressesStart;
 
-use RC\Domain\TelegramBot\Reply\NextRegistrationQuestionReply;
-use RC\Domain\TelegramBot\Reply\UserIsAlreadyRegistered;
+use RC\Domain\RegistrationProcess\ReplyToUser\NextRegistrationQuestionReply;
+use RC\Domain\RegistrationProcess\ReplyToUser\UserIsAlreadyRegistered;
 use RC\Domain\UserStatus\Impure\FromBotUser;
 use RC\Domain\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
 use RC\Domain\UserStatus\Pure\Registered;

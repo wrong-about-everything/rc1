@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace RC\UserStories\User\SendsArbitraryMessage;
 
 use RC\Domain\BotId\BotId;
-use RC\Domain\TelegramBot\Reply\NextRegistrationQuestionReply;
-use RC\Domain\TelegramBot\Reply\RegistrationCongratulations;
+use RC\Domain\RegistrationProcess\ReplyToUser\NextRegistrationQuestionReply;
+use RC\Domain\RegistrationProcess\ReplyToUser\RegistrationCongratulations;
 use RC\Domain\UserStatus\Impure\FromBotUser;
 use RC\Domain\UserStatus\Impure\FromPure;
 use RC\Domain\UserStatus\Pure\Registered;

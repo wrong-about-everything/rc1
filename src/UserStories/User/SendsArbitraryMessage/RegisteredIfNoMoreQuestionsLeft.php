@@ -7,7 +7,7 @@ namespace RC\UserStories\User\SendsArbitraryMessage;
 use RC\Domain\BotId\BotId;
 use RC\Domain\BotUser\BotUser;
 use RC\Domain\BotUser\ByTelegramUserId;
-use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
+use RC\Domain\RegistrationProcess\RegistrationQuestion\NextRegistrationQuestion;
 use RC\Domain\UserStatus\Pure\Registered;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\UserProfileRecordType\Impure;
+namespace RC\Domain\RegistrationProcess\RegistrationQuestion\RegistrationQuestionId\Impure;
 
 use RC\Domain\RegistrationProcess\RegistrationQuestion\RegistrationQuestion;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 
-class FromRegistrationQuestion extends UserProfileRecordType
+class FromRegistrationQuestion implements RegistrationQuestionId
 {
     private $registrationQuestion;
 
@@ -24,6 +24,6 @@ class FromRegistrationQuestion extends UserProfileRecordType
             return $this->registrationQuestion->value();
         }
 
-        return new Successful(new Present($this->registrationQuestion->value()->pure()->raw()['profile_record_type']));
+        return new Successful(new Present($this->registrationQuestion->value()->pure()->raw()['id']));
     }
 }

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace RC\UserStories\User\SendsArbitraryMessage;
 
 use RC\Domain\BotUser\ByTelegramUserId;
-use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
-use RC\Domain\TelegramBot\Reply\UserIsAlreadyRegistered;
-use RC\Domain\TelegramBot\UserMessage\SavedAnswerToQuestion;
+use RC\Domain\RegistrationProcess\RegistrationQuestion\NextRegistrationQuestion;
+use RC\Domain\RegistrationProcess\ReplyToUser\UserIsAlreadyRegistered;
+use RC\UserStories\User\SendsArbitraryMessage\SavedAnswerToRegistrationQuestion;
 use RC\Domain\UserStatus\Impure\FromBotUser;
 use RC\Domain\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
 use RC\Domain\UserStatus\Pure\Registered;
@@ -110,7 +110,7 @@ class SendsArbitraryMessage extends Existent
         $this->logs->receive(new InformationMessage('User is not registered. Run registration saga.'));
 
         $savedAnswerValue =
-            (new SavedAnswerToQuestion(
+            (new SavedAnswerToRegistrationQuestion(
                 new FromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),
                 new UserMessage($this->message),
