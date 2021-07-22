@@ -38,11 +38,11 @@ class RouteByTelegramBotCommandTest extends TestCase
                 new RouteByTelegramBotCommand(new Start()),
                 new Composite(
                     new Post(),
-                    new FromString('https://hello.vasya.ru/hello/vasya?secret_smile=hello'),
+                    new FromString('https://hello.vasya.ru/hello/vasya?secret_smile=c0139e5f-24b5-4b9e-bb41-0ac7909de2f7'),
                     [],
                     $this->requestBody(new Start())
                 ),
-                [json_decode($this->requestBody(new Start()),true), 'hello']
+                [json_decode($this->requestBody(new Start()),true), 'c0139e5f-24b5-4b9e-bb41-0ac7909de2f7']
             ],
         ];
     }

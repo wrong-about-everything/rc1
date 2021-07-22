@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Domain\UserStory;
 
+use RC\Domain\BotId\FromQuery;
 use RC\Infrastructure\Http\Request\Inbound\Request;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
 use RC\Infrastructure\UserStory\Existent;
@@ -24,12 +25,7 @@ class Authorized extends Existent
 
     public function response(): Response
     {
-        parse_str(
-            (new FromUrl($this->request->url()))->isSpecified() ? (new FromUrl($this->request->url()))->value() : '',
-            $parsedQuery
-        );
-        // @todo: test! Why 200 when Unauthorized??
-        if (!isset($parsedQuery['secret_smile'])) {
+        if (!(new FromQuery(new FromUrl($this->request->url())))->exists()) {
             return new Unauthorized();
         }
 

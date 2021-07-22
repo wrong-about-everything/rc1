@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Infrastructure\TelegramBot\BotToken;
+namespace RC\Infrastructure\TelegramBot\BotToken\Impure;
 
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
@@ -12,7 +12,7 @@ use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Domain\BotId\BotId;
 
-class ByBotId extends ImpureBotToken
+class ByBotId extends BotToken
 {
     private $botId;
     private $connection;

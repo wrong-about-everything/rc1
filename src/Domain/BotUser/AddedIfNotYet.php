@@ -70,11 +70,11 @@ q
                     ),
                     new SingleMutating(
                         <<<q
-insert into bot_user (user_id, bot_id, status)
-values (?, ?, ?)
+insert into bot_user (id, user_id, bot_id, status)
+values (?, ?, ?, ?)
 q
                         ,
-                        [$generatedId, $this->botId->value(), (new RegistrationIsInProgress())->value()],
+                        [Uuid::uuid4()->toString(), $generatedId, $this->botId->value(), (new RegistrationIsInProgress())->value()],
                         $this->connection
                     )
                 ],

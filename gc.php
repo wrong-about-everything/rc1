@@ -6,6 +6,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RC\Domain\BotId\FromQuery;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\UserStory\Authorized;
 use RC\Domain\UserStory\Body\TelegramFallbackResponseBody;
@@ -20,6 +21,7 @@ use RC\Infrastructure\Http\Request\Inbound\DefaultInbound;
 use RC\Infrastructure\Http\Request\Inbound\FromPsrHttpRequest;
 use RC\Infrastructure\Http\Request\Inbound\WithPathTakenFromQueryParam;
 use RC\Infrastructure\Http\Request\Method\Get;
+use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Url\Query;
 use RC\Infrastructure\Http\Transport\EnvironmentDependentTransport;
 use RC\Infrastructure\Logging\LogId;
@@ -34,6 +36,7 @@ use RC\Infrastructure\TelegramBot\UserCommand\Start;
 use RC\Infrastructure\UserStory\ByRoute;
 use RC\Infrastructure\UserStory\Response\Successful;
 use RC\Infrastructure\Uuid\RandomUUID;
+use RC\UserStories\Cron\InvitesToTakePartInANewRound\InvitesToTakePartInANewRound;
 use RC\UserStories\Sample;
 use RC\UserStories\SomeoneSentUnknownPostRequest;
 use RC\UserStories\User\PressesStart\PressesStart;
@@ -93,6 +96,15 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                             new ArbitraryTelegramUserMessageRoute(),
                             function (array $parsedTelegramMessage, string $botId) use ($transport, $logs) {
                                 return new SendsArbitraryMessage($parsedTelegramMessage, $botId, $transport, new ApplicationConnection(), $logs);
+                            }
+                        ],
+                        [
+                            new RouteByMethodAndPathPattern(
+                                new Post(),
+                                '/cron/invites_to_attend_a_new_round'
+                            ),
+                            function (Query $query) use ($transport, $logs) {
+                                return new InvitesToTakePartInANewRound(new FromQuery($query), $transport, new ApplicationConnection(), $logs);
                             }
                         ],
                         [

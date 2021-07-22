@@ -12,6 +12,7 @@ use RC\Domain\Experience\ExperienceId\Pure\LessThanAYear;
 use RC\Domain\Position\PositionId\Pure\Analyst;
 use RC\Domain\Position\PositionId\Pure\ProductDesigner;
 use RC\Domain\Position\PositionId\Pure\ProductManager;
+use RC\Domain\UserProfileRecordType\Pure\About;
 use RC\Domain\UserProfileRecordType\Pure\Experience;
 use RC\Domain\UserProfileRecordType\Pure\Position;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
@@ -86,12 +87,23 @@ class Seed
                 [
                     new SingleMutating(
                         'insert into registration_question (id, profile_record_type, bot_id, ordinal_number, text) values (?, ?, ?, ?, ?)',
-                        [Uuid::uuid4()->toString(), (new Position())->value(), '1f6d0fd5-3179-47fb-b92d-f6bec4e8f016', 1, 'Кем вы работаете?'],
+                        [
+                            Uuid::uuid4()->toString(),
+                            (new Position())->value(),
+                            '1f6d0fd5-3179-47fb-b92d-f6bec4e8f016',
+                            1,
+                            'Привет, это рэндом кофе. На самом деле он не рэндом, потому что мы не втупую пару подбираем, а по определённым параметрам, так чтоб вам было интересно и полезно. Полное описание я ещё не придумал. Ответьте на три вопроса. Итак, кем вы работаете?'
+                        ],
                         $this->connection
                     ),
                     new SingleMutating(
                         'insert into registration_question (id, profile_record_type, bot_id, ordinal_number, text) values (?, ?, ?, ?, ?)',
-                        [Uuid::uuid4()->toString(), (new Experience())->value(), '1f6d0fd5-3179-47fb-b92d-f6bec4e8f016', 1, 'Какой у вас опыт?'],
+                        [Uuid::uuid4()->toString(), (new Experience())->value(), '1f6d0fd5-3179-47fb-b92d-f6bec4e8f016', 2, 'Какой у вас опыт работы на этой должности?'],
+                        $this->connection
+                    ),
+                    new SingleMutating(
+                        'insert into registration_question (id, profile_record_type, bot_id, ordinal_number, text) values (?, ?, ?, ?, ?)',
+                        [Uuid::uuid4()->toString(), (new About())->value(), '1f6d0fd5-3179-47fb-b92d-f6bec4e8f016', 3, 'Можете написать пару слов о себе для вашего собеседника. Где вы работаете, чем увлекаетесь, в каких областях вы можете поделиться своим опытом, а в каких хотели бы прокачаться лучше.'],
                         $this->connection
                     ),
                 ],

@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace RC\Infrastructure\TelegramBot\BotToken;
+namespace RC\Infrastructure\TelegramBot\BotToken\Pure;
 
 use Exception;
+use RC\Infrastructure\TelegramBot\BotToken\Impure\BotToken as ImpureBotToken;
 
 class FromImpure extends BotToken
 {

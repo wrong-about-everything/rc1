@@ -21,7 +21,7 @@ use RC\Domain\BotId\FromUuid;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
-use RC\Infrastructure\TelegramBot\BotToken\ByBotId;
+use RC\Infrastructure\TelegramBot\BotToken\Impure\ByBotId;
 use RC\Infrastructure\TelegramBot\Reply\Sorry;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
 use RC\Infrastructure\TelegramBot\UserMessage\FromParsedTelegramMessage as UserMessage;

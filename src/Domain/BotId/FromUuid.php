@@ -19,4 +19,9 @@ class FromUuid extends BotId
     {
         return $this->botId->value();
     }
+
+    public function exists(): bool
+    {
+        return true;
+    }
 }

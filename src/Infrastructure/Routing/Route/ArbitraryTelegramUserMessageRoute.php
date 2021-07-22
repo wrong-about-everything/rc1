@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\Routing\Route;
 
+use RC\Domain\BotId\FromQuery;
 use RC\Infrastructure\TelegramBot\UserMessage\FromTelegramMessage;
 use RC\Infrastructure\Http\Request\Inbound\Request;
 use RC\Infrastructure\Http\Request\Method\Post;
@@ -27,7 +28,7 @@ class ArbitraryTelegramUserMessageRoute implements Route
             $userMessage->exists()
                 ?
                     new Match(
-                        [json_decode($httpRequest->body(), true), $this->botId($httpRequest)]
+                        [json_decode($httpRequest->body(), true), $this->botId($httpRequest)->value()]
                     )
                 : new NotMatch()
             ;
@@ -35,10 +36,6 @@ class ArbitraryTelegramUserMessageRoute implements Route
 
     private function botId(Request $httpRequest)
     {
-        parse_str(
-            (new FromUrl($httpRequest->url()))->value(),
-            $parsedQuery
-        );
-        return $parsedQuery['secret_smile'];
+        return new FromQuery(new FromUrl($httpRequest->url()));
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Infrastructure\TelegramBot\BotToken;
+namespace RC\Infrastructure\TelegramBot\BotToken\Pure;
 
 abstract class BotToken
 {

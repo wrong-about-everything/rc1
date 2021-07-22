@@ -28,9 +28,9 @@ use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\BotApiUrl;
 use RC\Domain\BotId\BotId;
-use RC\Infrastructure\TelegramBot\BotToken\ByBotId;
-use RC\Infrastructure\TelegramBot\BotToken\FromImpure;
-use RC\Infrastructure\TelegramBot\BotToken\ImpureBotToken;
+use RC\Infrastructure\TelegramBot\BotToken\Impure\ByBotId;
+use RC\Infrastructure\TelegramBot\BotToken\Pure\FromImpure;
+use RC\Infrastructure\TelegramBot\BotToken\Impure\BotToken;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\TelegramBot\Reply\Reply;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
@@ -72,7 +72,7 @@ class NextRegistrationQuestionReply implements Reply
         return new Successful(new Emptie());
     }
 
-    private function ask(RegistrationQuestion $nextRegistrationQuestion, ImpureBotToken $botToken)
+    private function ask(RegistrationQuestion $nextRegistrationQuestion, BotToken $botToken)
     {
         return
             $this->httpTransport

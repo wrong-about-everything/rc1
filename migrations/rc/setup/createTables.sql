@@ -31,6 +31,7 @@ create table "user" (
 );
 
 create table bot_user (
+  id uuid,
   user_id uuid,
   bot_id uuid,
   position smallint,
@@ -54,6 +55,51 @@ create table user_registration_progress (
   user_id uuid,
 
   primary key (registration_question_id, user_id)
+);
+
+create table meeting_round (
+  id uuid,
+  bot_id uuid,
+  name text,
+  start_date timestamptz,
+  timezone text,
+
+  primary key (id)
+);
+
+create table meeting_round_invitation (
+  id uuid,
+  meeting_round_id uuid,
+  user_id uuid,
+  status smallint,
+
+  primary key (meeting_round_id, user_id)
+);
+
+create table meeting_round_question (
+  id uuid,
+  bot_id uuid,
+  text text,
+  answer_options timestamptz,
+  ordinal_number smallint,
+
+  primary key (id)
+);
+
+create table user_round_registration_progress (
+  meeting_question_id uuid,
+  user_id uuid,
+
+  primary key (meeting_question_id, user_id)
+);
+
+create table meeting_round_participant (
+  user_id uuid,
+  meeting_round_id uuid,
+  interested_in_as_plain_text text,
+  interested_in jsonb,
+
+  primary key (user_id, meeting_round_id)
 );
 
 

@@ -61,7 +61,12 @@ truncate
     "user",
     bot_user,
     registration_question,
-    user_registration_progress
+    user_registration_progress,
+    meeting_round,
+    meeting_round_invitation,
+    meeting_round_question,
+    user_round_registration_progress,
+    meeting_round_participant
 
     cascade
 q

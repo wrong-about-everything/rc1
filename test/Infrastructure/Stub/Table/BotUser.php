@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RC\Tests\Infrastructure\Stub\Table;
 
 use Exception;
+use Ramsey\Uuid\Uuid;
 use RC\Domain\BotId\BotId;
 use RC\Domain\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
@@ -37,13 +38,13 @@ class BotUser
         }
         $userBotInsertResponse =
             (new SingleMutating(
-                'insert into "bot_user" (user_id, bot_id, position, experience, about, status) values (?, ?, ?, ?, ?, ?)',
-                [$userId, $this->botId->value(), $botUser['position'] ?? null, $botUser['experience'] ?? null, $botUser['about'] ?? null, $botUser['status'] ?? (new RegistrationIsInProgress())->value()],
+                'insert into "bot_user" (id, user_id, bot_id, position, experience, about, status) values (?, ?, ?, ?, ?, ?, ?)',
+                [Uuid::uuid4()->toString(), $userId, $this->botId->value(), $botUser['position'] ?? null, $botUser['experience'] ?? null, $botUser['about'] ?? null, $botUser['status'] ?? (new RegistrationIsInProgress())->value()],
                 $this->connection
             ))
                 ->response();
         if (!$userBotInsertResponse->isSuccessful()) {
-            throw new Exception(sprintf('Error while inserting bot_user record: %s', $userInsertResponse->error()->logMessage()));
+            throw new Exception(sprintf('Error while inserting bot_user record: %s', $userBotInsertResponse->error()->logMessage()));
         }
     }
 
