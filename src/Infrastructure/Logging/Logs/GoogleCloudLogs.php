@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\Logging\Logs;
 
-use Google\Cloud\Logging\Entry;
 use Google\Cloud\Logging\LoggingClient;
 use RC\Infrastructure\Filesystem\FilePath;
 use RC\Infrastructure\Logging\LogItem;

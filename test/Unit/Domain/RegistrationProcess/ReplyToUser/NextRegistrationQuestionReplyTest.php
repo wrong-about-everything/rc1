@@ -16,7 +16,7 @@ use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\Position\PositionId\Pure\Analyst;
 use RC\Domain\Position\PositionId\Pure\ProductDesigner;
 use RC\Domain\Position\PositionId\Pure\ProductManager;
-use RC\Domain\RegistrationProcess\ReplyToUser\NextRegistrationQuestionReply;
+use RC\Activities\User\RegistersInBot\Domain\Reply\NextRegistrationQuestionReply;
 use RC\Domain\UserProfileRecordType\Pure\Experience;
 use RC\Domain\UserProfileRecordType\Pure\Position;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;

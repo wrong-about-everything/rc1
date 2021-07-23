@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Domain\Position\PositionId\Impure;
 
+use Exception;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 
 class NonSuccessful extends Position
@@ -12,6 +13,10 @@ class NonSuccessful extends Position
 
     public function __construct(ImpureValue $nonSuccessfulValue)
     {
+        if ($nonSuccessfulValue->isSuccessful()) {
+            throw new Exception('Impure value must be non-successful');
+        }
+
         $this->nonSuccessfulValue = $nonSuccessfulValue;
     }
 

@@ -12,7 +12,7 @@ class FromTelegramMessage implements UserMessage
 
     public function __construct(string $message)
     {
-        $this->concrete = new FromParsedTelegramMessage(json_decode($message, true));
+        $this->concrete = new FromParsedTelegramMessage(json_decode($message, true) ?? []);
     }
 
     public function value(): ImpureValue

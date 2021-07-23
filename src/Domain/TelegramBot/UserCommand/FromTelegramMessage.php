@@ -12,9 +12,9 @@ class FromTelegramMessage extends UserCommand
 {
     private $concrete;
 
-    public function __construct(string $commandName)
+    public function __construct(string $telegramMessage)
     {
-        $this->concrete = new UserCommandFromMessage($commandName, new AvailableTelegramBotCommands());
+        $this->concrete = new UserCommandFromMessage($telegramMessage, new AvailableTelegramBotCommands());
     }
 
     public function value(): string

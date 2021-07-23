@@ -1,0 +1,12 @@
+<?php
+
+declare(strict_types=1);
+
+namespace RC\Activities\Cron\InvitesToTakePartInANewRound\Invitation;
+
+use RC\Infrastructure\ImpureInteractions\ImpureValue;
+
+interface Invitation
+{
+    public function value(): ImpureValue;
+}

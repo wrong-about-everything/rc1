@@ -7,6 +7,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RC\Domain\BotId\FromQuery;
+use RC\Domain\BotId\FromUuid;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\UserStory\Authorized;
 use RC\Domain\UserStory\Body\TelegramFallbackResponseBody;
@@ -31,16 +32,18 @@ use RC\Infrastructure\Logging\Logs\GoogleCloudLogs;
 use RC\Infrastructure\Routing\Route\ArbitraryTelegramUserMessageRoute;
 use RC\Infrastructure\Routing\Route\MatchingAnyPostRequest;
 use RC\Infrastructure\Routing\Route\RouteByMethodAndPathPattern;
+use RC\Infrastructure\Routing\Route\RouteByMethodAndPathPatternWithQuery;
 use RC\Infrastructure\Routing\Route\RouteByTelegramBotCommand;
 use RC\Infrastructure\TelegramBot\UserCommand\Start;
 use RC\Infrastructure\UserStory\ByRoute;
 use RC\Infrastructure\UserStory\Response\Successful;
+use RC\Infrastructure\Uuid\FromString;
 use RC\Infrastructure\Uuid\RandomUUID;
-use RC\UserStories\Cron\InvitesToTakePartInANewRound\InvitesToTakePartInANewRound;
-use RC\UserStories\Sample;
-use RC\UserStories\SomeoneSentUnknownPostRequest;
-use RC\UserStories\User\PressesStart\PressesStart;
-use RC\UserStories\User\SendsArbitraryMessage\SendsArbitraryMessage;
+use RC\Activities\Cron\InvitesToTakePartInANewRound\InvitesToTakePartInANewRound;
+use RC\Activities\Sample;
+use RC\Activities\SomeoneSentUnknownPostRequest;
+use RC\UserActions\PressesStart\PressesStart;
+use RC\UserActions\SendsArbitraryMessage\SendsArbitraryMessage;
 
 (new EnvironmentDependentEnvFile(
     new ExistentDirPathFromAbsolutePathString(dirname(__FILE__)),
@@ -99,7 +102,7 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                             }
                         ],
                         [
-                            new RouteByMethodAndPathPattern(
+                            new RouteByMethodAndPathPatternWithQuery(
                                 new Post(),
                                 '/cron/invites_to_attend_a_new_round'
                             ),

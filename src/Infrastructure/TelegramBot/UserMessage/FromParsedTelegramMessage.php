@@ -14,7 +14,7 @@ class FromParsedTelegramMessage implements UserMessage
     {
         $this->concrete =
             ($message['message']['entities'][0]['type'] ?? '') !== 'bot_command'
-                ? new FromString($message['message']['text'])
+                ? isset($message['message']['text']) ? new FromString($message['message']['text']) : new NonExistent()
                 : new NonExistent()
         ;
     }
