@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion\Domain\Reply;
 
-use RC\Domain\BotId\BotId;
+use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\BotUser\BotUser;
 use RC\Domain\BotUser\ByTelegramUserId;
 use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
-use RC\Domain\UserStatus\Pure\Registered;
+use RC\Domain\User\UserStatus\Pure\Registered;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;

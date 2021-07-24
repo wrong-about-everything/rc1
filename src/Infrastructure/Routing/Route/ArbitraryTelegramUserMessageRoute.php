@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\Routing\Route;
 
-use RC\Domain\BotId\FromQuery;
-use RC\Infrastructure\TelegramBot\UserMessage\FromTelegramMessage;
+use RC\Domain\Bot\BotId\FromQuery;
+use RC\Infrastructure\TelegramBot\UserMessage\Pure\FromTelegramMessage;
 use RC\Infrastructure\Http\Request\Inbound\Request;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;

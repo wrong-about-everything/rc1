@@ -10,7 +10,7 @@ use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
-use RC\Domain\BotId\BotId;
+use RC\Domain\Bot\BotId\BotId;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
 class NextRegistrationQuestion implements RegistrationQuestion

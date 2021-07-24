@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace RC\Tests\Unit\Domain\RegistrationProcess\ReplyToUser;
 
 use PHPUnit\Framework\TestCase;
-use RC\Domain\BotId\BotId;
-use RC\Domain\BotId\FromUuid;
+use RC\Domain\Bot\BotId\BotId;
+use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Experience\ExperienceId\Pure\BetweenAYearAndThree;
 use RC\Domain\Experience\ExperienceId\Pure\BetweenThreeYearsAndSix;
 use RC\Domain\Experience\ExperienceId\Pure\GreaterThanSix;

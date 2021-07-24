@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Domain\RoundInvitation\Status\Impure;
 
-use RC\Domain\RoundInvitation\Invitation;
+use RC\Domain\RoundInvitation\ReadModel\Invitation;
 use RC\Domain\RoundInvitation\Status\Pure\FromInteger;
 use RC\Domain\RoundInvitation\Status\Pure\NonExistent;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;

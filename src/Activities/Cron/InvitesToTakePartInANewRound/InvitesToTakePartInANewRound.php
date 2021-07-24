@@ -4,24 +4,25 @@ declare(strict_types=1);
 
 namespace RC\Activities\Cron\InvitesToTakePartInANewRound;
 
-use RC\Domain\BotId\BotId;
+use RC\Domain\Bot\BotId\BotId;
+use RC\Domain\Bot\BotToken\Impure\ByBotId;
+use RC\Domain\Bot\ById;
+use RC\Domain\RoundInvitation\InvitationId\Pure\FromUuid;
 use RC\Infrastructure\Uuid\FromString as Uuid;
-use RC\Activities\Cron\InvitesToTakePartInANewRound\Invitation\Logged;
-use RC\Activities\Cron\InvitesToTakePartInANewRound\Invitation\Persisted;
-use RC\Activities\Cron\InvitesToTakePartInANewRound\Invitation\Sent;
+use RC\Domain\RoundInvitation\WriteModel\Sent;
 use RC\Domain\RoundInvitation\Status\Pure\Sent as SentStatus;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
-use RC\Infrastructure\TelegramBot\BotToken\Pure\FromString;
+use RC\Domain\Bot\BotToken\Pure\FromString;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger;
 use RC\Infrastructure\UserStory\Body\Emptie;
 use RC\Infrastructure\UserStory\Existent;
 use RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Response\Successful;
-use RC\Activities\Cron\InvitesToTakePartInANewRound\Invitation\WithPause;
+use RC\Domain\RoundInvitation\WriteModel\WithPause;
 
 class InvitesToTakePartInANewRound extends Existent
 {
@@ -45,23 +46,16 @@ class InvitesToTakePartInANewRound extends Existent
         array_map(
             function (array $meetingRoundInvitation) {
                 return
-                    (new Logged(
-                        $meetingRoundInvitation['name'],
-                        new FromInteger($meetingRoundInvitation['telegram_id']),
-                        new WithPause(
-                            new Persisted(
-                                new Uuid($meetingRoundInvitation['id']),
-                                new Sent(
-                                    new Uuid($meetingRoundInvitation['id']),
-                                    new FromInteger($meetingRoundInvitation['telegram_id']),
-                                    new FromString($meetingRoundInvitation['token']),
-                                    $this->transport
-                                ),
-                                $this->connection
-                            ),
-                            100000 // microseconds
+                    (new WithPause(
+                        new Sent(
+                            new FromUuid(new Uuid($meetingRoundInvitation['id'])),
+                            new FromInteger($meetingRoundInvitation['telegram_id']),
+                            new ById($this->botId, $this->connection),
+                            $this->transport,
+                            $this->connection,
+                            $this->logs
                         ),
-                        $this->logs
+                        100000 // microseconds
                     ))
                         ->value();
             },

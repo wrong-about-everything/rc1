@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace RC\Tests\Unit\Activities\Cron\InvitesToTakePartInANewRound;
 
 use PHPUnit\Framework\TestCase;
-use RC\Domain\BotId\BotId;
-use RC\Domain\BotId\FromUuid;
+use RC\Domain\Bot\BotId\BotId;
+use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\RoundInvitation\Status\Pure\_New;

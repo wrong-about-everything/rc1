@@ -6,8 +6,8 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RC\Domain\BotId\FromQuery;
-use RC\Domain\BotId\FromUuid;
+use RC\Domain\Bot\BotId\FromQuery;
+use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\UserStory\Authorized;
 use RC\Domain\UserStory\Body\TelegramFallbackResponseBody;

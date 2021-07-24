@@ -15,11 +15,11 @@ use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\BotApiUrl;
-use RC\Domain\BotId\BotId;
-use RC\Infrastructure\TelegramBot\BotToken\Impure\ByBotId;
-use RC\Infrastructure\TelegramBot\BotToken\Pure\FromImpure;
+use RC\Domain\Bot\BotId\BotId;
+use RC\Domain\Bot\BotToken\Impure\ByBotId;
+use RC\Domain\Bot\BotToken\Pure\FromImpure;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
-use RC\Infrastructure\TelegramBot\Reply\Reply;
+use RC\Domain\TelegramBot\Reply\Reply;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
 class RegistrationCongratulations implements Reply

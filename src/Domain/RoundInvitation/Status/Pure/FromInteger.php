@@ -28,7 +28,9 @@ class FromInteger extends Status
         return [
             (new _New())->value() => new _New(),
             (new Sent())->value() => new Sent(),
-            (new Error())->value() => new Error(),
+            (new ErrorDuringSending())->value() => new ErrorDuringSending(),
+            (new Declined())->value() => new Declined(),
+            (new Accepted())->value() => new Accepted(),
         ];
     }
 }

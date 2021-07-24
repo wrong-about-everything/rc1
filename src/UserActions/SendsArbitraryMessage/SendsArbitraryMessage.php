@@ -5,24 +5,25 @@ declare(strict_types=1);
 namespace RC\UserActions\SendsArbitraryMessage;
 
 use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\AnswersRoundRegistrationQuestion;
+use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\RepliesToRoundInvitation;
 use RC\Domain\BotUser\ByTelegramUserId;
-use RC\Domain\RoundInvitation\LatestByTelegramUserIdAndBotId;
+use RC\Domain\RoundInvitation\ReadModel\LatestByTelegramUserIdAndBotId;
 use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromPure;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
 use RC\Domain\TelegramBot\Reply\InCaseOfAnyUncertainty;
-use RC\Domain\UserStatus\Impure\FromBotUser;
-use RC\Domain\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
-use RC\Domain\UserStatus\Pure\Registered;
-use RC\Domain\UserStatus\Pure\RegistrationIsInProgress;
+use RC\Domain\User\UserStatus\Impure\FromBotUser;
+use RC\Domain\User\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
+use RC\Domain\User\UserStatus\Pure\Registered;
+use RC\Domain\User\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
-use RC\Domain\BotId\FromUuid;
+use RC\Domain\Bot\BotId\FromUuid;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
-use RC\Infrastructure\TelegramBot\BotToken\Impure\ByBotId;
-use RC\Infrastructure\TelegramBot\Reply\Sorry;
+use RC\Domain\Bot\BotToken\Impure\ByBotId;
+use RC\Domain\TelegramBot\Reply\Sorry;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
 use RC\Infrastructure\UserStory\Body\Emptie;
 use RC\Infrastructure\UserStory\Existent;
@@ -62,6 +63,8 @@ class SendsArbitraryMessage extends Existent
         if ($userStatus->equals(new ImpureUserStatusFromPure(new RegistrationIsInProgress()))) {
             return $this->answersRegistrationQuestion();
         } elseif ($userStatus->equals(new ImpureUserStatusFromPure(new Registered())) && $this->thereIsAPendingInvitation()) {
+            return $this->repliesToRoundInvitation();
+        } elseif ($userStatus->equals(new ImpureUserStatusFromPure(new Registered())) && $this->thereIsAnAcceptedInvitation() && $this->roundRegistrationInProgress()) {
             return $this->answersRoundRegistrationQuestion();
         } else {
             $userIsAlreadyRegisteredValue = $this->replyInCaseOfAnyUncertainty()->value();
@@ -158,5 +161,28 @@ class SendsArbitraryMessage extends Existent
         }
 
         return $latestInvitationStatus->equals(new FromPure(new Sent()));
+    }
+
+    private function repliesToRoundInvitation()
+    {
+        return
+            (new RepliesToRoundInvitation(
+                $this->message,
+                $this->botId,
+                $this->httpTransport,
+                $this->connection,
+                $this->logs
+            ))
+                ->response();
+    }
+
+    private function thereIsAnAcceptedInvitation()
+    {
+        return false;
+    }
+
+    private function roundRegistrationInProgress()
+    {
+        return false;
     }
 }

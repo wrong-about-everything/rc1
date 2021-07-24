@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\TelegramBot;
 
-use RC\Infrastructure\TelegramBot\BotToken\Pure\BotToken;
+use RC\Domain\Bot\BotToken\Pure\BotToken;
 use RC\Infrastructure\TelegramBot\Method\Method;
 use RC\Infrastructure\Http\Request\Url;
 use RC\Infrastructure\Http\Request\Url\Query;

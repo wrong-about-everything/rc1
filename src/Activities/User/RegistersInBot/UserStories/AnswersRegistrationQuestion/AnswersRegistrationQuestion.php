@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion;
 
-use RC\Domain\BotId\FromUuid;
+use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
-use RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion\Domain\Reply\NextReply;
+use RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion\Domain\Reply\NextReplyToUser;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
-use RC\Infrastructure\TelegramBot\BotToken\Impure\ByBotId;
-use RC\Infrastructure\TelegramBot\Reply\Sorry;
+use RC\Domain\Bot\BotToken\Impure\ByBotId;
+use RC\Domain\TelegramBot\Reply\Sorry;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
-use RC\Infrastructure\TelegramBot\UserMessage\FromParsedTelegramMessage as UserMessage;
+use RC\Infrastructure\TelegramBot\UserMessage\Pure\FromParsedTelegramMessage as UserMessage;
 use RC\Infrastructure\UserStory\Body\Emptie;
 use RC\Infrastructure\UserStory\Existent;
 use RC\Infrastructure\UserStory\Response;
@@ -63,7 +63,7 @@ class AnswersRegistrationQuestion extends Existent
             return new Successful(new Emptie());
         }
 
-        $nextReply = $this->nextReply()->value();
+        $nextReply = $this->nextReplyToUser()->value();
         if (!$nextReply->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($nextReply));
             $this->sorry()->value();
@@ -88,10 +88,10 @@ class AnswersRegistrationQuestion extends Existent
             );
     }
 
-    private function nextReply()
+    private function nextReplyToUser()
     {
         return
-            new NextReply(
+            new NextReplyToUser(
                 new FromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),
                 $this->httpTransport,

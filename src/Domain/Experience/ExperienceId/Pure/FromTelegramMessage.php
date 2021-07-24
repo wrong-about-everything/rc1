@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Domain\Experience\ExperienceId\Pure;
 
-use RC\Infrastructure\TelegramBot\UserMessage\FromParsedTelegramMessage;
+use RC\Infrastructure\TelegramBot\UserMessage\Pure\FromParsedTelegramMessage;
 
 class FromTelegramMessage extends Experience
 {

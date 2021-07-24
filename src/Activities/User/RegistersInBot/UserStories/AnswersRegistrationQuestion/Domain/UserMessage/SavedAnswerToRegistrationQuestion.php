@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion\Domain\UserMessage;
 
 use Exception;
-use RC\Domain\BotId\BotId;
+use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Experience\ExperienceId\Pure\FromExperienceName;
 use RC\Domain\Experience\ExperienceName\FromString as ExperienceName;
 use RC\Domain\Position\PositionId\Pure\FromPositionName;
@@ -20,11 +20,14 @@ use RC\Domain\UserProfileRecordType\Pure\About;
 use RC\Domain\UserProfileRecordType\Pure\Experience;
 use RC\Domain\UserProfileRecordType\Pure\Position;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
+use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
+use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\TransactionalQueryFromMultipleQueries;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
-use RC\Infrastructure\TelegramBot\UserMessage\UserMessage;
+use RC\Infrastructure\TelegramBot\UserMessage\Impure\UserMessage;
+use RC\Infrastructure\TelegramBot\UserMessage\Pure\UserMessage as PureUserMessage;
 
 class SavedAnswerToRegistrationQuestion implements UserMessage
 {
@@ -34,7 +37,7 @@ class SavedAnswerToRegistrationQuestion implements UserMessage
     private $question;
     private $connection;
 
-    public function __construct(TelegramUserId $telegramUserId, BotId $botId, UserMessage $userMessage, RegistrationQuestion $question, OpenConnection $connection)
+    public function __construct(TelegramUserId $telegramUserId, BotId $botId, PureUserMessage $userMessage, RegistrationQuestion $question, OpenConnection $connection)
     {
         $this->telegramUserId = $telegramUserId;
         $this->botId = $botId;
@@ -55,12 +58,12 @@ class SavedAnswerToRegistrationQuestion implements UserMessage
             return $updateProgressResponse;
         }
 
-        return $this->userMessage->value();
+        return new Successful(new Present($this->userMessage->value()));
     }
 
-    public function exists(): bool
+    public function exists(): ImpureValue
     {
-        return $this->userMessage->exists();
+        return new Successful(new Present($this->userMessage->exists()));
     }
 
     private function persistenceResponse(PureRegistrationQuestionId $registrationQuestionId)
@@ -96,7 +99,7 @@ from "user"
 where "user".id = bot_user.user_id and "user".telegram_id = ? and bot_user.bot_id = ?
 q
                     ,
-                    [(new FromPositionName(new FromString($this->userMessage->value()->pure()->raw())))->value(), $this->telegramUserId->value(), $this->botId->value()],
+                    [(new FromPositionName(new FromString($this->userMessage->value())))->value(), $this->telegramUserId->value(), $this->botId->value()],
                     $this->connection
                 );
         } elseif ((new ProfileRecordType($this->question))->equals(new FromPure(new Experience()))) {
@@ -109,7 +112,7 @@ from "user"
 where "user".id = bot_user.user_id and "user".telegram_id = ? and bot_user.bot_id = ?
 q
                     ,
-                    [(new FromExperienceName(new ExperienceName($this->userMessage->value()->pure()->raw())))->value(), $this->telegramUserId->value(), $this->botId->value()],
+                    [(new FromExperienceName(new ExperienceName($this->userMessage->value())))->value(), $this->telegramUserId->value(), $this->botId->value()],
                     $this->connection
                 );
         } elseif ((new ProfileRecordType($this->question))->equals(new FromPure(new About()))) {
@@ -122,7 +125,7 @@ from "user"
 where "user".id = bot_user.user_id and "user".telegram_id = ? and bot_user.bot_id = ?
 q
                                     ,
-                    [$this->userMessage->value()->pure()->raw(), $this->telegramUserId->value(), $this->botId->value()],
+                    [$this->userMessage->value(), $this->telegramUserId->value(), $this->botId->value()],
                     $this->connection
                 );
         }

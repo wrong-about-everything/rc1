@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Domain\UserStory;
 
-use RC\Domain\BotId\FromQuery;
+use RC\Domain\Bot\BotId\FromQuery;
 use RC\Infrastructure\Http\Request\Inbound\Request;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
 use RC\Infrastructure\UserStory\Existent;

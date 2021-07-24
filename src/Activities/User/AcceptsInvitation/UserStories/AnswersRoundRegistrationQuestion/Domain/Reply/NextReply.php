@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply;
 
-use RC\Domain\BotId\BotId;
-use RC\Domain\UserStatus\Impure\FromBotUser;
-use RC\Domain\UserStatus\Impure\FromPure;
-use RC\Domain\UserStatus\Pure\Registered;
+use RC\Domain\Bot\BotId\BotId;
+use RC\Domain\User\UserStatus\Impure\FromBotUser;
+use RC\Domain\User\UserStatus\Impure\FromPure;
+use RC\Domain\User\UserStatus\Pure\Registered;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
-use RC\Infrastructure\TelegramBot\Reply\Reply;
+use RC\Domain\TelegramBot\Reply\Reply;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 use RC\Activities\User\AcceptsInvitation\Domain\Reply\NextRoundRegistrationQuestionReply;
 
