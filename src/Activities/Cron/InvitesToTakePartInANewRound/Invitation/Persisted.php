@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace RC\Activities\Cron\InvitesToTakePartInANewRound\Invitation;
 
-use RC\Domain\MeetingRoundInvitation\Status\Pure\Error;
-use RC\Domain\MeetingRoundInvitation\Status\Pure\Sent as SentStatus;
-use RC\Domain\MeetingRoundInvitation\Status\Pure\Status;
+use RC\Domain\RoundInvitation\Status\Pure\Error;
+use RC\Domain\RoundInvitation\Status\Pure\Sent as SentStatus;
+use RC\Domain\RoundInvitation\Status\Pure\Status;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;

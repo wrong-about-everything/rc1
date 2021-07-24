@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\MeetingRoundInvitation;
+namespace RC\Domain\RoundInvitation;
 
 use RC\Domain\BotId\BotId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;

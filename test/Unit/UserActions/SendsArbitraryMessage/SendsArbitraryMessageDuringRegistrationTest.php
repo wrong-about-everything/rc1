@@ -49,9 +49,9 @@ use RC\Tests\Infrastructure\Stub\Table\UserRegistrationProgress;
 use RC\Tests\Infrastructure\Stub\TelegramMessage\UserMessage;
 use RC\UserActions\SendsArbitraryMessage\SendsArbitraryMessage;
 
-class SendsArbitraryMessageTest extends TestCase
+class SendsArbitraryMessageDuringRegistrationTest extends TestCase
 {
-    public function testWhenNewUserAnswersTheFirstQuestionThenHisAnswerIsPersistedAndHeSeesTheSecondOne()
+    public function testWhenNewUserAnswersTheFirstQuestionThenHisAnswerIsPersistedAndHeSeesTheSecondQuestion()
     {
         $connection = new ApplicationConnection();
         (new Bot($connection))

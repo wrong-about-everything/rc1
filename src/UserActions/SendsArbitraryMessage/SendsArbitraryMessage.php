@@ -4,19 +4,17 @@ declare(strict_types=1);
 
 namespace RC\UserActions\SendsArbitraryMessage;
 
+use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\AnswersRoundRegistrationQuestion;
 use RC\Domain\BotUser\ByTelegramUserId;
-use RC\Domain\MeetingRoundInvitation\LatestByTelegramUserIdAndBotId;
-use RC\Domain\MeetingRoundInvitation\Status\Impure\FromInvitation;
-use RC\Domain\MeetingRoundInvitation\Status\Impure\FromPure;
-use RC\Domain\MeetingRoundInvitation\Status\Pure\Sent;
+use RC\Domain\RoundInvitation\LatestByTelegramUserIdAndBotId;
+use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
+use RC\Domain\RoundInvitation\Status\Impure\FromPure;
+use RC\Domain\RoundInvitation\Status\Pure\Sent;
 use RC\Domain\TelegramBot\Reply\InCaseOfAnyUncertainty;
 use RC\Domain\UserStatus\Impure\FromBotUser;
 use RC\Domain\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
 use RC\Domain\UserStatus\Pure\Registered;
 use RC\Domain\UserStatus\Pure\RegistrationIsInProgress;
-use RC\Infrastructure\ImpureInteractions\ImpureValue;
-use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful as SuccessfulValue;
-use RC\Infrastructure\ImpureInteractions\PureValue\Emptie as EmptieValue;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Domain\BotId\FromUuid;
@@ -26,14 +24,12 @@ use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\TelegramBot\BotToken\Impure\ByBotId;
 use RC\Infrastructure\TelegramBot\Reply\Sorry;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
-use RC\Infrastructure\TelegramBot\UserMessage\FromParsedTelegramMessage as UserMessage;
 use RC\Infrastructure\UserStory\Body\Emptie;
 use RC\Infrastructure\UserStory\Existent;
 use RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Response\Successful;
 use RC\Infrastructure\Uuid\FromString as UuidFromString;
 use RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion\AnswersRegistrationQuestion;
-use RC\Activities\User\AnswersInvitationQuestion\AnswersInvitationQuestion;
 
 class SendsArbitraryMessage extends Existent
 {
@@ -66,7 +62,7 @@ class SendsArbitraryMessage extends Existent
         if ($userStatus->equals(new ImpureUserStatusFromPure(new RegistrationIsInProgress()))) {
             return $this->answersRegistrationQuestion();
         } elseif ($userStatus->equals(new ImpureUserStatusFromPure(new Registered())) && $this->thereIsAPendingInvitation()) {
-            return $this->answersInvitationQuestion();
+            return $this->answersRoundRegistrationQuestion();
         } else {
             $userIsAlreadyRegisteredValue = $this->replyInCaseOfAnyUncertainty()->value();
             if (!$userIsAlreadyRegisteredValue->isSuccessful()) {
@@ -106,10 +102,10 @@ class SendsArbitraryMessage extends Existent
                 ->response();
     }
 
-    private function answersInvitationQuestion()
+    private function answersRoundRegistrationQuestion()
     {
         return
-            (new AnswersInvitationQuestion(
+            (new AnswersRoundRegistrationQuestion(
                 $this->message,
                 $this->botId,
                 $this->httpTransport,

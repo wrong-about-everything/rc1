@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class UserRegisters extends TestCase
 {
-    public function testGivenNonExistentUserWhenHeClicksStartAndANswersAllTheQuestionsThenHeBecomesRegistered()
+    public function testGivenNonExistentUserWhenHeClicksStartAndAnswersAllTheQuestionsThenHeBecomesRegistered()
     {
 
     }

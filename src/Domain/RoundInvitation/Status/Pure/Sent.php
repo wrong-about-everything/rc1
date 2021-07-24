@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\MeetingRoundInvitation\Status\Pure;
+namespace RC\Domain\RoundInvitation\Status\Pure;
 
-class _New extends Status
+class Sent extends Status
 {
     public function exists(): bool
     {
@@ -13,6 +13,6 @@ class _New extends Status
 
     public function value(): int
     {
-        return 0;
+        return 1;
     }
 }

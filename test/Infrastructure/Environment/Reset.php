@@ -64,7 +64,7 @@ truncate
     user_registration_progress,
     meeting_round,
     meeting_round_invitation,
-    meeting_round_question,
+    meeting_round_registration_question,
     user_round_registration_progress,
     meeting_round_participant
 

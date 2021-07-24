@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\MeetingRoundInvitation\Status\Impure;
+namespace RC\Domain\RoundInvitation\Status\Impure;
 
-use RC\Domain\MeetingRoundInvitation\Invitation;
-use RC\Domain\MeetingRoundInvitation\Status\Pure\FromInteger;
-use RC\Domain\MeetingRoundInvitation\Status\Pure\NonExistent;
+use RC\Domain\RoundInvitation\Invitation;
+use RC\Domain\RoundInvitation\Status\Pure\FromInteger;
+use RC\Domain\RoundInvitation\Status\Pure\NonExistent;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 
 class FromInvitation extends Status

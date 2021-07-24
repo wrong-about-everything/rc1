@@ -76,7 +76,7 @@ create table meeting_round_invitation (
   primary key (meeting_round_id, user_id)
 );
 
-create table meeting_round_question (
+create table meeting_round_registration_question (
   id uuid,
   bot_id uuid,
   text text,
@@ -87,10 +87,10 @@ create table meeting_round_question (
 );
 
 create table user_round_registration_progress (
-  meeting_question_id uuid,
+  invitation_question_id uuid,
   user_id uuid,
 
-  primary key (meeting_question_id, user_id)
+  primary key (invitation_question_id, user_id)
 );
 
 create table meeting_round_participant (

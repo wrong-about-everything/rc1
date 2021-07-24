@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\MeetingRoundInvitation\Status\Impure;
+namespace RC\Domain\RoundInvitation\Status\Impure;
 
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 

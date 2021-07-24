@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\MeetingRoundInvitation;
+namespace RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestionId\Impure;
 
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 
-interface Invitation
+interface RoundRegistrationQuestionId
 {
     public function value(): ImpureValue;
 }

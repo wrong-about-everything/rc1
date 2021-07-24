@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\MeetingRoundInvitation\Status\Pure;
+namespace RC\Domain\RoundInvitation\Status\Pure;
 
 abstract class Status
 {

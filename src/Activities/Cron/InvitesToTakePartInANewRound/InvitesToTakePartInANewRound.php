@@ -9,7 +9,7 @@ use RC\Infrastructure\Uuid\FromString as Uuid;
 use RC\Activities\Cron\InvitesToTakePartInANewRound\Invitation\Logged;
 use RC\Activities\Cron\InvitesToTakePartInANewRound\Invitation\Persisted;
 use RC\Activities\Cron\InvitesToTakePartInANewRound\Invitation\Sent;
-use RC\Domain\MeetingRoundInvitation\Status\Pure\Sent as SentStatus;
+use RC\Domain\RoundInvitation\Status\Pure\Sent as SentStatus;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
