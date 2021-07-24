@@ -59,7 +59,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             ]);
         (new MeetingRoundInvitation($connection))
             ->insert([
-                ['meeting_round_id' => $this->meetingRoundId(), 'user_id' => $this->userId()->value(), 'status' => (new Sent())->value()]
+                ['id' => $this->meetingRoundInvitationId(), 'meeting_round_id' => $this->meetingRoundId(), 'user_id' => $this->userId()->value(), 'status' => (new Sent())->value()]
             ]);
         $transport = new Indifferent();
 
@@ -69,7 +69,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
                 $this->botId()->value(),
                 $transport,
                 $connection,
-                new StdOut(new LogId(new Fixed()))
+                new DevNull()
             ))
                 ->response();
 
@@ -77,12 +77,12 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
         $this->assertInvitationIsDeclined($this->telegramUserId(), $this->botId(), $connection);
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'Вернёмся к вам в следующий раз! Если какие вопросы -- пишите на супортовый бот',
+            'Хорошо, тогда до следующего раза! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
     }
 
-    public function testWhenUserAcceptsRoundInvitationThenInvitationBecomesAcceptedAndHeSeesTheFirstRegistrationQuestion()
+    public function testWhenUserAcceptsRoundInvitationThenInvitationBecomesAcceptedAndHeSeesTheFirstRoundRegistrationQuestion()
     {
         $connection = new ApplicationConnection();
         (new Bot($connection))
@@ -100,7 +100,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             ]);
         (new MeetingRoundInvitation($connection))
             ->insert([
-                ['meeting_round_id' => $this->meetingRoundId(), 'user_id' => $this->userId()->value(), 'status' => (new Sent())->value()]
+                ['id' => $this->meetingRoundInvitationId(), 'meeting_round_id' => $this->meetingRoundId(), 'user_id' => $this->userId()->value(), 'status' => (new Sent())->value()]
             ]);
         $transport = new Indifferent();
 
@@ -140,6 +140,11 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
     private function meetingRoundId(): string
     {
         return 'e00729d6-330c-4123-b856-d5196812d111';
+    }
+
+    private function meetingRoundInvitationId(): string
+    {
+        return '333729d6-330c-4123-b856-d5196812d444';
     }
 
     private function userId(): UserId

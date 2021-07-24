@@ -9,7 +9,7 @@ use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\UserMessage as PureUserMessage;
 
-class FromPure
+class FromPure implements UserMessage
 {
     private $pureUserMessage;
 

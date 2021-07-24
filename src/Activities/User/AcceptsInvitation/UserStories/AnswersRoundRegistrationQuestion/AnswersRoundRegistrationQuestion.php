@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion;
 
-use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply\NextReply;
+use RC\Activities\User\AcceptsInvitation\Domain\Reply\NextReply;
 use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\SavedAnswerToRoundRegistrationQuestion;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\RoundRegistrationQuestion\NextRoundRegistrationQuestion;

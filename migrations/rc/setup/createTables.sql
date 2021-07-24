@@ -1,3 +1,5 @@
+-- @todo: Add slow query logs!
+
 -- do not remove it, it is for tests
 create table sample_table (
   id uuid primary key,
@@ -39,7 +41,7 @@ create table bot_user (
   about text,
   status int,
 
-  primary key (user_id, bot_id)
+  primary key (id, user_id, bot_id)
 );
 
 create table registration_question (
@@ -47,7 +49,9 @@ create table registration_question (
   profile_record_type smallint,
   bot_id uuid,
   ordinal_number smallint,
-  text text
+  text text,
+
+  primary key (id)
 );
 
 create table user_registration_progress (
@@ -73,33 +77,33 @@ create table meeting_round_invitation (
   user_id uuid,
   status smallint,
 
-  primary key (meeting_round_id, user_id)
+  primary key (id, meeting_round_id, user_id)
 );
 
 create table meeting_round_registration_question (
-  id uuid,
-  bot_id uuid,
-  text text,
-  answer_options timestamptz,
+  id uuid primary key,
+  meeting_round_id uuid,
   ordinal_number smallint,
+  text text,
 
   primary key (id)
 );
 
 create table user_round_registration_progress (
-  invitation_question_id uuid,
+  registration_question_id uuid,
   user_id uuid,
 
-  primary key (invitation_question_id, user_id)
+  primary key (registration_question_id, user_id)
 );
 
 create table meeting_round_participant (
+  id uuid,
   user_id uuid,
   meeting_round_id uuid,
   interested_in_as_plain_text text,
   interested_in jsonb,
 
-  primary key (user_id, meeting_round_id)
+  primary key (id, user_id, meeting_round_id)
 );
 
 

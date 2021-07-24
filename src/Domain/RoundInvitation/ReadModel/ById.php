@@ -4,26 +4,23 @@ declare(strict_types=1);
 
 namespace RC\Domain\RoundInvitation\ReadModel;
 
-use RC\Domain\Bot\BotId\BotId;
+use RC\Domain\RoundInvitation\InvitationId\Pure\InvitationId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class LatestByTelegramUserIdAndBotId implements Invitation
+class ById implements Invitation
 {
-    private $telegramUserId;
-    private $botId;
+    private $invitationId;
     private $connection;
     private $cached;
 
-    public function __construct(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
+    public function __construct(InvitationId $invitationId, OpenConnection $connection)
     {
-        $this->telegramUserId = $telegramUserId;
-        $this->botId = $botId;
+        $this->invitationId = $invitationId;
         $this->connection = $connection;
         $this->cached = null;
     }
@@ -42,16 +39,12 @@ class LatestByTelegramUserIdAndBotId implements Invitation
         $response =
             (new Selecting(
                 <<<q
-select mri.*
-from meeting_round_invitation mri
-    join meeting_round mr on mri.meeting_round_id = mr.id
-    join "user" u on mri.user_id = u.id
-where u.telegram_id = ? and mr.bot_id = ?
-order by mr.start_date desc
-limit 1
+select *
+from meeting_round_invitation
+where id = ?
 q
                 ,
-                [$this->telegramUserId->value(), $this->botId->value()],
+                [$this->invitationId->value()],
                 $this->connection
             ))
                 ->response();
