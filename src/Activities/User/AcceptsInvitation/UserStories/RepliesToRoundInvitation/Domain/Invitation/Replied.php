@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain;
+namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Invitation;
 
 use RC\Domain\BooleanAnswer\BooleanAnswerName\FromUserMessage;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
+use RC\Domain\Participant\WriteModel\AcceptedInvitation;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\ReadModel\Invitation as ReadModelInvitation;
 use RC\Domain\RoundInvitation\WriteModel\Accepted;
@@ -61,6 +62,11 @@ class Replied implements Invitation
         $acceptedInvitationValue = (new Accepted($invitationId, $this->connection))->value();
         if (!$acceptedInvitationValue->isSuccessful()) {
             return new NonSuccessful($acceptedInvitationValue);
+        }
+
+        $participant = (new AcceptedInvitation($invitationId, $this->connection))->value();
+        if (!$participant->isSuccessful()) {
+            return new NonSuccessful($participant);
         }
 
         return $invitationId;

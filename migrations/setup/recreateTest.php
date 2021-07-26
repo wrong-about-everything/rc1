@@ -45,7 +45,7 @@ $r1 =
 
 if (!$r1->isSuccessful()) {
     var_dump($r1->error()->context());
-    die();
+    die('111111');
 }
 
 $r2 =
@@ -56,7 +56,7 @@ $r2 =
 
 if (!$r2->isSuccessful()) {
     var_dump($r2->error()->logMessage());
-    die();
+    die('222');
 }
 
 die('OK, I stop here for now, fix this if you wan to use migration');
@@ -73,36 +73,6 @@ exec(
 );
 if ($status !== 0) {
     var_dump($output);
-    die();
-}
-
-$r3 =
-    (new Recreate(
-        new FromString(dirname(dirname(__DIR__))),
-        new Host(getenv('HISTORY_DB_HOST')),
-        new FromString((int) getenv('HISTORY_DB_PORT')),
-        new SpecifiedDatabaseName(getenv('HISTORY_DB_NAME')),
-        new DefaultCredentials(getenv('HISTORY_ROOT_USER'), getenv('HISTORY_ROOT_PASS')),
-        'history'
-    ))
-        ->value();
-if (!$r3->isSuccessful()) {
-    var_dump($r3->error()->value());
-    die();
-}
-
-$r5 =
-    (new Recreate(
-        new FromString(dirname(dirname(__DIR__))),
-        new Host(getenv('REPORT_DB_HOST')),
-        new FromString((int) getenv('REPORT_DB_PORT')),
-        new SpecifiedDatabaseName(getenv('REPORT_DB_NAME')),
-        new DefaultCredentials(getenv('REPORT_ROOT_USER'), getenv('REPORT_ROOT_PASS')),
-        'report'
-    ))
-        ->value();
-if (!$r5->isSuccessful()) {
-    var_dump($r5->error()->value());
     die();
 }
 

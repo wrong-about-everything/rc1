@@ -31,6 +31,7 @@ class FromInteger extends Status
             (new ErrorDuringSending())->value() => new ErrorDuringSending(),
             (new Declined())->value() => new Declined(),
             (new Accepted())->value() => new Accepted(),
+            (new UserRegistered())->value() => new UserRegistered(),
         ];
     }
 }

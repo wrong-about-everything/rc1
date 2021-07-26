@@ -32,7 +32,7 @@ class NextReplyToUser implements Reply
 
     public function value(): ImpureValue
     {
-        if ($this->noMoreQuestionsLeft()) {
+        if ($this->userRegistered()) {
             return $this->congratulations();
         } else {
             return
@@ -58,7 +58,7 @@ class NextReplyToUser implements Reply
                 ->value();
     }
 
-    private function noMoreQuestionsLeft()
+    private function userRegistered()
     {
         return
             (new FromBotUser(

@@ -10,6 +10,7 @@ use RC\Domain\BotUser\ByTelegramUserId;
 use RC\Domain\RoundInvitation\ReadModel\LatestByTelegramUserIdAndBotId;
 use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromPure;
+use RC\Domain\RoundInvitation\Status\Pure\Accepted;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
 use RC\Domain\TelegramBot\Reply\InCaseOfAnyUncertainty;
 use RC\Domain\User\UserStatus\Impure\FromBotUser;
@@ -64,7 +65,7 @@ class SendsArbitraryMessage extends Existent
             return $this->answersRegistrationQuestion();
         } elseif ($userStatus->equals(new ImpureUserStatusFromPure(new Registered())) && $this->thereIsAPendingInvitation()) {
             return $this->repliesToRoundInvitation();
-        } elseif ($userStatus->equals(new ImpureUserStatusFromPure(new Registered())) && $this->thereIsAnAcceptedInvitation() && $this->roundRegistrationInProgress()) {
+        } elseif ($userStatus->equals(new ImpureUserStatusFromPure(new Registered())) && $this->thereIsAUserRegisteringForARound()) {
             return $this->answersRoundRegistrationQuestion();
         } else {
             $userIsAlreadyRegisteredValue = $this->replyInCaseOfAnyUncertainty()->value();
@@ -176,13 +177,24 @@ class SendsArbitraryMessage extends Existent
                 ->response();
     }
 
-    private function thereIsAnAcceptedInvitation()
+    private function thereIsAUserRegisteringForARound()
     {
-        return false;
-    }
+        $latestInvitationStatus =
+            new FromInvitation(
+                new LatestByTelegramUserIdAndBotId(
+                    new FromParsedTelegramMessage($this->message),
+                    new FromUuid(new UuidFromString($this->botId)),
+                    $this->connection
+                )
+            );
+        if (!$latestInvitationStatus->exists()->isSuccessful()) {
+            $this->logs->receive(new FromNonSuccessfulImpureValue($latestInvitationStatus->value()));
+            return false;
+        }
+        if ($latestInvitationStatus->exists()->pure()->raw() === false) {
+            return false;
+        }
 
-    private function roundRegistrationInProgress()
-    {
-        return false;
+        return $latestInvitationStatus->equals(new FromPure(new Accepted()));
     }
 }

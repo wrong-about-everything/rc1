@@ -2,21 +2,17 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\AcceptsInvitation\Domain\Reply;
+namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply;
 
-use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply\RegisteredIfNoMoreQuestionsLeft;
+use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Invitation\UserRegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking;
+use RC\Activities\User\AcceptsInvitation\Domain\Reply\NextRoundRegistrationQuestionReply;
 use RC\Domain\Bot\BotId\BotId;
-use RC\Domain\Bot\BotToken\Impure\ByBotId;
+use RC\Domain\RoundInvitation\InvitationId\Impure\FromWriteModelInvitation;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
-use RC\Domain\RoundInvitation\InvitationId\Pure\FromImpure;
-use RC\Domain\RoundInvitation\ReadModel\ById;
-use RC\Domain\RoundInvitation\ReadModel\Invitation;
+use RC\Domain\RoundInvitation\ReadModel\ByImpureId;
 use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
-use RC\Domain\RoundInvitation\Status\Impure\FromPure as ImpureStatusFromPure;
-use RC\Domain\RoundInvitation\Status\Pure\Declined;
-use RC\Domain\User\UserStatus\Impure\FromBotUser;
-use RC\Domain\User\UserStatus\Impure\FromPure;
-use RC\Domain\User\UserStatus\Pure\Registered;
+use RC\Domain\RoundInvitation\Status\Impure\FromPure;
+use RC\Domain\RoundInvitation\Status\Pure\UserRegistered;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
@@ -46,13 +42,12 @@ class NextReply implements Reply
             return $this->invitationId->value();
         }
 
-        if ((new FromInvitation(new ById(new FromImpure($this->invitationId), $this->connection)))->equals(new ImpureStatusFromPure(new Declined()))) {
-            return $this->seeYouNextTime();
-        } elseif ($this->noMoreQuestionsLeft()) {
+        if ($this->userRegisteredForARound()) {
             return $this->congratulations();
         } else {
             return
                 (new NextRoundRegistrationQuestionReply(
+                    $this->invitationId,
                     $this->telegramUserId,
                     $this->botId,
                     $this->connection,
@@ -62,21 +57,10 @@ class NextReply implements Reply
         }
     }
 
-    private function seeYouNextTime()
-    {
-        return
-            (new InvitationDeclinedAndSeeYouNextTime(
-                $this->telegramUserId,
-                new ByBotId($this->botId, $this->connection),
-                $this->httpTransport
-            ))
-                ->value();
-    }
-
     private function congratulations()
     {
         return
-            (new MeetingRoundInvitationCongratulations(
+            (new RoundRegistrationCongratulations(
                 $this->telegramUserId,
                 $this->botId,
                 $this->connection,
@@ -85,18 +69,22 @@ class NextReply implements Reply
                 ->value();
     }
 
-    private function noMoreQuestionsLeft()
+    private function userRegisteredForARound()
     {
         return
-            (new FromBotUser(
-                new RegisteredIfNoMoreQuestionsLeft(
-                    $this->telegramUserId,
-                    $this->botId,
+            (new FromInvitation(
+                new ByImpureId(
+                    new FromWriteModelInvitation(
+                        new UserRegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking(
+                            $this->invitationId,
+                            $this->connection
+                        )
+                    ),
                     $this->connection
                 )
             ))
                 ->equals(
-                    new FromPure(new Registered())
+                    new FromPure(new UserRegistered())
                 );
     }
 }

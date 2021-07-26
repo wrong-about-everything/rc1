@@ -41,7 +41,8 @@ create table bot_user (
   about text,
   status int,
 
-  primary key (id, user_id, bot_id)
+  primary key (id),
+  unique (user_id, bot_id)
 );
 
 create table registration_question (
@@ -49,9 +50,7 @@ create table registration_question (
   profile_record_type smallint,
   bot_id uuid,
   ordinal_number smallint,
-  text text,
-
-  primary key (id)
+  text text
 );
 
 create table user_registration_progress (
@@ -67,6 +66,8 @@ create table meeting_round (
   name text,
   start_date timestamptz,
   timezone text,
+  available_aims jsonb,
+  available_interests jsonb,
 
   primary key (id)
 );
@@ -77,12 +78,14 @@ create table meeting_round_invitation (
   user_id uuid,
   status smallint,
 
-  primary key (id, meeting_round_id, user_id)
+  primary key (id),
+  unique (meeting_round_id, user_id)
 );
 
 create table meeting_round_registration_question (
-  id uuid primary key,
+  id uuid,
   meeting_round_id uuid,
+  user_interest smallint,
   ordinal_number smallint,
   text text,
 
@@ -100,10 +103,12 @@ create table meeting_round_participant (
   id uuid,
   user_id uuid,
   meeting_round_id uuid,
+  status smallint,
   interested_in_as_plain_text text,
   interested_in jsonb,
 
-  primary key (id, user_id, meeting_round_id)
+  primary key (id),
+  unique (user_id, meeting_round_id)
 );
 
 

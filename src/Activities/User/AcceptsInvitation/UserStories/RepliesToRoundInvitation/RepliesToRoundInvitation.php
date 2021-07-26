@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation;
 
-use RC\Activities\User\AcceptsInvitation\Domain\Reply\NextReply;
-use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Replied;
+use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Invitation\Replied;
+use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Reply\NextReply;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;

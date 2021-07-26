@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\AcceptsInvitation\Domain\Reply;
 
-use RC\Domain\Position\AvailablePositions\ByBotId as AvailablePositions;
-use RC\Domain\Experience\AvailableExperiences\ByBotId as AvailableExperiences;
-use RC\Domain\Experience\ExperienceId\Pure\FromInteger as ExperienceFromInteger;
-use RC\Domain\Experience\ExperienceName\FromExperience;
-use RC\Domain\Position\PositionId\Pure\FromInteger;
-use RC\Domain\Position\PositionName\FromPosition;
-use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
-use RC\Domain\RegistrationQuestion\RegistrationQuestion;
-use RC\Domain\UserProfileRecordType\Impure\FromPure;
-use RC\Domain\UserProfileRecordType\Impure\FromRegistrationQuestion;
-use RC\Domain\UserProfileRecordType\Pure\Experience;
-use RC\Domain\UserProfileRecordType\Pure\Position;
+use RC\Domain\UserInterest\InterestId\Pure\Single\FromInteger;
+use RC\Domain\UserInterest\InterestName\Pure\FromInterestId;
+use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
+use RC\Domain\UserInterest\InterestId\Impure\Multiple\AvailableInterestIdsInRoundByInvitationId;
+use RC\Domain\RoundRegistrationQuestion\NextRoundRegistrationQuestion;
+use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestion;
+use RC\Domain\UserInterest\InterestId\Impure\Single\FromPure as ImpureUserInterestId;
+use RC\Domain\UserInterest\InterestId\Impure\Single\FromRoundRegistrationQuestion;
+use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
+use RC\Domain\UserInterest\InterestId\Pure\Single\SpecificArea as SpecificAreaId;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -38,13 +36,15 @@ use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 // @todo: Добавить логирование при любом завершении скрипта
 class NextRoundRegistrationQuestionReply implements Reply
 {
+    private $invitationId;
     private $telegramUserId;
     private $botId;
     private $connection;
     private $httpTransport;
 
-    public function __construct(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection, HttpTransport $httpTransport)
+    public function __construct(InvitationId $invitationId, TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection, HttpTransport $httpTransport)
     {
+        $this->invitationId = $invitationId;
         $this->telegramUserId = $telegramUserId;
         $this->botId = $botId;
         $this->connection = $connection;
@@ -53,9 +53,9 @@ class NextRoundRegistrationQuestionReply implements Reply
 
     public function value(): ImpureValue
     {
-        $nextRegistrationQuestion = new NextRegistrationQuestion($this->telegramUserId, $this->botId, $this->connection);
-        if (!$nextRegistrationQuestion->value()->isSuccessful()) {
-            return $nextRegistrationQuestion->value();
+        $nextRoundRegistrationQuestion = new NextRoundRegistrationQuestion($this->invitationId, $this->connection);
+        if (!$nextRoundRegistrationQuestion->value()->isSuccessful()) {
+            return $nextRoundRegistrationQuestion->value();
         }
 
         $botToken = new ByBotId($this->botId, $this->connection);
@@ -63,7 +63,7 @@ class NextRoundRegistrationQuestionReply implements Reply
             return $botToken->value();
         }
 
-        $response = $this->ask($nextRegistrationQuestion, $botToken);
+        $response = $this->ask($nextRoundRegistrationQuestion, $botToken);
         if (!$response->isAvailable()) {
             return new Failed(new SilentDeclineWithDefaultUserMessage('Response from telegram is not available', []));
         }
@@ -72,7 +72,7 @@ class NextRoundRegistrationQuestionReply implements Reply
         return new Successful(new Emptie());
     }
 
-    private function ask(RegistrationQuestion $nextRegistrationQuestion, BotToken $botToken)
+    private function ask(RoundRegistrationQuestion $nextRoundRegistrationQuestion, BotToken $botToken)
     {
         return
             $this->httpTransport
@@ -85,9 +85,9 @@ class NextRoundRegistrationQuestionReply implements Reply
                                 array_merge(
                                     [
                                         'chat_id' => $this->telegramUserId->value(),
-                                        'text' => $nextRegistrationQuestion->value()->pure()->raw()['text'],
+                                        'text' => $nextRoundRegistrationQuestion->value()->pure()->raw()['text'],
                                     ],
-                                    $this->replyMarkup($nextRegistrationQuestion)
+                                    $this->replyMarkup($nextRoundRegistrationQuestion)
                                 )
                             ),
                             new FromImpure($botToken)
@@ -98,7 +98,7 @@ class NextRoundRegistrationQuestionReply implements Reply
                 );
     }
 
-    private function replyMarkup(RegistrationQuestion $nextRegistrationQuestion)
+    private function replyMarkup(RoundRegistrationQuestion $nextRegistrationQuestion)
     {
         $answerOptions = $this->answerOptions($nextRegistrationQuestion);
 
@@ -116,24 +116,18 @@ class NextRoundRegistrationQuestionReply implements Reply
         ];
     }
 
-    private function answerOptions(RegistrationQuestion $currentRegistrationQuestion)
+    private function answerOptions(RoundRegistrationQuestion $currentRegistrationQuestion)
     {
-        if ((new FromRegistrationQuestion($currentRegistrationQuestion))->equals(new FromPure(new Position()))) {
+        if ((new FromRoundRegistrationQuestion($currentRegistrationQuestion))->equals(new ImpureUserInterestId(new Networking()))) {
             return
                 array_map(
-                    function (int $position) {
-                        return [['text' => (new FromPosition(new FromInteger($position)))->value()]];
+                    function (int $aim) {
+                        return [['text' => (new FromInterestId(new FromInteger($aim)))->value()]];
                     },
-                    (new AvailablePositions($this->botId, $this->connection))->value()->pure()->raw()
+                    (new AvailableInterestIdsInRoundByInvitationId($this->invitationId, $this->connection))->value()->pure()->raw()
                 );
-        } elseif ((new FromRegistrationQuestion($currentRegistrationQuestion))->equals(new FromPure(new Experience()))) {
-            return
-                array_map(
-                    function (int $experience) {
-                        return [['text' => (new FromExperience(new ExperienceFromInteger($experience)))->value()]];
-                    },
-                    (new AvailableExperiences($this->botId, $this->connection))->value()->pure()->raw()
-                );
+        } elseif ((new FromRoundRegistrationQuestion($currentRegistrationQuestion))->equals(new ImpureUserInterestId(new SpecificAreaId()))) {
+            return [];
         }
 
         return [];

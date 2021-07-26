@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion;
 
-use RC\Activities\User\AcceptsInvitation\Domain\Reply\NextReply;
+use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply\NextReply;
 use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\SavedAnswerToRoundRegistrationQuestion;
 use RC\Domain\Bot\BotId\FromUuid;
+use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation;
+use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
+use RC\Domain\RoundInvitation\ReadModel\LatestByTelegramUserIdAndBotId;
 use RC\Domain\RoundRegistrationQuestion\NextRoundRegistrationQuestion;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
@@ -44,16 +47,13 @@ class AnswersRoundRegistrationQuestion extends Existent
     {
         $this->logs->receive(new InformationMessage('User answers round invitation question scenario started.'));
 
+        $invitationId = $this->invitationId();
+
         $savedAnswerValue =
             (new SavedAnswerToRoundRegistrationQuestion(
-                new FromParsedTelegramMessage($this->message),
-                new FromUuid(new UuidFromString($this->botId)),
                 new UserMessage($this->message),
-                new NextRoundRegistrationQuestion(
-                    new FromParsedTelegramMessage($this->message),
-                    new FromUuid(new UuidFromString($this->botId)),
-                    $this->connection
-                ),
+                $invitationId,
+                new NextRoundRegistrationQuestion($invitationId, $this->connection),
                 $this->connection
             ))
                 ->value();
@@ -63,7 +63,7 @@ class AnswersRoundRegistrationQuestion extends Existent
             return new Successful(new Emptie());
         }
 
-        $nextReply = $this->nextReplyToUser()->value();
+        $nextReply = $this->nextReplyToUser($invitationId)->value();
         if (!$nextReply->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($nextReply));
             $this->sorry()->value();
@@ -73,6 +73,18 @@ class AnswersRoundRegistrationQuestion extends Existent
         $this->logs->receive(new InformationMessage('User answers round invitation question scenario started.'));
 
         return new Successful(new Emptie());
+    }
+
+    private function invitationId()
+    {
+        return
+            new FromInvitation(
+                new LatestByTelegramUserIdAndBotId(
+                    new FromParsedTelegramMessage($this->message),
+                    new FromUuid(new UuidFromString($this->botId)),
+                    $this->connection
+                )
+            );
     }
 
     private function sorry()
@@ -88,10 +100,11 @@ class AnswersRoundRegistrationQuestion extends Existent
             );
     }
 
-    private function nextReplyToUser()
+    private function nextReplyToUser(InvitationId $invitationId)
     {
         return
             new NextReply(
+                $invitationId,
                 new FromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),
                 $this->httpTransport,

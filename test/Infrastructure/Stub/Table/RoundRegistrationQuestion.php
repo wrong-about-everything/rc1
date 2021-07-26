@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace RC\Tests\Infrastructure\Stub\Table;
 
 use Exception;
-use Ramsey\Uuid\Uuid;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutatingQueryWithMultipleValueSets;
 
@@ -22,11 +21,11 @@ class RoundRegistrationQuestion
     {
         $response =
             (new SingleMutatingQueryWithMultipleValueSets(
-                'insert into meeting_round_registration_question (id, profile_record_type, bot_id, ordinal_number, text) values (?, ?, ?, ?, ?)',
+                'insert into meeting_round_registration_question (id, meeting_round_id, user_interest, ordinal_number, text) values (?, ?, ?, ?, ?)',
                 array_map(
                     function (array $record) {
                         $values = array_merge($this->defaultValues(), $record);
-                        return [$values['id'], $values['profile_record_type'], $values['bot_id'], $values['ordinal_number'], $values['text']];
+                        return [$values['id'], $values['meeting_round_id'], $values['user_interest'], $values['ordinal_number'], $values['text']];
                     },
                     $records
                 ),
@@ -34,14 +33,13 @@ class RoundRegistrationQuestion
             ))
                 ->response();
         if (!$response->isSuccessful()) {
-            throw new Exception(sprintf('Error while inserting RegistrationQuestion: %s', $response->error()->logMessage()));
+            throw new Exception(sprintf('Error while inserting RoundRegistrationQuestion: %s', $response->error()->logMessage()));
         }
     }
 
     private function defaultValues()
     {
         return [
-            'id' => Uuid::uuid4()->toString(),
             'ordinal_number' => 1,
             'text' => 'Привет, как дела, как здоровье, азаза?',
         ];

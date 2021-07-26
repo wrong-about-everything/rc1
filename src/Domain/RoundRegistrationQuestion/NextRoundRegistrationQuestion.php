@@ -4,27 +4,24 @@ declare(strict_types=1);
 
 namespace RC\Domain\RoundRegistrationQuestion;
 
+use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
-use RC\Domain\Bot\BotId\BotId;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
 class NextRoundRegistrationQuestion implements RoundRegistrationQuestion
 {
-    private $telegramUserId;
-    private $botId;
+    private $invitationId;
     private $connection;
 
     private $cached;
 
-    public function __construct(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
+    public function __construct(InvitationId $invitationId, OpenConnection $connection)
     {
-        $this->telegramUserId = $telegramUserId;
-        $this->botId = $botId;
+        $this->invitationId = $invitationId;
         $this->connection = $connection;
 
         $this->cached = null;
@@ -44,16 +41,16 @@ class NextRoundRegistrationQuestion implements RoundRegistrationQuestion
         $roundRegistrationQuestion =
             (new Selecting(
                 <<<q
-        select mriq.*
-        from meeting_round_registration_question mriq
-            left join user_round_registration_progress urrp on mriq.id = urrp.invitation_question_id
-            left join "user" u on urrp.user_id = u.id and u.telegram_id = ?
-        where mriq.bot_id = ? and urrp.invitation_question_id is null
-        order by mriq.ordinal_number asc
+        select mrrq.*
+        from meeting_round_invitation mri
+            join meeting_round_registration_question mrrq on mri.meeting_round_id = mrrq.meeting_round_id
+            left join user_round_registration_progress urrp on urrp.user_id = mri.user_id and mrrq.id = urrp.registration_question_id
+        where mri.id = ? and urrp.registration_question_id is null
+        order by mrrq.ordinal_number asc
         limit 1
         q
                 ,
-                [$this->telegramUserId->value(), $this->botId->value()],
+                [$this->invitationId->value()->pure()->raw()],
                 $this->connection
             ))
                 ->response();

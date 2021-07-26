@@ -5,42 +5,43 @@ declare(strict_types=1);
 namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain;
 
 use Exception;
-use RC\Domain\Bot\BotId\BotId;
-use RC\Domain\Experience\ExperienceId\Pure\FromExperienceName;
-use RC\Domain\Experience\ExperienceName\FromString as ExperienceName;
-use RC\Domain\Position\PositionId\Pure\FromPositionName;
-use RC\Domain\Position\PositionName\FromString;
+use RC\Domain\UserInterest\InterestId\Pure\Single\FromInterestName;
+use RC\Domain\UserInterest\InterestName\Pure\FromString as AimNameFromString;
+use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestion;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestionId\Impure\FromRoundRegistrationQuestion as RoundRegistrationQuestionId;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestionId\Pure\FromImpure;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestionId\Pure\RoundRegistrationQuestionId as PureRoundRegistrationQuestionId;
+use RC\Domain\UserInterest\InterestId\Impure\Single\FromPure;
+use RC\Domain\UserInterest\InterestId\Impure\Single\FromRoundRegistrationQuestion;
+use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
+use RC\Domain\UserInterest\InterestId\Pure\Single\SpecificArea as SpecificAreaId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
+use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
+use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\TransactionalQueryFromMultipleQueries;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
-use RC\Infrastructure\TelegramBot\UserMessage\Impure\UserMessage;
+use RC\Infrastructure\TelegramBot\UserMessage\Pure\UserMessage;
 
 class SavedAnswerToRoundRegistrationQuestion
 {
-    private $telegramUserId;
-    private $botId;
     private $userMessage;
-    private $question;
+    private $invitationId;
+    private $answeredQuestion;
     private $connection;
 
-    public function __construct(TelegramUserId $telegramUserId, BotId $botId, UserMessage $userMessage, RoundRegistrationQuestion $question, OpenConnection $connection)
+    public function __construct(UserMessage $userMessage, InvitationId $invitationId, RoundRegistrationQuestion $answeredQuestion, OpenConnection $connection)
     {
-        $this->telegramUserId = $telegramUserId;
-        $this->botId = $botId;
         $this->userMessage = $userMessage;
-        $this->question = $question;
+        $this->invitationId = $invitationId;
+        $this->answeredQuestion = $answeredQuestion;
         $this->connection = $connection;
     }
 
     public function value(): ImpureValue
     {
-        $roundRegistrationQuestionId = new RoundRegistrationQuestionId($this->question);
+        $roundRegistrationQuestionId = new RoundRegistrationQuestionId($this->answeredQuestion);
         if (!$roundRegistrationQuestionId->value()->isSuccessful()) {
             return $roundRegistrationQuestionId->value();
         }
@@ -50,7 +51,7 @@ class SavedAnswerToRoundRegistrationQuestion
             return $updateProgressResponse;
         }
 
-        return $this->userMessage->value();
+        return new Successful(new Emptie());
     }
 
     private function persistenceResponse(PureRoundRegistrationQuestionId $roundRegistrationQuestionId)
@@ -60,11 +61,11 @@ class SavedAnswerToRoundRegistrationQuestion
                 [
                     new SingleMutating(
                         <<<q
-insert into user_round_registration_progress (invitation_question_id, user_id)
-select ?, id from "user" where telegram_id = ?
+insert into user_round_registration_progress (registration_question_id, user_id)
+select ?, user_id from meeting_round_invitation where id = ?
 q
                         ,
-                        [$roundRegistrationQuestionId->value(), $this->telegramUserId->value()],
+                        [$roundRegistrationQuestionId->value(), $this->invitationId->value()->pure()->raw()],
                         $this->connection
                     ),
                     $this->updateBotUserQuery(),
@@ -76,47 +77,44 @@ q
 
     private function updateBotUserQuery()
     {
-        if ((new ProfileRecordType($this->question))->equals(new FromPure(new Position()))) {
+        if ((new FromRoundRegistrationQuestion($this->answeredQuestion))->equals(new FromPure(new Networking()))) {
             return
                 new SingleMutating(
                     <<<q
-update bot_user
-set position = ?
-from "user"
-where "user".id = bot_user.user_id and "user".telegram_id = ? and bot_user.bot_id = ?
+update meeting_round_participant
+set interested_in = ?
+from meeting_round_invitation mri
+where mri.user_id = meeting_round_participant.user_id and mri.meeting_round_id = meeting_round_participant.meeting_round_id and mri.id = ?
 q
                     ,
-                    [(new FromPositionName(new FromString($this->userMessage->value()->pure()->raw())))->value(), $this->telegramUserId->value(), $this->botId->value()],
+                    [
+                        json_encode(
+                            [
+                                (new FromInterestName(
+                                    new AimNameFromString($this->userMessage->value())
+                                ))
+                                    ->value()
+                            ]
+                        ),
+                        $this->invitationId->value()->pure()->raw()
+                    ],
                     $this->connection
                 );
-        } elseif ((new ProfileRecordType($this->question))->equals(new FromPure(new Experience()))) {
+        } elseif ((new FromRoundRegistrationQuestion($this->answeredQuestion))->equals(new FromPure(new SpecificAreaId()))) {
             return
                 new SingleMutating(
                     <<<q
-update bot_user
-set experience = ?
-from "user"
-where "user".id = bot_user.user_id and "user".telegram_id = ? and bot_user.bot_id = ?
+update meeting_round_participant
+set interested_in_as_plain_text = ?
+from meeting_round_invitation mri
+where mri.user_id = meeting_round_participant.user_id and mri.meeting_round_id = meeting_round_participant.meeting_round_id and mri.id = ?
 q
                     ,
-                    [(new FromExperienceName(new ExperienceName($this->userMessage->value()->pure()->raw())))->value(), $this->telegramUserId->value(), $this->botId->value()],
-                    $this->connection
-                );
-        } elseif ((new ProfileRecordType($this->question))->equals(new FromPure(new About()))) {
-            return
-                new SingleMutating(
-                    <<<q
-update bot_user
-set about = ?
-from "user"
-where "user".id = bot_user.user_id and "user".telegram_id = ? and bot_user.bot_id = ?
-q
-                                    ,
-                    [$this->userMessage->value()->pure()->raw(), $this->telegramUserId->value(), $this->botId->value()],
+                    [$this->userMessage->value(), $this->invitationId->value()->pure()->raw()],
                     $this->connection
                 );
         }
 
-        throw new Exception(sprintf('Unknown user profile record type given: %s', (new ProfileRecordType($this->question))->value()->pure()->raw()));
+        throw new Exception(sprintf('Unknown aim given: %s', (new FromRoundRegistrationQuestion($this->answeredQuestion))->value()->pure()->raw()));
     }
 }

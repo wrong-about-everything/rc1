@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply;
+namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Reply;
 
+use RC\Domain\Bot\BotToken\Impure\BotToken;
+use RC\Domain\Bot\BotToken\Pure\FromImpure;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -13,38 +15,42 @@ use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
-use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
-use RC\Infrastructure\TelegramBot\BotApiUrl;
-use RC\Domain\Bot\BotId\BotId;
-use RC\Domain\Bot\BotToken\Impure\ByBotId;
-use RC\Domain\Bot\BotToken\Pure\FromImpure;
-use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Domain\TelegramBot\Reply\Reply;
+use RC\Infrastructure\TelegramBot\BotApiUrl;
+use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class RoundInvitationRegistrationCongratulations implements Reply
+class InvitationDeclinedAndSeeYouNextTime implements Reply
 {
     private $telegramUserId;
-    private $botId;
-    private $connection;
+    private $botToken;
     private $httpTransport;
+    private $cached;
 
-    public function __construct(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection, HttpTransport $httpTransport)
+    public function __construct(TelegramUserId $telegramUserId, BotToken $botToken, HttpTransport $httpTransport)
     {
         $this->telegramUserId = $telegramUserId;
-        $this->botId = $botId;
-        $this->connection = $connection;
+        $this->botToken = $botToken;
         $this->httpTransport = $httpTransport;
+        $this->cached = null;
     }
 
     public function value(): ImpureValue
     {
-        $botToken = new ByBotId($this->botId, $this->connection);
-        if (!$botToken->value()->isSuccessful() || !$botToken->value()->pure()->isPresent()) {
-            return $botToken->value();
+        if (is_null($this->cached)) {
+            $this->cached = $this->doValue();
         }
 
-        $telegramResponse =
+        return $this->cached;
+    }
+
+    private function doValue()
+    {
+        if (!$this->botToken->value()->isSuccessful()) {
+            return $this->botToken->value();
+        }
+
+        $response =
             $this->httpTransport
                 ->response(
                     new OutboundRequest(
@@ -53,16 +59,15 @@ class RoundInvitationRegistrationCongratulations implements Reply
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Поздравляю, вы зарегистрировались! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+                                'text' => 'Хорошо, тогда до следующего раза! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
                             ]),
-                            new FromImpure($botToken)
+                            new FromImpure($this->botToken)
                         ),
                         [],
                         ''
                     )
                 );
-
-        if (!$telegramResponse->isAvailable()) {
+        if (!$response->isAvailable()) {
             return new Failed(new SilentDeclineWithDefaultUserMessage('Response from telegram is not available', []));
         }
 
