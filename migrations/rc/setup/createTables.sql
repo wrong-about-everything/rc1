@@ -66,7 +66,6 @@ create table meeting_round (
   name text,
   start_date timestamptz,
   timezone text,
-  available_aims jsonb,
   available_interests jsonb,
 
   primary key (id)
@@ -111,6 +110,21 @@ create table meeting_round_participant (
   unique (user_id, meeting_round_id)
 );
 
+create procedure create_analysis_paradisis_round(
+    id uuid,
+    bot_id uuid,
+    start_date timestamptz
+)
+    language plpgsql
+as $$
+begin
+
+    insert into meeting_round (id, bot_id, name, start_date, timezone, available_interests)
+    select id, bot_id, 'Новый раунд', start_date, 'Europe/Moscow', '"[0, 1]"';
+
+    commit;
+end;$$
+;
 
 grant usage, select on all sequences in schema public to rc;
 grant select, insert, update on all tables in schema public to rc;

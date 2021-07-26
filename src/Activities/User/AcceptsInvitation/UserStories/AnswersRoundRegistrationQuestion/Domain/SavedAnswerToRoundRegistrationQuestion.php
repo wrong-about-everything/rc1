@@ -6,7 +6,7 @@ namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrat
 
 use Exception;
 use RC\Domain\UserInterest\InterestId\Pure\Single\FromInterestName;
-use RC\Domain\UserInterest\InterestName\Pure\FromString as AimNameFromString;
+use RC\Domain\UserInterest\InterestName\Pure\FromString as InterestNameFromString;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestion;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestionId\Impure\FromRoundRegistrationQuestion as RoundRegistrationQuestionId;
@@ -91,7 +91,7 @@ q
                         json_encode(
                             [
                                 (new FromInterestName(
-                                    new AimNameFromString($this->userMessage->value())
+                                    new InterestNameFromString($this->userMessage->value())
                                 ))
                                     ->value()
                             ]
@@ -115,6 +115,6 @@ q
                 );
         }
 
-        throw new Exception(sprintf('Unknown aim given: %s', (new FromRoundRegistrationQuestion($this->answeredQuestion))->value()->pure()->raw()));
+        throw new Exception(sprintf('Unknown interest given: %s', (new FromRoundRegistrationQuestion($this->answeredQuestion))->value()->pure()->raw()));
     }
 }

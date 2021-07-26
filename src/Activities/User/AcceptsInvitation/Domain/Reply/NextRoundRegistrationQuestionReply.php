@@ -121,8 +121,8 @@ class NextRoundRegistrationQuestionReply implements Reply
         if ((new FromRoundRegistrationQuestion($currentRegistrationQuestion))->equals(new ImpureUserInterestId(new Networking()))) {
             return
                 array_map(
-                    function (int $aim) {
-                        return [['text' => (new FromInterestId(new FromInteger($aim)))->value()]];
+                    function (int $interest) {
+                        return [['text' => (new FromInterestId(new FromInteger($interest)))->value()]];
                     },
                     (new AvailableInterestIdsInRoundByInvitationId($this->invitationId, $this->connection))->value()->pure()->raw()
                 );

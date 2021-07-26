@@ -50,7 +50,7 @@ use RC\UserActions\SendsArbitraryMessage\SendsArbitraryMessage;
 
 class UserRegistersInAMeetingRoundTest extends TestCase
 {
-    public function testUserRegistersWithNetworkingAim()
+    public function testUserRegistersWithNetworkingInterest()
     {
         $connection = new ApplicationConnection();
         (new Bot($connection))
@@ -113,7 +113,7 @@ class UserRegistersInAMeetingRoundTest extends TestCase
         $this->assertParticipantWithNetworkingInterestExists($this->meetingRoundId(), $this->userId(), $connection);
     }
 
-    public function testUserRegistersWithSpecificAreaAim()
+    public function testUserRegistersWithSpecificInterest()
     {
         $connection = new ApplicationConnection();
         (new Bot($connection))

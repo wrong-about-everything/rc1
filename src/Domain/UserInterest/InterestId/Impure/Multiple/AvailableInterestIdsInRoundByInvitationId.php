@@ -29,10 +29,10 @@ class AvailableInterestIdsInRoundByInvitationId extends UserInterestIds
             return $this->invitationId->value();
         }
 
-        $aimsFromDatabase =
+        $interestsFromDatabase =
             (new Selecting(
                 <<<q
-select mr.available_aims
+select mr.available_interests
 from meeting_round_invitation mri
     join meeting_round mr on mri.meeting_round_id = mr.id
 where mri.id = ?
@@ -42,15 +42,15 @@ q
                 $this->connection
             ))
                 ->response();
-        if (!$aimsFromDatabase->isSuccessful()) {
-            return $aimsFromDatabase;
+        if (!$interestsFromDatabase->isSuccessful()) {
+            return $interestsFromDatabase;
         }
 
         return
             new Successful(
                 new Present(
                     json_decode(
-                        $aimsFromDatabase->pure()->raw()[0]['available_aims'] ?? json_encode([]),
+                        $interestsFromDatabase->pure()->raw()[0]['available_interests'] ?? json_encode([]),
                         true
                     )
                 )
