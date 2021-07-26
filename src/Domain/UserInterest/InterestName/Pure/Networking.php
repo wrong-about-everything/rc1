@@ -8,7 +8,7 @@ class Networking extends InterestName
 {
     public function value(): string
     {
-        return 'Нетворкинг';
+        return 'Нетворкинг без определенной темы';
     }
 
     public function exists(): bool

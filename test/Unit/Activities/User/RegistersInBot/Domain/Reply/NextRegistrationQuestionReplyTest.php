@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace RC\Tests\Unit\Domain\RegistrationProcess\ReplyToUser;
+namespace RC\Tests\Unit\Activities\User\RegistersInBot\Domain\Reply;
 
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\Uuid;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Experience\ExperienceId\Pure\BetweenAYearAndThree;
@@ -28,6 +29,7 @@ use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 use RC\Infrastructure\Uuid\Fixed;
 use RC\Tests\Infrastructure\Environment\Reset;
 use RC\Tests\Infrastructure\Stub\Table\Bot;
+use RC\Tests\Infrastructure\Stub\Table\BotUser;
 use RC\Tests\Infrastructure\Stub\Table\RegistrationQuestion;
 
 class NextRegistrationQuestionReplyTest extends TestCase
@@ -37,6 +39,7 @@ class NextRegistrationQuestionReplyTest extends TestCase
         $connection = new ApplicationConnection();
         $httpTransport = new Indifferent();
         $this->seedBot($this->botId(), $connection);
+        $this->seedBotUser($this->botId(), $this->telegramUserId(), $connection);
         $this->seedPositionQuestion($this->botId(), $connection);
 
         (new NextRegistrationQuestionReply(
@@ -72,6 +75,7 @@ class NextRegistrationQuestionReplyTest extends TestCase
         $connection = new ApplicationConnection();
         $httpTransport = new Indifferent();
         $this->seedBot($this->botId(), $connection);
+        $this->seedBotUser($this->botId(), $this->telegramUserId(), $connection);
         $this->seedExperienceQuestion($this->botId(), $connection);
 
         (new NextRegistrationQuestionReply(
@@ -116,6 +120,15 @@ class NextRegistrationQuestionReplyTest extends TestCase
     private function botId(): BotId
     {
         return new FromUuid(new Fixed());
+    }
+
+    private function seedBotUser(BotId $botId, TelegramUserId $telegramUserId, OpenConnection $connection)
+    {
+        (new BotUser($botId, $connection))
+            ->insert(
+                ['id' => Uuid::uuid4()->toString(), 'telegram_id' => $telegramUserId->value()],
+                []
+            );
     }
 
     private function seedBot(BotId $botId, OpenConnection $connection)

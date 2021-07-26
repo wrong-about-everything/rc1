@@ -75,6 +75,7 @@ class NextReply implements Reply
             (new FromInvitation(
                 new ByImpureId(
                     new FromWriteModelInvitation(
+                        // @todo: move if in a AnswersRoundRegistrationQuestion class, line 52
                         new UserRegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking(
                             $this->invitationId,
                             $this->connection

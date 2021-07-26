@@ -20,8 +20,11 @@ use RC\Domain\Participant\Status\Pure\Status;
 use RC\Domain\RoundInvitation\ReadModel\LatestByTelegramUserIdAndBotId;
 use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromPure as ImpureStatusFromPure;
+use RC\Domain\RoundInvitation\Status\Pure\Accepted;
 use RC\Domain\RoundInvitation\Status\Pure\Declined;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
+use RC\Domain\RoundRegistrationQuestion\Type\Pure\NetworkingOrSomeSpecificArea;
+use RC\Domain\RoundRegistrationQuestion\Type\Pure\SpecificAreaChoosing;
 use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
 use RC\Domain\User\UserId\FromUuid as UserIdFromUuid;
 use RC\Domain\User\UserId\UserId;
@@ -43,6 +46,7 @@ use RC\Tests\Infrastructure\Stub\Table\BotUser;
 use RC\Tests\Infrastructure\Stub\Table\MeetingRound;
 use RC\Tests\Infrastructure\Stub\Table\MeetingRoundInvitation;
 use RC\Tests\Infrastructure\Stub\Table\RoundRegistrationQuestion;
+use RC\Tests\Infrastructure\Stub\Table\UserRegistrationProgress;
 use RC\Tests\Infrastructure\Stub\TelegramMessage\UserMessage;
 use RC\UserActions\SendsArbitraryMessage\SendsArbitraryMessage;
 
@@ -57,7 +61,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             ]);
         (new BotUser($this->botId(), $connection))
             ->insert(
-                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+                ['id' => $this->firstUserId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->firstTelegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
                 ['status' => (new Registered())->value()]
             );
         (new MeetingRound($connection))
@@ -66,13 +70,13 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             ]);
         (new MeetingRoundInvitation($connection))
             ->insert([
-                ['id' => $this->meetingRoundInvitationId(), 'meeting_round_id' => $this->meetingRoundId(), 'user_id' => $this->userId()->value(), 'status' => (new Sent())->value()]
+                ['id' => $this->meetingRoundInvitationId(), 'meeting_round_id' => $this->meetingRoundId(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Sent())->value()]
             ]);
         $transport = new Indifferent();
 
         $response =
             (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), (new No())->value()))->value(),
+                (new UserMessage($this->firstTelegramUserId(), (new No())->value()))->value(),
                 $this->botId()->value(),
                 $transport,
                 $connection,
@@ -81,16 +85,16 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
                 ->response();
 
         $this->assertTrue($response->isSuccessful());
-        $this->assertInvitationIsDeclined($this->telegramUserId(), $this->botId(), $connection);
+        $this->assertInvitationIsDeclined($this->firstTelegramUserId(), $this->botId(), $connection);
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
             'Хорошо, тогда до следующего раза! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
-        $this->participantDoesNotExist($this->meetingRoundId(), $this->userId(), $connection);
+        $this->participantDoesNotExist($this->meetingRoundId(), $this->firstUserId(), $connection);
     }
 
-    public function testWhenUserAcceptsRoundInvitationThenInvitationBecomesAcceptedAndHeBecomesAParticipantWithRegistrationInProgressStatusAndHeSeesTheFirstRoundRegistrationQuestion()
+    public function testGivenMeetingRoundHasNoParticipantsWhenUserAcceptsRoundInvitationThenInvitationBecomesAcceptedAndHeBecomesAParticipantWithRegistrationInProgressStatusAndHeSeesTheFirstRoundRegistrationQuestion()
     {
         $connection = new ApplicationConnection();
         (new Bot($connection))
@@ -99,7 +103,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             ]);
         (new BotUser($this->botId(), $connection))
             ->insert(
-                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+                ['id' => $this->firstUserId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->firstTelegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
                 ['status' => (new Registered())->value()]
             );
         (new MeetingRound($connection))
@@ -108,18 +112,18 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             ]);
         (new MeetingRoundInvitation($connection))
             ->insert([
-                ['id' => $this->meetingRoundInvitationId(), 'meeting_round_id' => $this->meetingRoundId(), 'user_id' => $this->userId()->value(), 'status' => (new Sent())->value()]
+                ['id' => $this->meetingRoundInvitationId(), 'meeting_round_id' => $this->meetingRoundId(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Sent())->value()]
             ]);
         (new RoundRegistrationQuestion($connection))
             ->insert([
-                ['id' => Uuid::uuid4()->toString(), 'meeting_round_id' => $this->meetingRoundId(), 'user_interest' => (new Networking())->value()]
+                ['id' => Uuid::uuid4()->toString(), 'meeting_round_id' => $this->meetingRoundId(), 'type' => (new NetworkingOrSomeSpecificArea())->value()]
             ]);
 
         $transport = new Indifferent();
 
         $response =
             (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), (new Yes())->value()))->value(),
+                (new UserMessage($this->firstTelegramUserId(), (new Yes())->value()))->value(),
                 $this->botId()->value(),
                 $transport,
                 $connection,
@@ -133,7 +137,68 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             'Привет, как дела, как здоровье, азаза?',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
-        $this->participantExists($this->meetingRoundId(), $this->userId(), $connection, new RegistrationInProgress());
+        $this->participantExists($this->meetingRoundId(), $this->firstUserId(), $connection, new RegistrationInProgress());
+    }
+
+    public function testGivenMeetingRoundHasSomeParticipantsWhenUserAcceptsRoundInvitationThenInvitationBecomesAcceptedAndHeBecomesAParticipantWithRegistrationInProgressStatusAndHeSeesTheFirstRoundRegistrationQuestion()
+    {
+        $connection = new ApplicationConnection();
+        (new Bot($connection))
+            ->insert([
+                ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
+            ]);
+        (new BotUser($this->botId(), $connection))
+            ->insert(
+                ['id' => $this->firstUserId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->firstTelegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+                ['status' => (new Registered())->value()]
+            );
+        (new BotUser($this->botId(), $connection))
+            ->insert(
+                ['id' => $this->secondUserId()->value(), 'first_name' => 'Vasil', 'last_name' => 'Belov', 'telegram_id' => $this->secondTelegramUserId()->value(), 'telegram_handle' => 'vonuchee_bydlo'],
+                ['status' => (new Registered())->value()]
+            );
+        (new MeetingRound($connection))
+            ->insert([
+                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value()]
+            ]);
+        (new MeetingRoundInvitation($connection))
+            ->insert([
+                ['id' => $this->meetingRoundInvitationId(), 'meeting_round_id' => $this->meetingRoundId(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Sent())->value()]
+            ]);
+        (new MeetingRoundInvitation($connection))
+            ->insert([
+                ['id' => 'aaa729d6-330c-4123-b856-d5196812dbbb', 'meeting_round_id' => $this->meetingRoundId(), 'user_id' => $this->secondUserId()->value(), 'status' => (new Accepted())->value()]
+            ]);
+        $registrationQuestionId = Uuid::uuid4()->toString();
+        (new RoundRegistrationQuestion($connection))
+            ->insert([
+                ['id' => $registrationQuestionId, 'meeting_round_id' => $this->meetingRoundId(), 'type' => (new NetworkingOrSomeSpecificArea())->value()],
+                ['id' => Uuid::uuid4()->toString(), 'meeting_round_id' => $this->meetingRoundId(), 'type' => (new SpecificAreaChoosing())->value()],
+            ]);
+        (new UserRegistrationProgress($connection))
+            ->insert([
+                ['registration_question_id' => $registrationQuestionId, 'user_id' => $this->secondUserId()->value()]
+            ]);
+
+        $transport = new Indifferent();
+
+        $response =
+            (new SendsArbitraryMessage(
+                (new UserMessage($this->firstTelegramUserId(), (new Yes())->value()))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertCount(1, $transport->sentRequests());
+        $this->assertEquals(
+            'Привет, как дела, как здоровье, азаза?',
+            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+        );
+        $this->participantExists($this->meetingRoundId(), $this->firstUserId(), $connection, new RegistrationInProgress());
     }
 
     public function testGivenMeetingRoundHasNoRegistrationQuestionsWhenUserAcceptsRoundInvitationThenInvitationBecomesAcceptedAndHeSeesCongratulations()
@@ -145,7 +210,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             ]);
         (new BotUser($this->botId(), $connection))
             ->insert(
-                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+                ['id' => $this->firstUserId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->firstTelegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
                 ['status' => (new Registered())->value()]
             );
         (new MeetingRound($connection))
@@ -154,13 +219,13 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             ]);
         (new MeetingRoundInvitation($connection))
             ->insert([
-                ['id' => $this->meetingRoundInvitationId(), 'meeting_round_id' => $this->meetingRoundId(), 'user_id' => $this->userId()->value(), 'status' => (new Sent())->value()]
+                ['id' => $this->meetingRoundInvitationId(), 'meeting_round_id' => $this->meetingRoundId(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Sent())->value()]
             ]);
         $transport = new Indifferent();
 
         $response =
             (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), (new Yes())->value()))->value(),
+                (new UserMessage($this->firstTelegramUserId(), (new Yes())->value()))->value(),
                 $this->botId()->value(),
                 $transport,
                 $connection,
@@ -174,7 +239,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             'Поздравляю, вы зарегистрировались! В понедельник в 11 утра пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
-        $this->participantExists($this->meetingRoundId(), $this->userId(), $connection, new ParticipantRegistered());
+        $this->participantExists($this->meetingRoundId(), $this->firstUserId(), $connection, new ParticipantRegistered());
     }
 
     protected function setUp(): void
@@ -182,9 +247,14 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
         (new Reset(new RootConnection()))->run();
     }
 
-    private function telegramUserId(): TelegramUserId
+    private function firstTelegramUserId(): TelegramUserId
     {
         return new FromInteger(654987);
+    }
+
+    private function secondTelegramUserId(): TelegramUserId
+    {
+        return new FromInteger(123456);
     }
 
     private function botId(): BotId
@@ -202,9 +272,14 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
         return '333729d6-330c-4123-b856-d5196812d444';
     }
 
-    private function userId(): UserId
+    private function firstUserId(): UserId
     {
         return new UserIdFromUuid(new FromString('103729d6-330c-4123-b856-d5196812d509'));
+    }
+
+    private function secondUserId(): UserId
+    {
+        return new UserIdFromUuid(new FromString('abc729d6-330c-4123-b856-d5196812ddef'));
     }
 
     private function assertInvitationIsDeclined(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)

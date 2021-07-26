@@ -51,7 +51,9 @@ class BotUser
     private function defaultValues()
     {
         return [
-            'name' => 'Vasily III the Greatest'
+            'first_name' => 'Vasily III',
+            'last_name' => 'the Greatest',
+            'telegram_handle' => 'vasya',
         ];
     }
 }

@@ -21,11 +21,11 @@ class RoundRegistrationQuestion
     {
         $response =
             (new SingleMutatingQueryWithMultipleValueSets(
-                'insert into meeting_round_registration_question (id, meeting_round_id, user_interest, ordinal_number, text) values (?, ?, ?, ?, ?)',
+                'insert into meeting_round_registration_question (id, meeting_round_id, type, ordinal_number, text) values (?, ?, ?, ?, ?)',
                 array_map(
                     function (array $record) {
                         $values = array_merge($this->defaultValues(), $record);
-                        return [$values['id'], $values['meeting_round_id'], $values['user_interest'], $values['ordinal_number'], $values['text']];
+                        return [$values['id'], $values['meeting_round_id'], $values['type'], $values['ordinal_number'], $values['text']];
                     },
                     $records
                 ),

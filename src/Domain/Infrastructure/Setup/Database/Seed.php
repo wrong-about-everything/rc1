@@ -44,9 +44,9 @@ class Seed
             return $addAnalysisParadysisGroup;
         }
 
-        $addQuestions = $this->addQuestions();
-        if (!$addQuestions->isSuccessful()) {
-            return $addQuestions;
+        $addRegistrationQuestions = $this->addRegistrationQuestions();
+        if (!$addRegistrationQuestions->isSuccessful()) {
+            return $addRegistrationQuestions;
         }
 
         return new Successful(new Emptie());
@@ -80,7 +80,7 @@ class Seed
                 ->response();
     }
 
-    private function addQuestions()
+    private function addRegistrationQuestions()
     {
         return
             (new TransactionalQueryFromMultipleQueries(
@@ -92,7 +92,7 @@ class Seed
                             (new Position())->value(),
                             '1f6d0fd5-3179-47fb-b92d-f6bec4e8f016',
                             1,
-                            'Привет, это рэндом кофе. На самом деле он не рэндом, потому что мы не втупую пару подбираем, а по определённым параметрам, так чтоб вам было интересно и полезно. Полное описание я ещё не придумал. Ответьте на три вопроса. Итак, кем вы работаете?'
+                            'Привет, это бот для поиска интересного собеседника. Для того, чтобы я нашёл вам подходящую пару, ответьте, пожалуйста, на три вопроса. Итак, первый: кем вы работаете?'
                         ],
                         $this->connection
                     ),

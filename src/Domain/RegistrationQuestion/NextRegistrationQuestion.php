@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Domain\RegistrationQuestion;
 
+use RC\Domain\User\RegisteredInBot;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
@@ -46,14 +47,13 @@ class NextRegistrationQuestion implements RegistrationQuestion
                 <<<q
         select rq.*
         from registration_question rq
-            left join user_registration_progress urp on rq.id = urp.registration_question_id
-            left join "user" u on urp.user_id = u.id and u.telegram_id = ?
-        where rq.bot_id = ? and urp.registration_question_id is null
+            left join user_registration_progress urp on urp.registration_question_id = rq.id and urp.user_id = ?
+        where urp.registration_question_id is null
         order by rq.ordinal_number asc
         limit 1
         q
                 ,
-                [$this->telegramUserId->value(), $this->botId->value()],
+                [(new RegisteredInBot($this->telegramUserId, $this->botId, $this->connection))->value()->pure()->raw()['id']],
                 $this->connection
             ))
                 ->response();

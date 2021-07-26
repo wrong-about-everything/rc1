@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion;
 
 use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply\NextReply;
-use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\SavedAnswerToRoundRegistrationQuestion;
+use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\ParticipantAnsweredToRoundRegistrationQuestion;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
@@ -49,16 +49,16 @@ class AnswersRoundRegistrationQuestion extends Existent
 
         $invitationId = $this->invitationId();
 
-        $savedAnswerValue =
-            (new SavedAnswerToRoundRegistrationQuestion(
+        $participantValue =
+            (new ParticipantAnsweredToRoundRegistrationQuestion(
                 new UserMessage($this->message),
                 $invitationId,
                 new NextRoundRegistrationQuestion($invitationId, $this->connection),
                 $this->connection
             ))
                 ->value();
-        if (!$savedAnswerValue->isSuccessful()) {
-            $this->logs->receive(new FromNonSuccessfulImpureValue($savedAnswerValue));
+        if (!$participantValue->isSuccessful()) {
+            $this->logs->receive(new FromNonSuccessfulImpureValue($participantValue));
             $this->sorry()->value();
             return new Successful(new Emptie());
         }

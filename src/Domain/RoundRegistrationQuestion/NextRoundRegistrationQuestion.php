@@ -38,6 +38,7 @@ class NextRoundRegistrationQuestion implements RoundRegistrationQuestion
 
     private function doValue(): ImpureValue
     {
+        // @todo: ЗДесь будет ошибка!
         $roundRegistrationQuestion =
             (new Selecting(
                 <<<q

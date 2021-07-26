@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Invitation;
+namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Participant;
 
 use RC\Domain\BooleanAnswer\BooleanAnswerName\FromUserMessage;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
 use RC\Domain\Participant\WriteModel\AcceptedInvitation;
+use RC\Domain\Participant\WriteModel\Participant;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\ReadModel\Invitation as ReadModelInvitation;
 use RC\Domain\RoundInvitation\WriteModel\Accepted;
 use RC\Domain\RoundInvitation\WriteModel\Declined;
-use RC\Domain\RoundInvitation\WriteModel\Invitation;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\UserMessage\Impure\NonSuccessful;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\FromParsedTelegramMessage;
 
-class Replied implements Invitation
+class RepliedToInvitation implements Participant
 {
     private $message;
     private $invitation;

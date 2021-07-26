@@ -11,6 +11,8 @@ use RC\Domain\Participant\ReadModel\ByMeetingRoundAndUser;
 use RC\Domain\Participant\Status\Impure\FromParticipant as StatusFromParticipant;
 use RC\Domain\Participant\Status\Impure\FromPure as ImpureStatusFromPure;
 use RC\Domain\Participant\Status\Pure\Registered as ParticipantRegistered;
+use RC\Domain\RoundRegistrationQuestion\Type\Pure\NetworkingOrSomeSpecificArea;
+use RC\Domain\RoundRegistrationQuestion\Type\Pure\SpecificAreaChoosing;
 use RC\Domain\UserInterest\InterestId\Impure\Multiple\FromParticipant;
 use RC\Domain\UserInterest\InterestId\Impure\Single\FromPure as ImpureInterestFromPure;
 use RC\Domain\UserInterest\InterestName\Pure\Networking as NetworkingName;
@@ -24,7 +26,6 @@ use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromPure;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
 use RC\Domain\RoundInvitation\Status\Pure\UserRegistered;
-use RC\Domain\UserInterest\InterestId\Pure\Single\SpecificArea as SpecificAreaId;
 use RC\Domain\User\UserId\FromUuid as UserIdFromUuid;
 use RC\Domain\User\UserId\UserId;
 use RC\Domain\User\UserStatus\Pure\Registered;
@@ -72,8 +73,8 @@ class UserRegistersInAMeetingRoundTest extends TestCase
             ]);
         (new RoundRegistrationQuestion($connection))
             ->insert([
-                ['id' => Uuid::uuid4()->toString(), 'meeting_round_id' => $this->meetingRoundId(), 'user_interest' => (new Networking())->value(), 'text' => 'Вопрос про цель общения'],
-                ['id' => Uuid::uuid4()->toString(), 'meeting_round_id' => $this->meetingRoundId(), 'user_interest' => (new SpecificAreaId())->value(), 'text' => 'Вопрос про интересы'],
+                ['id' => Uuid::uuid4()->toString(), 'meeting_round_id' => $this->meetingRoundId(), 'type' => (new NetworkingOrSomeSpecificArea())->value(), 'text' => 'Вопрос про цель общения'],
+                ['id' => Uuid::uuid4()->toString(), 'meeting_round_id' => $this->meetingRoundId(), 'type' => (new SpecificAreaChoosing())->value(), 'text' => 'Вопрос про интересы'],
             ]);
         $transport = new Indifferent();
 
@@ -135,8 +136,8 @@ class UserRegistersInAMeetingRoundTest extends TestCase
             ]);
         (new RoundRegistrationQuestion($connection))
             ->insert([
-                ['id' => Uuid::uuid4()->toString(), 'meeting_round_id' => $this->meetingRoundId(), 'user_interest' => (new Networking())->value(), 'text' => 'Вопрос про цель общения'],
-                ['id' => Uuid::uuid4()->toString(), 'meeting_round_id' => $this->meetingRoundId(), 'user_interest' => (new SpecificAreaId())->value(), 'text' => 'Вопрос про интересы'],
+                ['id' => Uuid::uuid4()->toString(), 'meeting_round_id' => $this->meetingRoundId(), 'type' => (new NetworkingOrSomeSpecificArea())->value(), 'text' => 'Вопрос про цель общения'],
+                ['id' => Uuid::uuid4()->toString(), 'meeting_round_id' => $this->meetingRoundId(), 'type' => (new SpecificAreaChoosing())->value(), 'text' => 'Вопрос про интересы'],
             ]);
         $transport = new Indifferent();
 

@@ -20,7 +20,7 @@ use RC\Infrastructure\UserStory\Response\Successful;
 use RC\Infrastructure\Uuid\FromString as UuidFromString;
 use RC\Activities\User\RegistersInBot\Domain\Reply\NextRegistrationQuestionReply;
 
-class PressesStartDuringRegistrationForSomeReason extends Existent
+class PressesStartDuringRegistration extends Existent
 {
     private $message;
     private $botId;
@@ -39,7 +39,7 @@ class PressesStartDuringRegistrationForSomeReason extends Existent
 
     public function response(): Response
     {
-        $this->logs->receive(new InformationMessage('User presses start during registration for some reason scenario started'));
+        $this->logs->receive(new InformationMessage('User presses start during registration scenario started'));
 
         $registrationStepValue = $this->registrationStep()->value();
         if (!$registrationStepValue->isSuccessful()) {
@@ -47,7 +47,7 @@ class PressesStartDuringRegistrationForSomeReason extends Existent
             $this->sorry()->value();
         }
 
-        $this->logs->receive(new InformationMessage('User presses start during registration for some reason scenario finished'));
+        $this->logs->receive(new InformationMessage('User presses start during registration scenario finished'));
 
         return new Successful(new Emptie());
     }

@@ -33,7 +33,7 @@ use RC\UserActions\PressesStart\PressesStart;
 
 class PressesStartTest extends TestCase
 {
-    public function testWhenNewUserPressesStartThenHeSeesTheFirstQuestion()
+    public function testGivenNoUsersAreRegisteredInBotWhenNewUserPressesStartThenHeSeesTheFirstQuestion()
     {
         $connection = new ApplicationConnection();
         (new Bot($connection))
@@ -44,6 +44,52 @@ class PressesStartTest extends TestCase
             ->insert([
                 ['id' => Uuid::uuid4()->toString(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
                 ['id' => Uuid::uuid4()->toString(), 'profile_record_type' => (new Experience())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 2, 'text' => 'А опыт?'],
+            ]);
+        $transport = new Indifferent();
+
+        $response =
+            (new PressesStart(
+                (new StartCommandMessage($this->telegramUserId()))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertUserExists($this->telegramUserId(), $this->botId(), $connection);
+        $this->assertCount(1, $transport->sentRequests());
+        $this->assertEquals(
+            'Какая у вас должность?',
+            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+        );
+    }
+
+    public function testGivenSomeUsersAreRegisteredInBotWhenNewUserPressesStartThenHeSeesTheFirstQuestion()
+    {
+        $connection = new ApplicationConnection();
+        (new Bot($connection))
+            ->insert([
+                ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
+            ]);
+        $existingUserId = Uuid::uuid4()->toString();
+        (new BotUser($this->botId(), $connection))
+            ->insert(
+                ['id' => $existingUserId, 'first_name' => 'vasya', 'last_name' => 'belov', 'telegram_id' => 987654321, 'telegram_handle' => 'vasya'],
+                ['status' => (new Registered())->value()],
+            );
+        $firstRegistrationQuestionId = Uuid::uuid4()->toString();
+        $secondRegistrationQuestionId = Uuid::uuid4()->toString();
+        (new UserRegistrationProgress($connection))
+            ->insert([
+                ['registration_question_id' => $firstRegistrationQuestionId, 'user_id' => $existingUserId],
+                ['registration_question_id' => $secondRegistrationQuestionId, 'user_id' => $existingUserId],
+            ]);
+        (new RegistrationQuestion($connection))
+            ->insert([
+                ['id' => $firstRegistrationQuestionId, 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
+                ['id' => $secondRegistrationQuestionId, 'profile_record_type' => (new Experience())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 2, 'text' => 'А опыт?'],
             ]);
         $transport = new Indifferent();
 

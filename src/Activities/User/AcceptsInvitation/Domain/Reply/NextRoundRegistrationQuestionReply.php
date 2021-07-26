@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\AcceptsInvitation\Domain\Reply;
 
+use RC\Domain\RoundRegistrationQuestion\Type\Impure\FromPure;
+use RC\Domain\RoundRegistrationQuestion\Type\Impure\FromRoundRegistrationQuestion;
+use RC\Domain\RoundRegistrationQuestion\Type\Pure\NetworkingOrSomeSpecificArea;
+use RC\Domain\RoundRegistrationQuestion\Type\Pure\SpecificAreaChoosing;
 use RC\Domain\UserInterest\InterestId\Pure\Single\FromInteger;
 use RC\Domain\UserInterest\InterestName\Pure\FromInterestId;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
 use RC\Domain\UserInterest\InterestId\Impure\Multiple\AvailableInterestIdsInRoundByInvitationId;
 use RC\Domain\RoundRegistrationQuestion\NextRoundRegistrationQuestion;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestion;
-use RC\Domain\UserInterest\InterestId\Impure\Single\FromPure as ImpureUserInterestId;
-use RC\Domain\UserInterest\InterestId\Impure\Single\FromRoundRegistrationQuestion;
-use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
-use RC\Domain\UserInterest\InterestId\Pure\Single\SpecificArea as SpecificAreaId;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -118,7 +118,7 @@ class NextRoundRegistrationQuestionReply implements Reply
 
     private function answerOptions(RoundRegistrationQuestion $currentRegistrationQuestion)
     {
-        if ((new FromRoundRegistrationQuestion($currentRegistrationQuestion))->equals(new ImpureUserInterestId(new Networking()))) {
+        if ((new FromRoundRegistrationQuestion($currentRegistrationQuestion))->equals(new FromPure(new NetworkingOrSomeSpecificArea()))) {
             return
                 array_map(
                     function (int $interest) {
@@ -126,7 +126,7 @@ class NextRoundRegistrationQuestionReply implements Reply
                     },
                     (new AvailableInterestIdsInRoundByInvitationId($this->invitationId, $this->connection))->value()->pure()->raw()
                 );
-        } elseif ((new FromRoundRegistrationQuestion($currentRegistrationQuestion))->equals(new ImpureUserInterestId(new SpecificAreaId()))) {
+        } elseif ((new FromRoundRegistrationQuestion($currentRegistrationQuestion))->equals(new FromPure(new SpecificAreaChoosing()))) {
             return [];
         }
 

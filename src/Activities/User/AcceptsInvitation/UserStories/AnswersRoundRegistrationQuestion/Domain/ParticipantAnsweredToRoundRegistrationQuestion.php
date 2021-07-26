@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain;
 
 use Exception;
+use RC\Domain\Participant\WriteModel\Participant;
+use RC\Domain\RoundRegistrationQuestion\Type\Impure\FromPure;
+use RC\Domain\RoundRegistrationQuestion\Type\Impure\FromRoundRegistrationQuestion;
+use RC\Domain\RoundRegistrationQuestion\Type\Pure\NetworkingOrSomeSpecificArea;
+use RC\Domain\RoundRegistrationQuestion\Type\Pure\SpecificAreaChoosing;
 use RC\Domain\UserInterest\InterestId\Pure\Single\FromInterestName;
 use RC\Domain\UserInterest\InterestName\Pure\FromString as InterestNameFromString;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
@@ -12,10 +17,6 @@ use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestion;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestionId\Impure\FromRoundRegistrationQuestion as RoundRegistrationQuestionId;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestionId\Pure\FromImpure;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestionId\Pure\RoundRegistrationQuestionId as PureRoundRegistrationQuestionId;
-use RC\Domain\UserInterest\InterestId\Impure\Single\FromPure;
-use RC\Domain\UserInterest\InterestId\Impure\Single\FromRoundRegistrationQuestion;
-use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
-use RC\Domain\UserInterest\InterestId\Pure\Single\SpecificArea as SpecificAreaId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
@@ -24,7 +25,7 @@ use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\TransactionalQueryFromMultipleQueries;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\UserMessage;
 
-class SavedAnswerToRoundRegistrationQuestion
+class ParticipantAnsweredToRoundRegistrationQuestion implements Participant
 {
     private $userMessage;
     private $invitationId;
@@ -77,7 +78,7 @@ q
 
     private function updateBotUserQuery()
     {
-        if ((new FromRoundRegistrationQuestion($this->answeredQuestion))->equals(new FromPure(new Networking()))) {
+        if ((new FromRoundRegistrationQuestion($this->answeredQuestion))->equals(new FromPure(new NetworkingOrSomeSpecificArea()))) {
             return
                 new SingleMutating(
                     <<<q
@@ -100,7 +101,7 @@ q
                     ],
                     $this->connection
                 );
-        } elseif ((new FromRoundRegistrationQuestion($this->answeredQuestion))->equals(new FromPure(new SpecificAreaId()))) {
+        } elseif ((new FromRoundRegistrationQuestion($this->answeredQuestion))->equals(new FromPure(new SpecificAreaChoosing()))) {
             return
                 new SingleMutating(
                     <<<q
