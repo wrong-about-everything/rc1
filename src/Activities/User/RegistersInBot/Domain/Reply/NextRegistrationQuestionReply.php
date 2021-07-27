@@ -111,7 +111,7 @@ class NextRegistrationQuestionReply implements Reply
                 json_encode([
                     'keyboard' => $answerOptions,
                     'resize_keyboard' => true,
-                    'one_time_keyboard' => true,
+                    'one_time_keyboard' => false,
                 ])
         ];
     }

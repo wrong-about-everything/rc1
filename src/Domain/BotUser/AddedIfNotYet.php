@@ -45,7 +45,7 @@ class AddedIfNotYet implements BotUser
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         $botUserFromDb = new ByTelegramUserId($this->telegramUserId, $this->botId, $this->connection);
         if (!$botUserFromDb->value()->isSuccessful() || $botUserFromDb->value()->pure()->isPresent()) {
@@ -59,7 +59,7 @@ class AddedIfNotYet implements BotUser
                 [
                     new SingleMutating(
                         <<<q
-insert into "user" (id, first_name, last_name, telegram_id, telegram_handle)
+insert into "telegram_user" (id, first_name, last_name, telegram_id, telegram_handle)
 values (?, ?, ?, ?, ?)
 -- user might already exist, but bot user does not
 on conflict(telegram_id) do nothing

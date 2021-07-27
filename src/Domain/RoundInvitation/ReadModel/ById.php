@@ -34,7 +34,7 @@ class ById implements Invitation
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         $response =
             (new Selecting(

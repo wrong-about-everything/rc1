@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply;
 
-use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Invitation\UserRegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking;
+use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Participant\RegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking;
 use RC\Activities\User\AcceptsInvitation\Domain\Reply\NextRoundRegistrationQuestionReply;
 use RC\Domain\Bot\BotId\BotId;
-use RC\Domain\RoundInvitation\InvitationId\Impure\FromWriteModelInvitation;
+use RC\Domain\Participant\ParticipantId\Impure\FromWriteModelParticipant;
+use RC\Domain\Participant\ReadModel\ById;
+use RC\Domain\Participant\Status\Impure\FromPure;
+use RC\Domain\Participant\Status\Impure\FromReadModelParticipant;
+use RC\Domain\Participant\Status\Pure\Registered;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
-use RC\Domain\RoundInvitation\ReadModel\ByImpureId;
-use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
-use RC\Domain\RoundInvitation\Status\Impure\FromPure;
-use RC\Domain\RoundInvitation\Status\Pure\UserRegistered;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
@@ -42,7 +42,7 @@ class NextReply implements Reply
             return $this->invitationId->value();
         }
 
-        if ($this->userRegisteredForARound()) {
+        if ($this->participantRegisteredForARound()) {
             return $this->congratulations();
         } else {
             return
@@ -69,14 +69,13 @@ class NextReply implements Reply
                 ->value();
     }
 
-    private function userRegisteredForARound()
+    private function participantRegisteredForARound()
     {
         return
-            (new FromInvitation(
-                new ByImpureId(
-                    new FromWriteModelInvitation(
-                        // @todo: move if in a AnswersRoundRegistrationQuestion class, line 52
-                        new UserRegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking(
+            (new FromReadModelParticipant(
+                new ById(
+                    new FromWriteModelParticipant(
+                        new RegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking(
                             $this->invitationId,
                             $this->connection
                         )
@@ -85,7 +84,7 @@ class NextReply implements Reply
                 )
             ))
                 ->equals(
-                    new FromPure(new UserRegistered())
+                    new FromPure(new Registered())
                 );
     }
 }

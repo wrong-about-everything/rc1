@@ -21,7 +21,7 @@ class User
     {
         $response =
             (new SingleMutatingQueryWithMultipleValueSets(
-                'insert into "user" (id, first_name, last_name, telegram_id, telegram_handle) values (?, ?, ?, ?, ?)',
+                'insert into "telegram_user" (id, first_name, last_name, telegram_id, telegram_handle) values (?, ?, ?, ?, ?)',
                 array_map(
                     function (array $record) {
                         $values = array_merge($this->defaultValues(), $record);

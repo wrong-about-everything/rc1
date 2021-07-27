@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\Bot;
+namespace RC\Domain\Participant\ReadModel;
 
-use RC\Domain\Bot\BotId\BotId;
+use RC\Domain\Participant\ParticipantId\Impure\ParticipantId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 
-class ById implements Bot
+class ById implements Participant
 {
-    private $botId;
+    private $participantId;
     private $connection;
     private $cached;
 
-    public function __construct(BotId $botId, OpenConnection $connection)
+    public function __construct(ParticipantId $participantId, OpenConnection $connection)
     {
-        $this->botId = $botId;
+        $this->participantId = $participantId;
         $this->connection = $connection;
         $this->cached = null;
     }
@@ -32,7 +32,7 @@ class ById implements Bot
         return $this->concrete()->exists();
     }
 
-    private function concrete(): Bot
+    private function concrete(): Participant
     {
         if (is_null($this->cached)) {
             $this->cached = $this->doConcrete();
@@ -41,22 +41,22 @@ class ById implements Bot
         return $this->cached;
     }
 
-    private function doConcrete(): Bot
+    private function doConcrete(): Participant
     {
-        $response =
+        $participant =
             (new Selecting(
-                'select * from bot where id = ?',
-                [$this->botId->value()],
+                'select * from meeting_round_participant p where p.id = ?',
+                [$this->participantId->value()->pure()->raw()],
                 $this->connection
             ))
                 ->response();
-        if (!$response->isSuccessful()) {
-            return new NonSuccessful($response);
+        if (!$participant->isSuccessful()) {
+            return new NonSuccessful($participant);
         }
-        if (!$response->pure()->isPresent()) {
+        if (!isset($participant->pure()->raw()[0])) {
             return new NonExistent();
         }
 
-        return new FromArray($response->pure()->raw()[0]);
+        return new FromArray($participant->pure()->raw()[0]);
     }
 }

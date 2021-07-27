@@ -8,7 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use RC\Domain\MeetingRound\MeetingRoundId\FromString as MeetingRoundIdFromString;
 use RC\Domain\Participant\ReadModel\ByMeetingRoundAndUser;
-use RC\Domain\Participant\Status\Impure\FromParticipant as StatusFromParticipant;
+use RC\Domain\Participant\ReadModel\Participant;
+use RC\Domain\Participant\Status\Impure\FromReadModelParticipant as StatusFromParticipant;
 use RC\Domain\Participant\Status\Impure\FromPure as ImpureStatusFromPure;
 use RC\Domain\Participant\Status\Pure\Registered as ParticipantRegistered;
 use RC\Domain\RoundRegistrationQuestion\Type\Pure\NetworkingOrSomeSpecificArea;
@@ -21,11 +22,7 @@ use RC\Domain\UserInterest\InterestName\Pure\SpecificArea;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
-use RC\Domain\RoundInvitation\ReadModel\LatestByTelegramUserIdAndBotId;
-use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
-use RC\Domain\RoundInvitation\Status\Impure\FromPure;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
-use RC\Domain\RoundInvitation\Status\Pure\UserRegistered;
 use RC\Domain\User\UserId\FromUuid as UserIdFromUuid;
 use RC\Domain\User\UserId\UserId;
 use RC\Domain\User\UserStatus\Pure\Registered;
@@ -191,15 +188,7 @@ class UserRegistersInAMeetingRoundTest extends TestCase
             'Поздравляю, вы зарегистрировались! В понедельник в 11 утра пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[2]->url())))->value()['text']
         );
-        $this->assertTrue(
-            (new FromInvitation(
-                new LatestByTelegramUserIdAndBotId($this->telegramUserId(), $this->botId(), $connection)
-            ))
-                ->equals(
-                    new FromPure(new UserRegistered())
-                )
-        );
-        $this->assertParticipantWithSpecificInterestExists($this->meetingRoundId(), $this->userId(), $connection);
+        $this->assertParticipantIsRegisteredWithSpecificInterest($this->meetingRoundId(), $this->userId(), $connection);
     }
 
     protected function setUp(): void
@@ -234,12 +223,7 @@ class UserRegistersInAMeetingRoundTest extends TestCase
 
     private function assertParticipantWithNetworkingInterestExists(string $meetingRoundId, UserId $userId, OpenConnection $connection)
     {
-        $participant =
-            new ByMeetingRoundAndUser(
-                new MeetingRoundIdFromString($meetingRoundId),
-                $userId,
-                $connection
-            );
+        $participant = $this->participant($meetingRoundId, $userId, $connection);
         $this->assertTrue($participant->value()->pure()->isPresent());
         $this->assertTrue(
             (new FromParticipant($participant))
@@ -255,14 +239,9 @@ class UserRegistersInAMeetingRoundTest extends TestCase
         );
     }
 
-    private function assertParticipantWithSpecificInterestExists(string $meetingRoundId, UserId $userId, OpenConnection $connection)
+    private function assertParticipantIsRegisteredWithSpecificInterest(string $meetingRoundId, UserId $userId, OpenConnection $connection)
     {
-        $participant =
-            new ByMeetingRoundAndUser(
-                new MeetingRoundIdFromString($meetingRoundId),
-                $userId,
-                $connection
-            );
+        $participant = $this->participant($meetingRoundId, $userId, $connection);
         $this->assertTrue($participant->value()->pure()->isPresent());
         $this->assertEquals(
             'Вот такие вот у меня интересы',
@@ -274,5 +253,15 @@ class UserRegistersInAMeetingRoundTest extends TestCase
                     new ImpureStatusFromPure(new ParticipantRegistered())
                 )
         );
+    }
+
+    private function participant(string $meetingRoundId, UserId $userId, OpenConnection $connection): Participant
+    {
+        return
+            new ByMeetingRoundAndUser(
+                new MeetingRoundIdFromString($meetingRoundId),
+                $userId,
+                $connection
+            );
     }
 }

@@ -35,7 +35,7 @@ class AcceptedInvitation implements Participant
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         $participantId = Uuid::uuid4()->toString();
         $response =

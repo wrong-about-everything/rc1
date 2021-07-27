@@ -37,14 +37,14 @@ class ByTelegramUserId implements BotUser
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         $response =
             (new Selecting(
                 <<<q
 select bu.*
 from
-    bot_user bu join "user" u on u.id = bu.user_id
+    bot_user bu join "telegram_user" u on u.id = bu.user_id
 where u.telegram_id = ? and bu.bot_id = ?
 q
                 ,

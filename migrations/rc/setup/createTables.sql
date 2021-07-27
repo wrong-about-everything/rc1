@@ -21,8 +21,7 @@ create table "group" (
   name text
 );
 
--- @todo: rename to telegram_user
-create table "user" (
+create table "telegram_user" (
   id uuid primary key,
   first_name text,
   last_name text,

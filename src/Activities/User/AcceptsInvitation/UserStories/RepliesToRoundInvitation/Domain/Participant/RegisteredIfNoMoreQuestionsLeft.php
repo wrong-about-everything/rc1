@@ -2,21 +2,18 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Invitation;
+namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Participant;
 
-use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
+use RC\Domain\Participant\ParticipantId\Impure\FromReadModelParticipant;
 use RC\Domain\Participant\ReadModel\ByInvitationId;
+use RC\Domain\Participant\WriteModel\Participant;
 use RC\Domain\Participant\WriteModel\Registered;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
-use RC\Domain\RoundInvitation\WriteModel\Invitation;
-use RC\Domain\RoundInvitation\WriteModel\UserRegistered;
 use RC\Domain\RoundRegistrationQuestion\NextRoundRegistrationQuestion;
-use RC\Domain\UserInterest\InterestId\Impure\Multiple\FromParticipant;
-use RC\Domain\UserInterest\InterestId\Impure\Single\FromPure;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 
-class UserRegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking implements Invitation
+class RegisteredIfNoMoreQuestionsLeft implements Participant
 {
     private $invitationId;
     private $connection;
@@ -42,21 +39,13 @@ class UserRegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking implements In
 
     private function doValue(): ImpureValue
     {
-        if (
-            !(new NextRoundRegistrationQuestion($this->invitationId, $this->connection))->value()->pure()->isPresent()
-                ||
-            (new FromParticipant(new ByInvitationId($this->invitationId, $this->connection)))->contain(new FromPure(new Networking()))
-        ) {
-            $invitationValue = (new UserRegistered($this->invitationId, $this->connection))->value();
-            if (!$invitationValue->isSuccessful()) {
-                return $invitationValue;
-            }
+        if (!(new NextRoundRegistrationQuestion($this->invitationId, $this->connection))->value()->pure()->isPresent()) {
             $registeredParticipant = (new Registered($this->invitationId, $this->connection))->value();
             if (!$registeredParticipant->isSuccessful()) {
                 return $registeredParticipant;
             }
         }
 
-        return $this->invitationId->value();
+        return (new FromReadModelParticipant(new ByInvitationId($this->invitationId, $this->connection)))->value();
     }
 }

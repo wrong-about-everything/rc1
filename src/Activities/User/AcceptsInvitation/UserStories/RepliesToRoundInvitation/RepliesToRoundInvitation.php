@@ -7,6 +7,7 @@ namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitat
 use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Participant\RepliedToInvitation;
 use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Reply\NextReply;
 use RC\Domain\Bot\BotId\FromUuid;
+use RC\Domain\Participant\WriteModel\Participant;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
 use RC\Domain\RoundInvitation\ReadModel\Invitation;
@@ -48,7 +49,6 @@ class RepliesToRoundInvitation extends Existent
         $this->logs->receive(new InformationMessage('User replies to round invitation scenario started.'));
 
         $invitation = $this->invitation();
-        // @todo: this is a participant entity. Participant that replies to invitation; participant that accepted invitation, etc.
         $participantRepliedToInvitationValue = $this->participantRepliedToInvitation($invitation)->value();
         if (!$participantRepliedToInvitationValue->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($participantRepliedToInvitationValue));
@@ -78,7 +78,7 @@ class RepliesToRoundInvitation extends Existent
             );
     }
 
-    private function participantRepliedToInvitation(Invitation $invitation)
+    private function participantRepliedToInvitation(Invitation $invitation): Participant
     {
         return
             new RepliedToInvitation(

@@ -28,7 +28,7 @@ class BotUser
         $userId = $values['id'];
         $userInsertResponse =
             (new SingleMutating(
-                'insert into "user" (id, first_name, last_name, telegram_id, telegram_handle) values (?, ?, ?, ?, ?)',
+                'insert into "telegram_user" (id, first_name, last_name, telegram_id, telegram_handle) values (?, ?, ?, ?, ?)',
                 [$userId, $values['first_name'], $values['last_name'], $values['telegram_id'], $values['telegram_handle']],
                 $this->connection
             ))

@@ -30,16 +30,16 @@ class FromBotUser extends Position
         return $this->concrete()->exists();
     }
 
-    private function concrete()
+    private function concrete(): Position
     {
         if (is_null($this->cached)) {
-            $this->cached = $this->doValue();
+            $this->cached = $this->doConcrete();
         }
 
         return $this->cached;
     }
 
-    private function doValue()
+    private function doConcrete(): Position
     {
         if (!$this->botUser->value()->isSuccessful()) {
             return new NonSuccessful($this->botUser->value());

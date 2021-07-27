@@ -18,7 +18,6 @@ use RC\Infrastructure\UserStory\Response\RestfulHttp\FromUserStoryResponse;
 use RC\Infrastructure\UserStory\UserStory;
 use Throwable;
 
-// @todo: In case of ANY error, return 200 OK. Otherwise telegram ceases to process any further messages!
 class GoogleServerless
 {
     private $userStory;

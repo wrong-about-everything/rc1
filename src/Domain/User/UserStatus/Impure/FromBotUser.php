@@ -22,24 +22,24 @@ class FromBotUser extends UserStatus
 
     public function value(): ImpureValue
     {
-        return $this->cached()->value();
+        return $this->concrete()->value();
     }
 
     public function exists(): ImpureValue
     {
-        return $this->cached()->exists();
+        return $this->concrete()->exists();
     }
 
-    private function cached()
+    private function concrete()
     {
         if (is_null($this->cached)) {
-            $this->cached = $this->doValue();
+            $this->cached = $this->doConcrete();
         }
 
         return $this->cached;
     }
 
-    private function doValue()
+    private function doConcrete(): UserStatus
     {
         if (!$this->botUser->value()->isSuccessful()) {
             return new NonSuccessful($this->botUser->value());

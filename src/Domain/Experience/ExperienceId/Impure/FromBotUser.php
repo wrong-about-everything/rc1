@@ -33,13 +33,13 @@ class FromBotUser extends Experience
     private function concrete()
     {
         if (is_null($this->cached)) {
-            $this->cached = $this->doValue();
+            $this->cached = $this->doConcrete();
         }
 
         return $this->cached;
     }
 
-    private function doValue()
+    private function doConcrete(): Experience
     {
         if (!$this->botUser->value()->isSuccessful()) {
             return new NonSuccessful($this->botUser->value());

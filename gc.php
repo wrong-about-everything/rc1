@@ -111,6 +111,7 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                             }
                         ],
                         [
+                            // this one must go the last
                             new MatchingAnyPostRequest(),
                             function (string $message) use ($logs) {
                                 return new SomeoneSentUnknownPostRequest($message, $logs);

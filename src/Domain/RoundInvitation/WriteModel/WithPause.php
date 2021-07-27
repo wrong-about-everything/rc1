@@ -29,7 +29,7 @@ class WithPause implements Invitation
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         $r = $this->meetingRoundInvitation->value();
         usleep($this->microseconds);

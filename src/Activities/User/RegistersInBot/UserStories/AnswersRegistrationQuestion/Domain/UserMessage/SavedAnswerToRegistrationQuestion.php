@@ -74,7 +74,7 @@ class SavedAnswerToRegistrationQuestion implements UserMessage
                     new SingleMutating(
                         <<<q
 insert into user_registration_progress (registration_question_id, user_id)
-select ?, id from "user" where telegram_id = ?
+select ?, id from "telegram_user" where telegram_id = ?
 q
                         ,
                         [$registrationQuestionId->value(), $this->telegramUserId->value()],
@@ -95,8 +95,8 @@ q
                     <<<q
 update bot_user
 set position = ?
-from "user"
-where "user".id = bot_user.user_id and "user".telegram_id = ? and bot_user.bot_id = ?
+from "telegram_user"
+where "telegram_user".id = bot_user.user_id and "telegram_user".telegram_id = ? and bot_user.bot_id = ?
 q
                     ,
                     [(new FromPositionName(new FromString($this->userMessage->value())))->value(), $this->telegramUserId->value(), $this->botId->value()],
@@ -108,8 +108,8 @@ q
                     <<<q
 update bot_user
 set experience = ?
-from "user"
-where "user".id = bot_user.user_id and "user".telegram_id = ? and bot_user.bot_id = ?
+from "telegram_user"
+where "telegram_user".id = bot_user.user_id and "telegram_user".telegram_id = ? and bot_user.bot_id = ?
 q
                     ,
                     [(new FromExperienceName(new ExperienceName($this->userMessage->value())))->value(), $this->telegramUserId->value(), $this->botId->value()],
@@ -121,8 +121,8 @@ q
                     <<<q
 update bot_user
 set about = ?
-from "user"
-where "user".id = bot_user.user_id and "user".telegram_id = ? and bot_user.bot_id = ?
+from "telegram_user"
+where "telegram_user".id = bot_user.user_id and "telegram_user".telegram_id = ? and bot_user.bot_id = ?
 q
                                     ,
                     [$this->userMessage->value(), $this->telegramUserId->value(), $this->botId->value()],

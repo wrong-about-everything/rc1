@@ -6,19 +6,20 @@ namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitat
 
 use RC\Activities\User\AcceptsInvitation\Domain\Reply\NextRoundRegistrationQuestionReply;
 use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply\RoundRegistrationCongratulations;
-use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Invitation\UserRegisteredIfNoMoreQuestionsLeft;
+use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Participant\RegisteredIfNoMoreQuestionsLeft;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
-use RC\Domain\RoundInvitation\InvitationId\Impure\FromWriteModelInvitation;
+use RC\Domain\Participant\ParticipantId\Impure\FromWriteModelParticipant;
+use RC\Domain\Participant\ReadModel\ById;
+use RC\Domain\Participant\Status\Impure\FromPure;
+use RC\Domain\Participant\Status\Impure\FromReadModelParticipant;
+use RC\Domain\Participant\Status\Pure\Registered;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
 use RC\Domain\RoundInvitation\InvitationId\Pure\FromImpure;
-use RC\Domain\RoundInvitation\ReadModel\ById;
-use RC\Domain\RoundInvitation\ReadModel\ByImpureId;
+use RC\Domain\RoundInvitation\ReadModel\ById as InvitationById;
 use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
-use RC\Domain\RoundInvitation\Status\Impure\FromPure;
-use RC\Domain\RoundInvitation\Status\Impure\FromPure as ImpureStatusFromPure;
+use RC\Domain\RoundInvitation\Status\Impure\FromPure as ImpureInvitationStatusFromPure;
 use RC\Domain\RoundInvitation\Status\Pure\Declined;
-use RC\Domain\RoundInvitation\Status\Pure\UserRegistered;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
@@ -48,9 +49,9 @@ class NextReply implements Reply
             return $this->invitationId->value();
         }
 
-        if ((new FromInvitation(new ById(new FromImpure($this->invitationId), $this->connection)))->equals(new ImpureStatusFromPure(new Declined()))) {
+        if ((new FromInvitation(new InvitationById(new FromImpure($this->invitationId), $this->connection)))->equals(new ImpureInvitationStatusFromPure(new Declined()))) {
             return $this->seeYouNextTime();
-        } elseif ($this->userRegisteredForARound()) {
+        } elseif ($this->participantRegisteredForARound()) {
             return $this->congratulations();
         } else {
             return
@@ -88,13 +89,13 @@ class NextReply implements Reply
                 ->value();
     }
 
-    private function userRegisteredForARound()
+    private function participantRegisteredForARound()
     {
         return
-            (new FromInvitation(
-                new ByImpureId(
-                    new FromWriteModelInvitation(
-                        new UserRegisteredIfNoMoreQuestionsLeft(
+            (new FromReadModelParticipant(
+                new ById(
+                    new FromWriteModelParticipant(
+                        new RegisteredIfNoMoreQuestionsLeft(
                             $this->invitationId,
                             $this->connection
                         )
@@ -103,7 +104,7 @@ class NextReply implements Reply
                 )
             ))
                 ->equals(
-                    new FromPure(new UserRegistered())
+                    new FromPure(new Registered())
                 );
     }
 }

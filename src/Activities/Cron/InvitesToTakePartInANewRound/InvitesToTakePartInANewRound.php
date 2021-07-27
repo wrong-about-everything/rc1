@@ -64,7 +64,7 @@ class InvitesToTakePartInANewRound extends Existent
 select mri.id, u.telegram_id, b.token, b.name
 from meeting_round_invitation mri
     join meeting_round mr on mri.meeting_round_id = mr.id
-    join "user" u on mri.user_id = u.id
+    join "telegram_user" u on mri.user_id = u.id
     join bot b on b.id = mr.bot_id
 where mr.bot_id = ? and status != ?
 limit 100

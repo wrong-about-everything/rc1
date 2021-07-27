@@ -30,7 +30,7 @@ class FromRoundRegistrationQuestion extends RoundRegistrationQuestionType
         return $this->concrete()->exists();
     }
 
-    private function concrete()
+    private function concrete(): RoundRegistrationQuestionType
     {
         if (is_null($this->concrete)) {
             $this->concrete = $this->doConcrete();
@@ -39,7 +39,7 @@ class FromRoundRegistrationQuestion extends RoundRegistrationQuestionType
         return $this->concrete;
     }
 
-    private function doConcrete()
+    private function doConcrete(): RoundRegistrationQuestionType
     {
         if (!$this->roundRegistrationQuestion->value()->isSuccessful()) {
             return new NonSuccessful($this->roundRegistrationQuestion->value());

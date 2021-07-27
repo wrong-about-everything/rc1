@@ -63,7 +63,7 @@ class Sent implements Invitation
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         $this->logStart();
 
@@ -84,7 +84,7 @@ class Sent implements Invitation
                                             [['text' => (new No())->value()]],
                                         ],
                                         'resize_keyboard' => true,
-                                        'one_time_keyboard' => true,
+                                        'one_time_keyboard' => false,
                                     ])
                             ]),
                             new FromImpure(new TokenFromBot($this->bot))

@@ -44,7 +44,7 @@ class InvitationDeclinedAndSeeYouNextTime implements Reply
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         if (!$this->botToken->value()->isSuccessful()) {
             return $this->botToken->value();

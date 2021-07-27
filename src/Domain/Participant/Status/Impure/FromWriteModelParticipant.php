@@ -9,10 +9,9 @@ use RC\Domain\Participant\Status\Pure\FromInteger;
 use RC\Domain\Participant\Status\Pure\NonExistent;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 
-class FromParticipant extends Status
+class FromWriteModelParticipant extends Status
 {
     private $participant;
-    private $cached;
 
     public function __construct(Participant $participant)
     {
@@ -30,7 +29,7 @@ class FromParticipant extends Status
         return $this->concrete()->exists();
     }
 
-    private function concrete()
+    private function concrete(): Status
     {
         if (is_null($this->cached)) {
             $this->cached = $this->doConcrete();
@@ -39,7 +38,7 @@ class FromParticipant extends Status
         return $this->cached;
     }
 
-    private function doConcrete()
+    private function doConcrete(): Status
     {
         if (!$this->participant->value()->isSuccessful()) {
             return new NonSuccessful($this->participant->value());

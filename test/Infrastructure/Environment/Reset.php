@@ -58,7 +58,7 @@ truncate
     sample_table,
     bot,
     "group",
-    "user",
+    "telegram_user",
     bot_user,
     registration_question,
     user_registration_progress,

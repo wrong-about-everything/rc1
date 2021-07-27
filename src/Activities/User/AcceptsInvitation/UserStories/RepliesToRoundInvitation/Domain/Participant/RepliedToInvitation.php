@@ -7,6 +7,8 @@ namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitat
 use RC\Domain\BooleanAnswer\BooleanAnswerName\FromUserMessage;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
 use RC\Domain\Participant\WriteModel\AcceptedInvitation;
+use RC\Domain\Participant\WriteModel\NonExistent;
+use RC\Domain\Participant\WriteModel\NonSuccessful;
 use RC\Domain\Participant\WriteModel\Participant;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\ReadModel\Invitation as ReadModelInvitation;
@@ -14,7 +16,6 @@ use RC\Domain\RoundInvitation\WriteModel\Accepted;
 use RC\Domain\RoundInvitation\WriteModel\Declined;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
-use RC\Infrastructure\TelegramBot\UserMessage\Impure\NonSuccessful;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\FromParsedTelegramMessage;
 
 class RepliedToInvitation implements Participant
@@ -22,31 +23,31 @@ class RepliedToInvitation implements Participant
     private $message;
     private $invitation;
     private $connection;
-    private $cached;
+    private $concrete;
 
     public function __construct(array $message, ReadModelInvitation $invitation, OpenConnection $connection)
     {
         $this->message = $message;
         $this->invitation = $invitation;
         $this->connection = $connection;
-        $this->cached = null;
+        $this->concrete = null;
     }
 
     public function value(): ImpureValue
     {
-        return $this->cached()->value();
+        return $this->concrete()->value();
     }
 
-    private function cached()
+    private function concrete(): Participant
     {
-        if (is_null($this->cached)) {
-            $this->cached = $this->doCached();
+        if (is_null($this->concrete)) {
+            $this->concrete = $this->doConcrete();
         }
 
-        return $this->cached;
+        return $this->concrete;
     }
 
-    private function doCached()
+    private function doConcrete(): Participant
     {
         $invitationId = new FromInvitation($this->invitation);
 
@@ -56,7 +57,7 @@ class RepliedToInvitation implements Participant
                 return new NonSuccessful($declinedInvitationValue);
             }
 
-            return $invitationId;
+            return new NonExistent();
         }
 
         $acceptedInvitationValue = (new Accepted($invitationId, $this->connection))->value();
@@ -64,11 +65,11 @@ class RepliedToInvitation implements Participant
             return new NonSuccessful($acceptedInvitationValue);
         }
 
-        $participant = (new AcceptedInvitation($invitationId, $this->connection))->value();
-        if (!$participant->isSuccessful()) {
-            return new NonSuccessful($participant);
+        $participant = new AcceptedInvitation($invitationId, $this->connection);
+        if (!$participant->value()->isSuccessful()) {
+            return new NonSuccessful($participant->value());
         }
 
-        return $invitationId;
+        return $participant;
     }
 }

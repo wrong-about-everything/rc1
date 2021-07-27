@@ -48,8 +48,8 @@ class RegisteredIfNoMoreQuestionsLeft implements BotUser
                     <<<q
     update bot_user
     set status = ?
-    from "user"
-    where "user".id = bot_user.user_id and "user".telegram_id = ? and bot_user.bot_id = ?
+    from "telegram_user"
+    where "telegram_user".id = bot_user.user_id and "telegram_user".telegram_id = ? and bot_user.bot_id = ?
     q
 
                     ,

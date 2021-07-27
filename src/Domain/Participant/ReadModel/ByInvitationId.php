@@ -15,9 +15,9 @@ class ByInvitationId implements Participant
     private $connection;
     private $cached;
 
-    public function __construct(InvitationId $meetingRoundId, OpenConnection $connection)
+    public function __construct(InvitationId $invitationId, OpenConnection $connection)
     {
-        $this->invitationId = $meetingRoundId;
+        $this->invitationId = $invitationId;
         $this->connection = $connection;
         $this->cached = null;
     }
@@ -41,12 +41,12 @@ class ByInvitationId implements Participant
         return $this->cached;
     }
 
-    private function doConcrete()
+    private function doConcrete(): Participant
     {
         $participant =
             (new Selecting(
                 <<<q
-select *
+select mrp.*
 from meeting_round_participant mrp
     join meeting_round_invitation mri on mrp.meeting_round_id = mri.meeting_round_id and mrp.user_id = mri.user_id
 where mri.id = ?
@@ -65,5 +65,4 @@ q
 
         return new FromArray($participant->pure()->raw()[0]);
     }
-
 }

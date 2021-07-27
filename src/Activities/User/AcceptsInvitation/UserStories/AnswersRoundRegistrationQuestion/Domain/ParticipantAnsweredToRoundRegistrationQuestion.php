@@ -31,6 +31,7 @@ class ParticipantAnsweredToRoundRegistrationQuestion implements Participant
     private $invitationId;
     private $answeredQuestion;
     private $connection;
+    private $cached;
 
     public function __construct(UserMessage $userMessage, InvitationId $invitationId, RoundRegistrationQuestion $answeredQuestion, OpenConnection $connection)
     {
@@ -38,9 +39,19 @@ class ParticipantAnsweredToRoundRegistrationQuestion implements Participant
         $this->invitationId = $invitationId;
         $this->answeredQuestion = $answeredQuestion;
         $this->connection = $connection;
+        $this->cached = null;
     }
 
     public function value(): ImpureValue
+    {
+        if (is_null($this->cached)) {
+            $this->cached = $this->doValue();
+        }
+
+        return $this->cached;
+    }
+
+    private function doValue(): ImpureValue
     {
         $roundRegistrationQuestionId = new RoundRegistrationQuestionId($this->answeredQuestion);
         if (!$roundRegistrationQuestionId->value()->isSuccessful()) {

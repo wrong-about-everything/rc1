@@ -12,7 +12,7 @@ use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnecti
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\MeetingRound\MeetingRoundId\FromString as MeetingRoundFromString;
 use RC\Domain\Participant\ReadModel\ByMeetingRoundAndUser;
-use RC\Domain\Participant\Status\Impure\FromParticipant;
+use RC\Domain\Participant\Status\Impure\FromReadModelParticipant;
 use RC\Domain\Participant\Status\Impure\FromPure;
 use RC\Domain\Participant\Status\Pure\Registered as ParticipantRegistered;
 use RC\Domain\Participant\Status\Pure\RegistrationInProgress;
@@ -25,7 +25,6 @@ use RC\Domain\RoundInvitation\Status\Pure\Declined;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
 use RC\Domain\RoundRegistrationQuestion\Type\Pure\NetworkingOrSomeSpecificArea;
 use RC\Domain\RoundRegistrationQuestion\Type\Pure\SpecificAreaChoosing;
-use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
 use RC\Domain\User\UserId\FromUuid as UserIdFromUuid;
 use RC\Domain\User\UserId\UserId;
 use RC\Domain\User\UserStatus\Pure\Registered;
@@ -304,7 +303,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             );
         $this->assertTrue($participant->exists()->pure()->raw());
         $this->assertTrue(
-            (new FromParticipant($participant))
+            (new FromReadModelParticipant($participant))
                 ->equals(
                     new FromPure($status)
                 )

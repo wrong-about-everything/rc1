@@ -33,7 +33,6 @@ use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Domain\TelegramBot\Reply\Reply;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-// @todo: Добавить логирование при любом завершении скрипта
 class NextRoundRegistrationQuestionReply implements Reply
 {
     private $invitationId;
@@ -111,7 +110,7 @@ class NextRoundRegistrationQuestionReply implements Reply
                 json_encode([
                     'keyboard' => $answerOptions,
                     'resize_keyboard' => true,
-                    'one_time_keyboard' => true,
+                    'one_time_keyboard' => false,
                 ])
         ];
     }

@@ -37,7 +37,7 @@ class LatestByTelegramUserIdAndBotId implements Invitation
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         $response =
             (new Selecting(
@@ -45,7 +45,7 @@ class LatestByTelegramUserIdAndBotId implements Invitation
 select mri.*
 from meeting_round_invitation mri
     join meeting_round mr on mri.meeting_round_id = mr.id
-    join "user" u on mri.user_id = u.id
+    join "telegram_user" u on mri.user_id = u.id
 where u.telegram_id = ? and mr.bot_id = ?
 order by mr.start_date desc
 limit 1

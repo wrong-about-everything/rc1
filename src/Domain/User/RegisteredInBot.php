@@ -37,14 +37,14 @@ class RegisteredInBot implements User
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         $response =
             (new Selecting(
                 <<<q
 select u.*
 from
-    "user" u join bot_user ub on u.id = ub.user_id
+    "telegram_user" u join bot_user ub on u.id = ub.user_id
 where u.telegram_id = ? and ub.bot_id = ?
 q
                 ,

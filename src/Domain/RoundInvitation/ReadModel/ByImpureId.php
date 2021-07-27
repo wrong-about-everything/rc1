@@ -31,7 +31,7 @@ class ByImpureId implements Invitation
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         if (!$this->invitationId->value()->isSuccessful()) {
             return $this->invitationId->value();

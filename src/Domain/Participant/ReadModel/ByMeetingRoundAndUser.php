@@ -35,7 +35,7 @@ class ByMeetingRoundAndUser implements Participant
         return $this->concrete()->exists();
     }
 
-    private function concrete()
+    private function concrete(): Participant
     {
         if (is_null($this->cached)) {
             $this->cached = $this->doConcrete();
@@ -44,7 +44,7 @@ class ByMeetingRoundAndUser implements Participant
         return $this->cached;
     }
 
-    private function doConcrete()
+    private function doConcrete(): Participant
     {
         $participant =
             (new Selecting(
@@ -62,5 +62,4 @@ class ByMeetingRoundAndUser implements Participant
 
         return new FromArray($participant->pure()->raw()[0]);
     }
-
 }
