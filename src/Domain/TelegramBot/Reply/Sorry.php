@@ -19,8 +19,6 @@ use RC\Domain\Bot\BotToken\Impure\BotToken;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-// @todo: завести супортового бота!
-// @todo: add tests
 class Sorry implements Reply
 {
     private $telegramUserId;

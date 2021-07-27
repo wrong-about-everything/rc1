@@ -66,7 +66,7 @@ class NextRoundRegistrationQuestionReply implements Reply
         if (!$response->isAvailable()) {
             return new Failed(new SilentDeclineWithDefaultUserMessage('Response from telegram is not available', []));
         }
-        // @todo: validate telegram response!
+        // @todo: user the single infrastructure Reply class with retries
 
         return new Successful(new Emptie());
     }
@@ -110,7 +110,7 @@ class NextRoundRegistrationQuestionReply implements Reply
                 json_encode([
                     'keyboard' => $answerOptions,
                     'resize_keyboard' => true,
-                    'one_time_keyboard' => false,
+                    'one_time_keyboard' => true,
                 ])
         ];
     }

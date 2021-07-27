@@ -6,6 +6,7 @@ namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitat
 
 use RC\Domain\BooleanAnswer\BooleanAnswerName\FromUserMessage;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
 use RC\Domain\Participant\WriteModel\AcceptedInvitation;
 use RC\Domain\Participant\WriteModel\NonExistent;
 use RC\Domain\Participant\WriteModel\NonSuccessful;
@@ -14,7 +15,9 @@ use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\ReadModel\Invitation as ReadModelInvitation;
 use RC\Domain\RoundInvitation\WriteModel\Accepted;
 use RC\Domain\RoundInvitation\WriteModel\Declined;
+use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessage;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
+use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\FromParsedTelegramMessage;
 
@@ -58,18 +61,28 @@ class RepliedToInvitation implements Participant
             }
 
             return new NonExistent();
+        } elseif ((new FromUserMessage(new FromParsedTelegramMessage($this->message)))->equals(new Yes())) {
+            $acceptedInvitationValue = (new Accepted($invitationId, $this->connection))->value();
+            if (!$acceptedInvitationValue->isSuccessful()) {
+                return new NonSuccessful($acceptedInvitationValue);
+            }
+
+            $participant = new AcceptedInvitation($invitationId, $this->connection);
+            if (!$participant->value()->isSuccessful()) {
+                return new NonSuccessful($participant->value());
+            }
+
+            return $participant;
         }
 
-        $acceptedInvitationValue = (new Accepted($invitationId, $this->connection))->value();
-        if (!$acceptedInvitationValue->isSuccessful()) {
-            return new NonSuccessful($acceptedInvitationValue);
-        }
-
-        $participant = new AcceptedInvitation($invitationId, $this->connection);
-        if (!$participant->value()->isSuccessful()) {
-            return new NonSuccessful($participant->value());
-        }
-
-        return $participant;
+        return
+            new NonSuccessful(
+                new Failed(
+                    new SilentDeclineWithDefaultUserMessage(
+                        'An invitation reply answer is neither yes nor no. Either this user story was run by mistake or user replied with custom message instead of pushing a button.',
+                        []
+                    )
+                )
+            );
     }
 }

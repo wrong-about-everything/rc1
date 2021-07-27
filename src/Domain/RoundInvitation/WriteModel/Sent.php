@@ -84,7 +84,7 @@ class Sent implements Invitation
                                             [['text' => (new No())->value()]],
                                         ],
                                         'resize_keyboard' => true,
-                                        'one_time_keyboard' => false,
+                                        'one_time_keyboard' => true,
                                     ])
                             ]),
                             new FromImpure(new TokenFromBot($this->bot))

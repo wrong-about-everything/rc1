@@ -7,6 +7,11 @@ namespace RC\UserActions\SendsArbitraryMessage;
 use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\AnswersRoundRegistrationQuestion;
 use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\RepliesToRoundInvitation;
 use RC\Domain\BotUser\ByTelegramUserId;
+use RC\Domain\Participant\ReadModel\ByInvitationId;
+use RC\Domain\Participant\Status\Impure\FromPure as ParticipantStatus;
+use RC\Domain\Participant\Status\Impure\FromReadModelParticipant;
+use RC\Domain\Participant\Status\Pure\RegistrationInProgress;
+use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation as InvitationId;
 use RC\Domain\RoundInvitation\ReadModel\LatestByTelegramUserIdAndBotId;
 use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromPure;
@@ -179,22 +184,25 @@ class SendsArbitraryMessage extends Existent
 
     private function thereIsAUserRegisteringForARound()
     {
-        $latestInvitationStatus =
-            new FromInvitation(
-                new LatestByTelegramUserIdAndBotId(
-                    new FromParsedTelegramMessage($this->message),
-                    new FromUuid(new UuidFromString($this->botId)),
-                    $this->connection
-                )
+        $participant =
+            new ByInvitationId(
+                new InvitationId(
+                    new LatestByTelegramUserIdAndBotId(
+                        new FromParsedTelegramMessage($this->message),
+                        new FromUuid(new UuidFromString($this->botId)),
+                        $this->connection
+                    )
+                ),
+                $this->connection
             );
-        if (!$latestInvitationStatus->exists()->isSuccessful()) {
-            $this->logs->receive(new FromNonSuccessfulImpureValue($latestInvitationStatus->value()));
+        if (!$participant->exists()->isSuccessful()) {
+            $this->logs->receive(new FromNonSuccessfulImpureValue($participant->value()));
             return false;
         }
-        if ($latestInvitationStatus->exists()->pure()->raw() === false) {
+        if ($participant->exists()->pure()->raw() === false) {
             return false;
         }
 
-        return $latestInvitationStatus->equals(new FromPure(new Accepted()));
+        return (new FromReadModelParticipant($participant))->equals(new ParticipantStatus(new RegistrationInProgress()));
     }
 }

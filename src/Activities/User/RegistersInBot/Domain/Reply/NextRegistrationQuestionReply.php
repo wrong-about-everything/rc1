@@ -35,7 +35,6 @@ use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Domain\TelegramBot\Reply\Reply;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-// @todo: Добавить логирование при любом завершении скрипта
 class NextRegistrationQuestionReply implements Reply
 {
     private $telegramUserId;
@@ -67,7 +66,6 @@ class NextRegistrationQuestionReply implements Reply
         if (!$response->isAvailable()) {
             return new Failed(new SilentDeclineWithDefaultUserMessage('Response from telegram is not available', []));
         }
-        // @todo: validate telegram response!
 
         return new Successful(new Emptie());
     }
@@ -111,7 +109,7 @@ class NextRegistrationQuestionReply implements Reply
                 json_encode([
                     'keyboard' => $answerOptions,
                     'resize_keyboard' => true,
-                    'one_time_keyboard' => false,
+                    'one_time_keyboard' => true,
                 ])
         ];
     }

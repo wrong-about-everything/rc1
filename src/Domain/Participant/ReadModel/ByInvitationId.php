@@ -43,6 +43,12 @@ class ByInvitationId implements Participant
 
     private function doConcrete(): Participant
     {
+        if (!$this->invitationId->value()->isSuccessful()) {
+            return new NonSuccessful($this->invitationId->value());
+        }
+        if (!$this->invitationId->value()->pure()->isPresent()) {
+            return new NonExistent();
+        }
         $participant =
             (new Selecting(
                 <<<q

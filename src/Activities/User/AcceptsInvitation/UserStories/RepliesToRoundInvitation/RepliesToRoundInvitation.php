@@ -52,6 +52,7 @@ class RepliesToRoundInvitation extends Existent
         $participantRepliedToInvitationValue = $this->participantRepliedToInvitation($invitation)->value();
         if (!$participantRepliedToInvitationValue->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($participantRepliedToInvitationValue));
+            // if user input is invalid reply with error
             $this->sorry()->value();
             return new Successful(new Emptie());
         }

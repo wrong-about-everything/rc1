@@ -29,6 +29,7 @@ use RC\Domain\User\UserStatus\Pure\Registered;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
 use RC\Infrastructure\Http\Transport\Indifferent;
+use RC\Infrastructure\Logging\LogId;
 use RC\Infrastructure\Logging\Logs\DevNull;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
@@ -107,6 +108,42 @@ class UserRegistersInAMeetingRoundTest extends TestCase
         $this->assertEquals(
             'Поздравляю, вы зарегистрировались! В понедельник в 11 утра пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[1]->url())))->value()['text']
+        );
+        $this->assertParticipantWithNetworkingInterestExists($this->meetingRoundId(), $this->userId(), $connection);
+
+        $thirdResponse =
+            (new SendsArbitraryMessage(
+                (new UserMessage($this->telegramUserId(), 'привет!'))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($thirdResponse->isSuccessful());
+        $this->assertCount(3, $transport->sentRequests());
+        $this->assertEquals(
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            (new FromQuery(new FromUrl($transport->sentRequests()[2]->url())))->value()['text']
+        );
+        $this->assertParticipantWithNetworkingInterestExists($this->meetingRoundId(), $this->userId(), $connection);
+
+        $fourthResponse =
+            (new SendsArbitraryMessage(
+                (new UserMessage($this->telegramUserId(), 'привет!'))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($fourthResponse->isSuccessful());
+        $this->assertCount(4, $transport->sentRequests());
+        $this->assertEquals(
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            (new FromQuery(new FromUrl($transport->sentRequests()[3]->url())))->value()['text']
         );
         $this->assertParticipantWithNetworkingInterestExists($this->meetingRoundId(), $this->userId(), $connection);
     }
@@ -189,6 +226,42 @@ class UserRegistersInAMeetingRoundTest extends TestCase
             (new FromQuery(new FromUrl($transport->sentRequests()[2]->url())))->value()['text']
         );
         $this->assertParticipantIsRegisteredWithSpecificInterest($this->meetingRoundId(), $this->userId(), $connection);
+
+        $thirdResponse =
+            (new SendsArbitraryMessage(
+                (new UserMessage($this->telegramUserId(), 'привет!'))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($thirdResponse->isSuccessful());
+        $this->assertCount(4, $transport->sentRequests());
+        $this->assertEquals(
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            (new FromQuery(new FromUrl($transport->sentRequests()[3]->url())))->value()['text']
+        );
+        $this->assertParticipantIsRegisteredWithSpecificInterest($this->meetingRoundId(), $this->userId(), $connection);
+
+        $fourthResponse =
+            (new SendsArbitraryMessage(
+                (new UserMessage($this->telegramUserId(), 'привет!'))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($fourthResponse->isSuccessful());
+        $this->assertCount(5, $transport->sentRequests());
+        $this->assertEquals(
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            (new FromQuery(new FromUrl($transport->sentRequests()[4]->url())))->value()['text']
+        );
+        $this->assertParticipantIsRegisteredWithSpecificInterest($this->meetingRoundId(), $this->userId(), $connection);
     }
 
     protected function setUp(): void
@@ -265,3 +338,9 @@ class UserRegistersInAMeetingRoundTest extends TestCase
             );
     }
 }
+
+#0 /workspace/src/Domain/RoundRegistrationQuestion/RoundRegistrationQuestionId/Impure/FromRoundRegistrationQuestion.php(27): RC\Infrastructure\ImpureInteractions\PureValue\Emptie->raw()
+#1 /workspace/src/Activities/User/AcceptsInvitation/UserStories/AnswersRoundRegistrationQuestion/Domain/ParticipantAnsweredToRoundRegistrationQuestion.php(57): RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestionId\Impure\FromRoundRegistrationQuestion->value()
+#2 /workspace/src/Activities/User/AcceptsInvitation/UserStories/AnswersRoundRegistrationQuestion/Domain/ParticipantAnsweredToRoundRegistrationQuestion.php(48): RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\ParticipantAnsweredToRoundRegistrationQuestion->doValue()
+#3 /workspace/src/Activities/User/AcceptsInvitation/UserStories/AnswersRoundRegistrationQuestion/AnswersRoundRegistrationQuestion.php(59): RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\ParticipantAnsweredToRoundRegistrationQuestion->value()
+#4 /workspace/src/UserActions/SendsArbitraryMessage/SendsArbitraryMessage.php(119): RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\AnswersRoundRegistrationQuestion->response()
