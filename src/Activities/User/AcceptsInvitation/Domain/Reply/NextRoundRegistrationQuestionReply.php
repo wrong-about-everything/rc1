@@ -4,14 +4,8 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\AcceptsInvitation\Domain\Reply;
 
-use RC\Domain\RoundRegistrationQuestion\Type\Impure\FromPure;
-use RC\Domain\RoundRegistrationQuestion\Type\Impure\FromRoundRegistrationQuestion;
-use RC\Domain\RoundRegistrationQuestion\Type\Pure\NetworkingOrSomeSpecificArea;
-use RC\Domain\RoundRegistrationQuestion\Type\Pure\SpecificAreaChoosing;
-use RC\Domain\UserInterest\InterestId\Pure\Single\FromInteger;
-use RC\Domain\UserInterest\InterestName\Pure\FromInterestId;
+use RC\Domain\AnswerOptions\FromRoundRegistrationQuestion as AnswerOptionsFromRoundRegistrationQuestion;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
-use RC\Domain\UserInterest\InterestId\Impure\Multiple\AvailableInterestIdsInRoundByInvitationId;
 use RC\Domain\RoundRegistrationQuestion\NextRoundRegistrationQuestion;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestion;
 use RC\Infrastructure\Http\Request\Method\Post;
@@ -99,36 +93,19 @@ class NextRoundRegistrationQuestionReply implements Reply
 
     private function replyMarkup(RoundRegistrationQuestion $nextRegistrationQuestion)
     {
-        $answerOptions = $this->answerOptions($nextRegistrationQuestion);
+        $answerOptions = new AnswerOptionsFromRoundRegistrationQuestion($nextRegistrationQuestion, $this->invitationId, $this->connection);
 
-        if (empty($answerOptions)) {
+        if (empty($answerOptions->value()->pure()->raw())) {
             return [];
         }
 
         return [
             'reply_markup' =>
                 json_encode([
-                    'keyboard' => $answerOptions,
+                    'keyboard' => $answerOptions->value()->pure()->raw(),
                     'resize_keyboard' => true,
                     'one_time_keyboard' => true,
                 ])
         ];
-    }
-
-    private function answerOptions(RoundRegistrationQuestion $currentRegistrationQuestion)
-    {
-        if ((new FromRoundRegistrationQuestion($currentRegistrationQuestion))->equals(new FromPure(new NetworkingOrSomeSpecificArea()))) {
-            return
-                array_map(
-                    function (int $interest) {
-                        return [['text' => (new FromInterestId(new FromInteger($interest)))->value()]];
-                    },
-                    (new AvailableInterestIdsInRoundByInvitationId($this->invitationId, $this->connection))->value()->pure()->raw()
-                );
-        } elseif ((new FromRoundRegistrationQuestion($currentRegistrationQuestion))->equals(new FromPure(new SpecificAreaChoosing()))) {
-            return [];
-        }
-
-        return [];
     }
 }

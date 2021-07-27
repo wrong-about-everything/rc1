@@ -24,11 +24,11 @@ class MeetingRound
     {
         $response =
             (new SingleMutatingQueryWithMultipleValueSets(
-                'insert into "meeting_round" (id, bot_id, name, start_date, timezone) values (?, ?, ?, ?, ?)',
+                'insert into "meeting_round" (id, bot_id, name, start_date, timezone, available_interests) values (?, ?, ?, ?, ?, ?)',
                 array_map(
                     function (array $record) {
                         $values = array_merge($this->defaultValues(), $record);
-                        return [$values['id'], $values['bot_id'], $values['name'], $values['start_date'], $values['timezone']];
+                        return [$values['id'], $values['bot_id'], $values['name'], $values['start_date'], $values['timezone'], json_encode($values['available_interests'])];
                     },
                     $records
                 ),
@@ -47,6 +47,7 @@ class MeetingRound
             'name' => 'New meeting round',
             'start_date' => (new Now())->value(),
             'timezone' => (new Moscow())->value(),
+            'available_interests' => [],
         ];
     }
 }
