@@ -15,7 +15,6 @@ use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation as InvitationId
 use RC\Domain\RoundInvitation\ReadModel\LatestByTelegramUserIdAndBotId;
 use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromPure;
-use RC\Domain\RoundInvitation\Status\Pure\Accepted;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
 use RC\Domain\TelegramBot\Reply\InCaseOfAnyUncertainty;
 use RC\Domain\User\UserStatus\Impure\FromBotUser;

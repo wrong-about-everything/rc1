@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\UserProfileRecordType\Impure;
+namespace RC\Domain\RegistrationQuestion\RegistrationQuestionType\Impure;
 
 use RC\Domain\RegistrationQuestion\RegistrationQuestion;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 
-class FromRegistrationQuestion extends UserProfileRecordType
+class FromRegistrationQuestion extends RegistrationQuestionType
 {
     private $registrationQuestion;
 

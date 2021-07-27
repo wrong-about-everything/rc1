@@ -20,9 +20,9 @@ use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\Credentials\RootCre
 use RC\Domain\RoundInvitation\Status\Pure\_New;
 use RC\Domain\RoundRegistrationQuestion\Type\Pure\NetworkingOrSomeSpecificArea;
 use RC\Domain\RoundRegistrationQuestion\Type\Pure\SpecificAreaChoosing;
-use RC\Domain\UserProfileRecordType\Pure\About;
-use RC\Domain\UserProfileRecordType\Pure\Experience;
-use RC\Domain\UserProfileRecordType\Pure\Position;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\About;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePathString as DirPath;
 use RC\Infrastructure\Filesystem\FilePath\ExistentFromAbsolutePathString as FilePath;
 use RC\Infrastructure\Setup\Database\Recreate;

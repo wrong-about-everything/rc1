@@ -16,15 +16,18 @@ use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnecti
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\Position\PositionId\Impure\FromBotUser;
 use RC\Domain\Position\PositionId\Impure\FromPure;
+use RC\Domain\Position\PositionId\Pure\FromInteger as PositionFromInteger;
 use RC\Domain\Position\PositionId\Pure\Position as UserPosition;
+use RC\Domain\Position\PositionId\Pure\ProductDesigner;
 use RC\Domain\Position\PositionId\Pure\ProductManager;
+use RC\Domain\Position\PositionName\FromPosition;
 use RC\Domain\Position\PositionName\ProductManagerName;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionId\Impure\FromString as RegistrationQuestionIdFromString;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionId\Impure\RegistrationQuestionId;
 use RC\Domain\User\UserId\FromUuid as UserIdFromUuid;
 use RC\Domain\User\UserId\UserId;
-use RC\Domain\UserProfileRecordType\Pure\Experience;
-use RC\Domain\UserProfileRecordType\Pure\Position;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Domain\User\UserStatus\Impure\FromBotUser as UserStatusFromBotUser;
 use RC\Domain\User\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
 use RC\Domain\User\UserStatus\Pure\Registered;
@@ -86,6 +89,108 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
             'А опыт?',
+            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+        );
+    }
+
+    public function testWhenNewUserAnswersTheFirstQuestionWithTextInsteadOfPressingButtonThenHeSeesValidationError()
+    {
+        $connection = new ApplicationConnection();
+        (new Bot($connection))
+            ->insert([
+                ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot', 'available_positions' => $this->availablePositionIds()]
+            ]);
+        (new BotUser($this->botId(), $connection))
+            ->insert(
+                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+                []
+            );
+        (new RegistrationQuestion($connection))
+            ->insert([
+                ['id' => $this->firstRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
+                ['id' => $this->secondRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Experience())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 2, 'text' => 'А опыт?'],
+            ]);
+        $transport = new Indifferent();
+
+        $response =
+            (new SendsArbitraryMessage(
+                (new UserMessage($this->telegramUserId(), 'что?'))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertCount(1, $transport->sentRequests());
+        $this->assertEquals(
+            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит -- напишите в @gorgonzola_support',
+            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+        );
+        $this->assertEquals(
+            $this->positionNamesFromPositionIds($this->availablePositionIds()),
+            array_map(
+                function (array $option) {
+                    return $option[0]['text'];
+                },
+                json_decode((new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['reply_markup'], true)['keyboard']
+            )
+        );
+
+        $secondResponse =
+            (new SendsArbitraryMessage(
+                (new UserMessage($this->telegramUserId(), (new ProductManagerName())->value()))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($secondResponse->isSuccessful());
+        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionId(), $connection);
+        $this->assertPositionIs($this->telegramUserId(), $this->botId(), new ProductManager(), $connection);
+        $this->assertCount(2, $transport->sentRequests());
+        $this->assertEquals(
+            'А опыт?',
+            (new FromQuery(new FromUrl($transport->sentRequests()[1]->url())))->value()['text']
+        );
+    }
+
+    public function testWhenNewUserAnswersTheFirstQuestionWithTextInsteadOfPressingButtonThenHeSeesValidationErrorAndWhenHeAnswersWithAButtonThenHeSeesTheSecondQuestion()
+    {
+        $connection = new ApplicationConnection();
+        (new Bot($connection))
+            ->insert([
+                ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
+            ]);
+        (new BotUser($this->botId(), $connection))
+            ->insert(
+                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+                []
+            );
+        (new RegistrationQuestion($connection))
+            ->insert([
+                ['id' => $this->firstRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
+                ['id' => $this->secondRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Experience())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 2, 'text' => 'А опыт?'],
+            ]);
+        $transport = new Indifferent();
+
+        $response =
+            (new SendsArbitraryMessage(
+                (new UserMessage($this->telegramUserId(), 'что?'))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertCount(1, $transport->sentRequests());
+        $this->assertEquals(
+            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит -- напишите в @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
     }
@@ -171,6 +276,22 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
     protected function setUp(): void
     {
         (new Reset(new RootConnection()))->run();
+    }
+
+    private function availablePositionIds()
+    {
+        return [(new ProductManager())->value(), (new ProductDesigner())->value()];
+    }
+
+    private function positionNamesFromPositionIds(array $positionIds)
+    {
+        return
+            array_map(
+                function (int $positionId) {
+                    return (new FromPosition(new PositionFromInteger($positionId)))->value();
+                },
+                $positionIds
+            );
     }
 
     private function telegramUserId(): TelegramUserId

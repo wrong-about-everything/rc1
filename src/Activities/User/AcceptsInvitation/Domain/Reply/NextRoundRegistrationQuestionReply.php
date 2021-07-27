@@ -66,7 +66,7 @@ class NextRoundRegistrationQuestionReply implements Reply
         if (!$response->isAvailable()) {
             return new Failed(new SilentDeclineWithDefaultUserMessage('Response from telegram is not available', []));
         }
-        // @todo: user the single infrastructure Reply class with retries
+        // @todo: use the single infrastructure Reply class with retries
 
         return new Successful(new Emptie());
     }

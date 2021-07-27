@@ -10,8 +10,8 @@ use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnecti
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\BotUser\ByTelegramUserId;
 use RC\Domain\User\RegisteredInBot;
-use RC\Domain\UserProfileRecordType\Pure\Experience;
-use RC\Domain\UserProfileRecordType\Pure\Position;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Domain\User\UserStatus\Pure\Registered;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;

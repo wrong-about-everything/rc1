@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RegistersInBot\Domain\Reply;
 
+use RC\Domain\AnswerOptions\FromRegistrationQuestion as AnswerOptionsFromRegistrationQuestion;
 use RC\Domain\Position\AvailablePositions\ByBotId as AvailablePositions;
 use RC\Domain\Experience\AvailableExperiences\ByBotId as AvailableExperiences;
 use RC\Domain\Experience\ExperienceId\Pure\FromInteger as ExperienceFromInteger;
@@ -12,10 +13,10 @@ use RC\Domain\Position\PositionId\Pure\FromInteger;
 use RC\Domain\Position\PositionName\FromPosition;
 use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
 use RC\Domain\RegistrationQuestion\RegistrationQuestion;
-use RC\Domain\UserProfileRecordType\Impure\FromPure;
-use RC\Domain\UserProfileRecordType\Impure\FromRegistrationQuestion;
-use RC\Domain\UserProfileRecordType\Pure\Experience;
-use RC\Domain\UserProfileRecordType\Pure\Position;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Impure\FromPure;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Impure\FromRegistrationQuestion;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -98,16 +99,16 @@ class NextRegistrationQuestionReply implements Reply
 
     private function replyMarkup(RegistrationQuestion $nextRegistrationQuestion)
     {
-        $answerOptions = $this->answerOptions($nextRegistrationQuestion);
+        $answerOptions = new AnswerOptionsFromRegistrationQuestion($nextRegistrationQuestion, $this->botId, $this->connection);
 
-        if (empty($answerOptions)) {
+        if (empty($answerOptions->value()->pure()->raw())) {
             return [];
         }
 
         return [
             'reply_markup' =>
                 json_encode([
-                    'keyboard' => $answerOptions,
+                    'keyboard' => $answerOptions->value()->pure()->raw(),
                     'resize_keyboard' => true,
                     'one_time_keyboard' => true,
                 ])
