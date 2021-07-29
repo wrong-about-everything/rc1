@@ -80,7 +80,16 @@ class Matches
         $newMatches =
             array_reduce(
                 $participantsWithTheLeastOftenEncounteredInterest,
-                function (array $carry, $participantId) {
+                function (array $carry, $participantId) use ($participants2Interests) {
+                    if (!empty($carry) && count($carry[count($carry) - 1]) === 2) {
+                        $lastMatch = $carry[count($carry) - 1];
+                        if (count($participants2Interests[$lastMatch[0]]) !== count($participants2Interests[$lastMatch[1]])) {
+                            return $carry;
+                        } elseif (count($participants2Interests[$participantId]) !== $participants2Interests[$lastMatch[0]]) {
+                            return $carry;
+                        }
+                    }
+
                     if (empty($carry) || count($carry[count($carry) - 1]) === 2) {
                         $carry[] = [$participantId];
                         return $carry;
@@ -124,34 +133,77 @@ class Matches
      * When some interest is marked as the single interest often, it must gain precedence above others,
      * because such interest are the hardest to find pairs for.
      */
+//    private function interestsSortedByWeight(array $participantsGroupedByInterest, array $participants2Interests)
+//    {
+//        uksort(
+//            $participantsGroupedByInterest,
+//            function ($leftInterest, $rightInterest) use ($participantsGroupedByInterest, $participants2Interests) {
+//
+//
+//                if ($this->interestWeight($leftInterest, $participantsGroupedByInterest, $participants2Interests) === $this->interestWeight($rightInterest, $participantsGroupedByInterest, $participants2Interests)) {
+//                    return 0;
+//                }
+//
+//                return
+//                    $this->interestWeight($leftInterest, $participantsGroupedByInterest, $participants2Interests) < $this->interestWeight($rightInterest, $participantsGroupedByInterest, $participants2Interests)
+//                        ? 1
+//                        : -1
+//                    ;
+//            }
+//        );
+//        return $participantsGroupedByInterest;
+//    }
+//
+//    private function interestWeight($interestId, array $participantsGroupedByInterest, $participants2Interests)
+//    {
+//        return
+//            array_reduce(
+//                $participantsGroupedByInterest[$interestId],
+//                function (int $carry, $participantId) use ($participantsGroupedByInterest, $participants2Interests) {
+//                    return $carry + ((count($participantsGroupedByInterest) - count($participants2Interests[$participantId])) + 1);
+//                },
+//                0
+//            );
+//    }
+
+    /**
+     * The rarest interests go first.
+     * When some interest is marked as the single interest often, it must gain precedence above others,
+     * because such interest are the hardest to find pairs for.
+     */
     private function interestsSortedByWeight(array $participantsGroupedByInterest, array $participants2Interests)
     {
         uksort(
             $participantsGroupedByInterest,
             function ($leftInterest, $rightInterest) use ($participantsGroupedByInterest, $participants2Interests) {
-                if ($this->interestWeight($leftInterest, $participantsGroupedByInterest, $participants2Interests) === $this->interestWeight($rightInterest, $participantsGroupedByInterest, $participants2Interests)) {
-                    return 0;
+                for ($i = 1; $i <= count($participantsGroupedByInterest); $i++) {
+                    $participantAmountWithIInterestsIncludingTheLeftInterest =
+                        array_filter(
+                            $participants2Interests,
+                            function (array $interests) use ($i, $leftInterest) {
+                                return count($interests) === $i && in_array($leftInterest, $interests);
+                            }
+                        );
+                    $participantAmountWithIInterestsIncludingTheRightInterest =
+                        array_filter(
+                            $participants2Interests,
+                            function (array $interests) use ($i, $rightInterest) {
+                                return count($interests) === $i && in_array($rightInterest, $interests);
+                            }
+                        );
+                    if (count($participantAmountWithIInterestsIncludingTheLeftInterest) === count($participantAmountWithIInterestsIncludingTheRightInterest)) {
+                        continue;
+                    }
+
+                    return
+                        count($participantAmountWithIInterestsIncludingTheLeftInterest) < count($participantAmountWithIInterestsIncludingTheRightInterest)
+                            ? 1
+                            : -1;
                 }
 
-                return
-                    $this->interestWeight($leftInterest, $participantsGroupedByInterest, $participants2Interests) < $this->interestWeight($rightInterest, $participantsGroupedByInterest, $participants2Interests)
-                        ? 1
-                        : -1
-                    ;
+                return 0;
             }
         );
         return $participantsGroupedByInterest;
-    }
-
-    private function interestWeight($interestId, array $participantsGroupedByInterest, $participants2Interests)
-    {
-        return
-            array_reduce(
-                $participantsGroupedByInterest[$interestId],
-                function (int $carry, $participantId) use ($participantsGroupedByInterest, $participants2Interests) {
-                    return $carry * ((count($participantsGroupedByInterest) - count($participants2Interests[$participantId])) + 1);
-                },
-                1
-            );
     }
 }

@@ -12,7 +12,7 @@ class MatchesTest extends TestCase
     /**
      * @dataProvider participantInterestsAndPairs
      */
-    public function test(array $participantsInterests, array $pairsAndDropouts)
+    public function testDifferentCombinations(array $participantsInterests, array $pairsAndDropouts)
     {
         $this->assertEquals(
             $pairsAndDropouts,
@@ -152,8 +152,8 @@ class MatchesTest extends TestCase
                     5 => ['d', 'c'],
                 ],
                 [
-                    'dropouts' => [1, 4],
-                    'matches' => [[6, 3], [5, 2]],
+                    'dropouts' => [4, 2],
+                    'matches' => [[6, 3], [1, 5]],
                 ]
             ],
             [
@@ -165,8 +165,8 @@ class MatchesTest extends TestCase
                     5 => ['d', 'c'],
                 ],
                 [
-                    'dropouts' => [2],
-                    'matches' => [[1, 4], [5, 3]],
+                    'dropouts' => [3],
+                    'matches' => [[1, 4], [2, 5]],
                 ]
             ],
             [
@@ -181,6 +181,62 @@ class MatchesTest extends TestCase
                 [
                     'dropouts' => [],
                     'matches' => [[1, 5], [3, 6], [4, 2]],
+                ]
+            ],
+            [
+                [
+                    1 => ['d'],
+                    5 => ['b'],
+                    3 => ['a'],
+                    4 => ['a'],
+                    6 => ['b',],
+                    2 => ['d'],
+                ],
+                [
+                    'dropouts' => [],
+                    'matches' => [[1, 2], [5, 6], [3, 4]],
+                ]
+            ],
+            [
+                [
+                    1 => ['a'],
+                    2 => ['a', 'b', 'c'],
+                    3 => ['b'],
+                    4 => ['a', 'b', 'c'],
+                    5 => ['c'],
+                    6 => ['a', 'b', 'c'],
+                ],
+                [
+                    'dropouts' => [],
+                    'matches' => [[1, 2], [3, 4], [5, 6]],
+                ]
+            ],
+            [
+                [
+                    2 => ['a', 'b', 'c'],
+                    4 => ['a', 'b', 'c'],
+                    6 => ['a', 'b', 'c'],
+                    1 => ['a'],
+                    3 => ['b'],
+                    5 => ['c'],
+                ],
+                [
+                    'dropouts' => [],
+                    'matches' => [[1, 2], [5, 4], [3, 6]],
+                ]
+            ],
+            [
+                [
+                    1 => ['a'],
+                    3 => ['b'],
+                    5 => ['c'],
+                    2 => ['a', 'b', 'c'],
+                    4 => ['a', 'b', 'c'],
+                    6 => ['a', 'b', 'c'],
+                ],
+                [
+                    'dropouts' => [],
+                    'matches' => [[1, 2], [3, 4], [5, 6]],
                 ]
             ],
             [
