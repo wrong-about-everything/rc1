@@ -11,7 +11,7 @@ use RC\Domain\Participant\WriteModel\Participant;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
 use RC\Domain\RoundInvitation\ReadModel\Invitation;
-use RC\Domain\RoundInvitation\ReadModel\LatestByTelegramUserIdAndBotId;
+use RC\Domain\RoundInvitation\ReadModel\InvitationForTheLatestRoundByTelegramUserIdAndBotId;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
@@ -72,7 +72,7 @@ class RepliesToRoundInvitation extends Existent
     private function invitation()
     {
         return
-            new LatestByTelegramUserIdAndBotId(
+            new InvitationForTheLatestRoundByTelegramUserIdAndBotId(
                 new UserIdFromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),
                 $this->connection

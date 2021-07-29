@@ -12,7 +12,7 @@ use RC\Domain\Participant\Status\Impure\FromPure as ParticipantStatus;
 use RC\Domain\Participant\Status\Impure\FromReadModelParticipant;
 use RC\Domain\Participant\Status\Pure\RegistrationInProgress;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation as InvitationId;
-use RC\Domain\RoundInvitation\ReadModel\LatestByTelegramUserIdAndBotId;
+use RC\Domain\RoundInvitation\ReadModel\InvitationForTheLatestRoundByTelegramUserIdAndBotId;
 use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromPure;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
@@ -151,7 +151,7 @@ class SendsArbitraryMessage extends Existent
     {
         $latestInvitationStatus =
             new FromInvitation(
-                new LatestByTelegramUserIdAndBotId(
+                new InvitationForTheLatestRoundByTelegramUserIdAndBotId(
                     new FromParsedTelegramMessage($this->message),
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->connection
@@ -186,7 +186,7 @@ class SendsArbitraryMessage extends Existent
         $participant =
             new ByInvitationId(
                 new InvitationId(
-                    new LatestByTelegramUserIdAndBotId(
+                    new InvitationForTheLatestRoundByTelegramUserIdAndBotId(
                         new FromParsedTelegramMessage($this->message),
                         new FromUuid(new UuidFromString($this->botId)),
                         $this->connection

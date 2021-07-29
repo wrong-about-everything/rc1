@@ -17,7 +17,7 @@ use RC\Domain\Participant\Status\Impure\FromPure;
 use RC\Domain\Participant\Status\Pure\Registered as ParticipantRegistered;
 use RC\Domain\Participant\Status\Pure\RegistrationInProgress;
 use RC\Domain\Participant\Status\Pure\Status;
-use RC\Domain\RoundInvitation\ReadModel\LatestByTelegramUserIdAndBotId;
+use RC\Domain\RoundInvitation\ReadModel\InvitationForTheLatestRoundByTelegramUserIdAndBotId;
 use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromPure as ImpureStatusFromPure;
 use RC\Domain\RoundInvitation\Status\Pure\Accepted;
@@ -285,7 +285,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
     {
         $this->assertTrue(
             (new FromInvitation(
-                new LatestByTelegramUserIdAndBotId($telegramUserId, $botId, $connection)
+                new InvitationForTheLatestRoundByTelegramUserIdAndBotId($telegramUserId, $botId, $connection)
             ))
                 ->equals(
                     new ImpureStatusFromPure(new Declined())

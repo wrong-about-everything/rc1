@@ -6,6 +6,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RC\Activities\Cron\SendsMatchesToParticipants\SendsMatchesToParticipants;
 use RC\Domain\Bot\BotId\FromQuery;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
@@ -108,6 +109,15 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                             ),
                             function (Query $query) use ($transport, $logs) {
                                 return new InvitesToTakePartInANewRound(new FromQuery($query), $transport, new ApplicationConnection(), $logs);
+                            }
+                        ],
+                        [
+                            new RouteByMethodAndPathPatternWithQuery(
+                                new Post(),
+                                '/cron/sends_matches_to_participants'
+                            ),
+                            function (Query $query) use ($transport, $logs) {
+                                return new SendsMatchesToParticipants(new FromQuery($query), $transport, new ApplicationConnection(), $logs);
                             }
                         ],
                         [

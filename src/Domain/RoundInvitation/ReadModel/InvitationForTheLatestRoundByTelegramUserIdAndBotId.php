@@ -13,7 +13,7 @@ use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class LatestByTelegramUserIdAndBotId implements Invitation
+class InvitationForTheLatestRoundByTelegramUserIdAndBotId implements Invitation
 {
     private $telegramUserId;
     private $botId;
