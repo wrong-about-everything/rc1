@@ -7,7 +7,7 @@ namespace RC\Tests\Unit\Activities\Cron\SendsMatchesToParticipants;
 use PHPUnit\Framework\TestCase;
 use RC\Activities\Cron\SendsMatchesToParticipants\Matches;
 
-class MatchesTest extends TestCase
+class MatchesV2Test extends TestCase
 {
     /**
      * @dataProvider participantInterestsAndPairs

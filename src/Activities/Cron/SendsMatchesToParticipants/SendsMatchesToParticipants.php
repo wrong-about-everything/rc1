@@ -44,7 +44,7 @@ class SendsMatchesToParticipants extends Existent
                 ['pair' => [1, 2], 'common_interests' => [3, 5]],
                 ['pair' => [3, 4], 'common_interests' => [1]],
             ];
-            new Matches($participants2Interests);
+            new MatchesV1($participants2Interests);
             // save in db
         }
 

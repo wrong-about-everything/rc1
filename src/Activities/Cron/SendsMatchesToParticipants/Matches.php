@@ -24,186 +24,147 @@ class Matches
             return ['dropouts' => $dropouts, 'matches' => $matches];
         }
 
-        $participantsGroupedByInterest = [];
-        foreach ($participants2Interests as $participantId => $interests) {
-            foreach ($interests as $interestId) {
-                $participantsGroupedByInterest[$interestId] =
-                    isset($participantsGroupedByInterest[$interestId])
-                        ? array_merge($participantsGroupedByInterest[$interestId], [$participantId])
-                        : [$participantId];
-            }
-        }
-        // sort interests by weight asc
-        $participantsGroupedByInterest = $this->interestsSortedByWeight($participantsGroupedByInterest, $participants2Interests);
+        $uniqueInterests = $this->uniqueInterests($participants2Interests);
+        $interestIdToInterestQtyMatrix = $this->interestIdToInterestQtyMatrix($participants2Interests, $uniqueInterests);
+        $theMostIntenseInterestId = $this->theMostIntenseInterestId($uniqueInterests, $interestIdToInterestQtyMatrix);
+        $intensityDistribution = $interestIdToInterestQtyMatrix[$theMostIntenseInterestId];
 
-        //sort participants in each interest by interest qty asc
-        $participantsGroupedByInterestAndSortedByInterestQty = [];
-        foreach ($participantsGroupedByInterest as $interestId => $participants) {
-            usort(
-                $participants,
-                function ($left, $right) use ($participants2Interests) {
-                    if (count($participants2Interests[$left]) === count($participants2Interests[$right])) {
-                        return 0;
-                    }
+        $currentMatches = $this->matchesForCurrentInterest($intensityDistribution);
 
-                    return count($participants2Interests[$left]) < count($participants2Interests[$right]) ? -1 : 1;
-                }
-            );
-            $participantsGroupedByInterestAndSortedByInterestQty[$interestId] = $participants;
-        }
-
-        $participantsWithTheLeastOftenEncounteredInterest = array_values($participantsGroupedByInterestAndSortedByInterestQty)[0];
-        $theLeastOftenEncounteredInterest = array_keys($participantsGroupedByInterestAndSortedByInterestQty)[0];
-        if (count($participantsWithTheLeastOftenEncounteredInterest) === 1) {
-            $singleParticipantId = array_values($participantsWithTheLeastOftenEncounteredInterest)[0];
-            if (count($participants2Interests[$singleParticipantId]) === 1) {
-                // 1. he has no spare participants that share his interests
-                // 2. and he has a single interest, so I can't find him anyone else.
-                // So he is a dropout.
-                unset($participants2Interests[$singleParticipantId]);
-                return $this->doValue($participants2Interests, array_merge($dropouts, [$singleParticipantId]), $matches);
+        if (count($currentMatches[count($currentMatches) - 1]) === 1) {
+            $nonMatchedParticipant = $currentMatches[count($currentMatches) - 1][0];
+            // if non-matched participant has a single interest, he is a dropout
+            if (count($participants2Interests[$nonMatchedParticipant]) === 1) {
+                unset($participants2Interests[$nonMatchedParticipant]);
+                $currentDropouts = [$nonMatchedParticipant];
             } else {
-                // 1. he has no spare participants that share his interests
-                // 2. but he has more than one interests, so I can try to find him someone else.
-                // So I remove that interest from the that participant interests, and move on.
-                $participants2Interests[$singleParticipantId] =
+                // non-matched participant has other interests. So I remove this unlucky interest and try to find a match based on other interests.
+                $participants2Interests[$nonMatchedParticipant] =
                     array_filter(
-                        $participants2Interests[$singleParticipantId],
-                        function ($interestId) use ($theLeastOftenEncounteredInterest) {
-                            return $interestId !== $theLeastOftenEncounteredInterest;
+                        $participants2Interests[$nonMatchedParticipant],
+                        function ($interestId) use ($theMostIntenseInterestId) {
+                            return $interestId !== $theMostIntenseInterestId;
                         }
                     );
-                return $this->doValue($participants2Interests, $dropouts, $matches);
+                $currentDropouts = [];
             }
-        }
 
-        $newMatches =
-            array_reduce(
-                $participantsWithTheLeastOftenEncounteredInterest,
-                function (array $carry, $participantId) use ($participants2Interests) {
-                    if (!empty($carry) && count($carry[count($carry) - 1]) === 2) {
-                        $lastMatch = $carry[count($carry) - 1];
-                        if (count($participants2Interests[$lastMatch[0]]) !== count($participants2Interests[$lastMatch[1]])) {
-                            return $carry;
-                        } elseif (count($participants2Interests[$participantId]) !== $participants2Interests[$lastMatch[0]]) {
-                            return $carry;
-                        }
-                    }
-
-                    if (empty($carry) || count($carry[count($carry) - 1]) === 2) {
-                        $carry[] = [$participantId];
-                        return $carry;
-                    } else {
-                        $carry[count($carry) - 1][] = $participantId;
-                        return $carry;
-                    }
-                },
-                []
-            );
-        foreach ($newMatches as $pair) {
-            if (count($pair) === 2) {
-                unset($participants2Interests[$pair[0]]);
-                unset($participants2Interests[$pair[1]]);
-            }
-        }
-
-        if (count($newMatches[count($newMatches) - 1]) === 1) {
-            // COPY-PASTE!!
-            $singleParticipantId = array_values($newMatches[count($newMatches) - 1])[0];
-            if (count($participants2Interests[$singleParticipantId]) === 1) {
-                unset($participants2Interests[$singleParticipantId]);
-                return $this->doValue($participants2Interests, array_merge($dropouts, [$singleParticipantId]), array_merge($matches, array_slice($newMatches, 0, count($newMatches) - 1)));
-            } else {
-                $participants2Interests[$singleParticipantId] =
-                    array_filter(
-                        $participants2Interests[$singleParticipantId],
-                        function ($interestId) use ($theLeastOftenEncounteredInterest) {
-                            return $interestId !== $theLeastOftenEncounteredInterest;
-                        }
-                    );
-                return $this->doValue($participants2Interests, $dropouts, array_merge($matches, array_slice($newMatches, 0, count($newMatches) - 1)));
-            }
+            $currentMatchesWithoutOutliers = array_slice($currentMatches, 0, count($currentMatches) - 1);
         } else {
-            return $this->doValue($participants2Interests, $dropouts, array_values(array_merge($matches, $newMatches)));
+            $currentDropouts = [];;
+            $currentMatchesWithoutOutliers = $currentMatches;
         }
+
+        foreach ($currentMatchesWithoutOutliers as $match) {
+            unset($participants2Interests[$match[0]]);
+            unset($participants2Interests[$match[1]]);
+        }
+
+        return $this->doValue($participants2Interests, array_merge($dropouts, $currentDropouts), array_merge($matches, $currentMatchesWithoutOutliers));
     }
 
     /**
-     * This function is focused on interest intensity. Interests with the highest weight go first.
-     * When some interest is marked as the single interest often, it must gain precedence above others,
-     * because such interest are the hardest to find pairs for.
+     * [
+     *      'interest_a' => [
+     *          // interests qty => participants
+     *          1 => [1, 4, 5],
+     *          2 => [3],
+     *          4 => [2, 6],
+     *      ],
+     *      'interest_b' => [
+     *          // interests qty => participants
+     *          1 => [1, 2, 8],
+     *          3 => [7],
+     *          4 => [3, 5],
+     *      ],
+     * ]
      */
-//    private function interestsSortedByWeight(array $participantsGroupedByInterest, array $participants2Interests)
-//    {
-//        uksort(
-//            $participantsGroupedByInterest,
-//            function ($leftInterest, $rightInterest) use ($participantsGroupedByInterest, $participants2Interests) {
-//
-//
-//                if ($this->interestWeight($leftInterest, $participantsGroupedByInterest, $participants2Interests) === $this->interestWeight($rightInterest, $participantsGroupedByInterest, $participants2Interests)) {
-//                    return 0;
-//                }
-//
-//                return
-//                    $this->interestWeight($leftInterest, $participantsGroupedByInterest, $participants2Interests) < $this->interestWeight($rightInterest, $participantsGroupedByInterest, $participants2Interests)
-//                        ? 1
-//                        : -1
-//                    ;
-//            }
-//        );
-//        return $participantsGroupedByInterest;
-//    }
-//
-//    private function interestWeight($interestId, array $participantsGroupedByInterest, $participants2Interests)
-//    {
-//        return
-//            array_reduce(
-//                $participantsGroupedByInterest[$interestId],
-//                function (int $carry, $participantId) use ($participantsGroupedByInterest, $participants2Interests) {
-//                    return $carry + ((count($participantsGroupedByInterest) - count($participants2Interests[$participantId])) + 1);
-//                },
-//                0
-//            );
-//    }
-
-    /**
-     * The rarest interests go first.
-     * When some interest is marked as the single interest often, it must gain precedence above others,
-     * because such interest are the hardest to find pairs for.
-     */
-    private function interestsSortedByWeight(array $participantsGroupedByInterest, array $participants2Interests)
+    private function interestIdToInterestQtyMatrix(array $participants2Interests, array $uniqueInterests)
     {
-        uksort(
-            $participantsGroupedByInterest,
-            function ($leftInterest, $rightInterest) use ($participantsGroupedByInterest, $participants2Interests) {
-                for ($i = 1; $i <= count($participantsGroupedByInterest); $i++) {
-                    $participantAmountWithIInterestsIncludingTheLeftInterest =
-                        array_filter(
-                            $participants2Interests,
-                            function (array $interests) use ($i, $leftInterest) {
-                                return count($interests) === $i && in_array($leftInterest, $interests);
-                            }
-                        );
-                    $participantAmountWithIInterestsIncludingTheRightInterest =
-                        array_filter(
-                            $participants2Interests,
-                            function (array $interests) use ($i, $rightInterest) {
-                                return count($interests) === $i && in_array($rightInterest, $interests);
-                            }
-                        );
-                    if (count($participantAmountWithIInterestsIncludingTheLeftInterest) === count($participantAmountWithIInterestsIncludingTheRightInterest)) {
-                        continue;
-                    }
+        $matrix = [];
+        foreach ($uniqueInterests as $interestId) {
+            $matrix[$interestId] = [];
+            for ($i = 1; $i <= count($uniqueInterests); $i++) {
+                $participantsWhoMarkedNInterestsIncludingThePassedOne = $this->participantsWhoMarkedNInterestsIncludingThePassedOne($i, $interestId, $participants2Interests);
+                if (!empty($participantsWhoMarkedNInterestsIncludingThePassedOne)) {
+                    $matrix[$interestId][$i] = $participantsWhoMarkedNInterestsIncludingThePassedOne;
+                }
+            }
+        }
 
-                    return
-                        count($participantAmountWithIInterestsIncludingTheLeftInterest) < count($participantAmountWithIInterestsIncludingTheRightInterest)
-                            ? 1
-                            : -1;
+        return $matrix;
+    }
+
+    private function theMostIntenseInterestId(array $uniqueInterests, array $interestIdToInterestQtyMatrix)
+    {
+        usort(
+            $uniqueInterests,
+            function ($leftInterestId, $rightInterestId) use ($uniqueInterests, $interestIdToInterestQtyMatrix) {
+                for ($i = 1; $i <= count($uniqueInterests); $i++) {
+                    $participantQtyWhoMarkedNInterestsIncludingTheLeft = count($interestIdToInterestQtyMatrix[$leftInterestId][$i] ?? []);
+                    $participantQtyWhoMarkedNInterestsIncludingTheRight = count($interestIdToInterestQtyMatrix[$rightInterestId][$i] ?? []);
+                    if ($participantQtyWhoMarkedNInterestsIncludingTheLeft < $participantQtyWhoMarkedNInterestsIncludingTheRight) {
+                        return 1;
+                    } elseif ($participantQtyWhoMarkedNInterestsIncludingTheLeft > $participantQtyWhoMarkedNInterestsIncludingTheRight) {
+                        return -1;
+                    }
                 }
 
                 return 0;
             }
         );
-        return $participantsGroupedByInterest;
+
+        return $uniqueInterests[0];
+    }
+
+    private function participantsWhoMarkedNInterestsIncludingThePassedOne(int $nInterests, $includingThisInterestId, array $participants2Interests)
+    {
+        return
+            array_keys(
+                array_filter(
+                    $participants2Interests,
+                    function (array $interests) use ($nInterests, $includingThisInterestId) {
+                        return count($interests) === $nInterests && in_array($includingThisInterestId, $interests);
+                    }
+                )
+            )
+            ;
+    }
+
+    private function uniqueInterests(array $participants2Interests)
+    {
+        return
+            array_unique(
+                array_reduce(
+                    $participants2Interests,
+                    function (array $carry, array $interests) {
+                        return array_merge($carry, $interests);
+                    },
+                    []
+                )
+            );
+    }
+
+    private function matchesForCurrentInterest(array $intensityDistributionForCurrentInterestId)
+    {
+        $matches = [];
+        foreach ($intensityDistributionForCurrentInterestId as $participants) {
+            if (!empty($matches) && count($matches[count($matches) - 1]) === 2) {
+                return $matches;
+            } elseif (!empty($matches) && count($matches[count($matches) - 1]) === 1) {
+                $matches[count($matches) - 1][] = $participants[0];
+                return $matches;
+            }
+
+            foreach ($participants as $participant) {
+                if (empty($matches) || count($matches[count($matches) - 1]) === 2) {
+                    $matches[][] = $participant;
+                } elseif (!empty($matches) && count($matches[count($matches) - 1]) === 1) {
+                    $matches[count($matches) - 1][] = $participant;
+                }
+            }
+        }
+
+        return $matches;
     }
 }
