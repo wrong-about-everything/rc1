@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace RC\Domain\UserInterest\InterestName\Pure;
 
+use RC\Domain\UserInterest\InterestId\Pure\Single\DayDreaming as DayDreamingId;
 use RC\Domain\UserInterest\InterestId\Pure\Single\InterestId;
 use RC\Domain\UserInterest\InterestId\Pure\Single\Networking as NetworkingId;
+use RC\Domain\UserInterest\InterestId\Pure\Single\SkySurfing as SkySurfingId;
 use RC\Domain\UserInterest\InterestId\Pure\Single\SpecificArea as SpecificAreaId;
 
 class FromInterestId extends InterestName
@@ -32,6 +34,8 @@ class FromInterestId extends InterestName
         return [
             (new NetworkingId())->value() => new Networking(),
             (new SpecificAreaId())->value() => new SpecificArea(),
+            (new SkySurfingId())->value() => new SkySurfing(),
+            (new DayDreamingId())->value() => new DayDreaming(),
         ];
     }
 }

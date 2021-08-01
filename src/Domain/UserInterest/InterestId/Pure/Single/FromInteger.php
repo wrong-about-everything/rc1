@@ -28,6 +28,8 @@ class FromInteger extends InterestId
         return [
             (new Networking())->value() => new Networking(),
             (new SpecificArea())->value() => new SpecificArea(),
+            (new SkySurfing())->value() => new SkySurfing(),
+            (new DayDreaming())->value() => new DayDreaming(),
         ];
     }
 }

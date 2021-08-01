@@ -93,15 +93,10 @@ class Sent implements Invitation
                         ''
                     )
                 );
-        if (!$response->isAvailable()) {
+        if (!$response->isAvailable() || !$response->code()->equals(new Ok())) {
             $this->updateStatus(new ErrorDuringSending());
             $this->logs->receive(new ErrorMessage('Error during invitation sending!'));
             return new Failed(new SilentDeclineWithDefaultUserMessage('Response from telegram is not available', []));
-        }
-        if (!$response->code()->equals(new Ok())) {
-            $this->updateStatus(new ErrorDuringSending());
-            $this->logs->receive(new ErrorMessage('Error during invitation sending!'));
-            return new Failed(new SilentDeclineWithDefaultUserMessage('Response from telegram is not successful', []));
         }
 
         $this->updateStatus(new SentStatus());

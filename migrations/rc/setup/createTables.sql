@@ -114,10 +114,11 @@ create table meeting_round_pair (
   id uuid,
   participant_id uuid,
   match_participant_id uuid,
-  match_participant_contacts_sent bool,
+  match_participant_contacts_sent bool default false,
 
   primary key (id),
-  unique (participant_id, match_participant_id)
+  unique (participant_id),
+  unique (match_participant_id)
 );
 
 create table meeting_round_dropout (

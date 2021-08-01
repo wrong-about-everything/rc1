@@ -8,5 +8,8 @@ use RC\Infrastructure\ImpureInteractions\ImpureValue;
 
 interface Participant
 {
+    /**
+     * @return ImpureValue Participant id
+     */
     public function value(): ImpureValue;
 }

@@ -6,19 +6,15 @@ namespace RC\Activities\Cron\SendsMatchesToParticipants;
 
 use Meringue\Timeline\Point\Now;
 use RC\Domain\Bot\BotId\BotId;
-use RC\Domain\Bot\BotId\FromUuid;
+use RC\Domain\Bot\BotToken\Impure\ByBotId;
 use RC\Domain\Matches\PositionExperienceParticipantsInterestsMatrix\FromRound;
 use RC\Domain\Matches\ReadModel\Impure\GeneratedMatchesForAllParticipants;
 use RC\Domain\Matches\WriteModel\Impure\Saved;
-use RC\Domain\Matches\ReadModel\Pure\GeneratedMatchesForSegment;
-use RC\Domain\Matches\ReadModel\Impure\Matches;
 use RC\Domain\Matches\ReadModel\Impure\MatchesForRound;
 use RC\Domain\MeetingRound\ReadModel\ByBotIdAndStartDateTime;
 use RC\Domain\MeetingRound\ReadModel\MeetingRound;
-use RC\Domain\Participant\Status\Pure\Registered;
-use RC\Domain\RoundInvitation\Status\Pure\Sent as SentStatus;
+use RC\Domain\Participant\ParticipantId\Pure\FromString;
 use RC\Infrastructure\Http\Transport\HttpTransport;
-use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
 use RC\Infrastructure\Logging\LogItem\ErrorMessage;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
@@ -26,12 +22,12 @@ use RC\Infrastructure\Logging\LogItem\InformationMessageWithData;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
+use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger;
 use RC\Infrastructure\UserStory\Body\Emptie;
 use RC\Infrastructure\UserStory\Existent;
 use RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Response\RetryableServerError;
 use RC\Infrastructure\UserStory\Response\Successful;
-use RC\Infrastructure\Uuid\FromString as UuidFromString;
 
 class SendsMatchesToParticipants extends Existent
 {
@@ -72,29 +68,31 @@ class SendsMatchesToParticipants extends Existent
             $this->logs->receive(new InformationMessageWithData('Matches generated', $value->pure()->raw()));
         }
 
-        // send matches to participants
         array_map(
-            function (array $participant) {
-                $toTelegramId = $participant['to'];
-                $matchTelegramId = $participant['match'];
-                $matchedInterests = $participant['common_interests'];
-                $text = "Привет, %s!\nВаш собеседник -- %s, его ник в телеграме -- %s. У вас совпали такие интересы: %s. Вот что %s написал о себе: «%s».\n\nПриятного общения!";
+            function (array $matchingPair) {
+                $participantValue =
+                    (new NotifiedParticipant(
+                        new FromString($matchingPair['participant_id']),
+                        new FromInteger($matchingPair['participant_telegram_id']),
+                        (new Text(
+                            $matchingPair['participant_first_name'],
+                            $matchingPair['match_first_name'],
+                            $matchingPair['match_telegram_handle'],
+                            json_decode($matchingPair['participant_interested_in'] ?? json_encode([])),
+                            json_decode($matchingPair['match_interested_in'] ?? json_encode([])),
+                            $matchingPair['about_match'],
+                        ))
+                            ->value(),
+                        new ByBotId($this->botId, $this->connection),
+                        $this->transport,
+                        $this->connection
+                    ))
+                        ->value();
+                if (!$participantValue->isSuccessful()) {
+                    $this->logs->receive(new FromNonSuccessfulImpureValue($participantValue));
+                }
             },
-            (new Selecting(
-                <<<q
-select 
-from meeting_round_pair pair
-    join meeting_round_participant participant on pair.meeting_round_id = mr.id
-    join "telegram_user" u on mri.user_id = u.id
-    join bot b on b.id = mr.bot_id
-where mr.bot_id = ? and status != ? and mr.invitation_date <= now() + interval '1 minute'
-limit 100
-q
-                ,
-                [$this->botId->value(), false],
-                $this->connection
-            ))
-                ->response()->pure()->raw()
+            $this->matchesToSend($currentRound)
         );
 
         $this->logs->receive(new InformationMessage('Cron sends matches to participants scenario finished'));
@@ -116,5 +114,36 @@ q
                 ),
                 $this->connection
             );
+    }
+
+    private function matchesToSend(MeetingRound $currentRound)
+    {
+        return
+            (new Selecting(
+                <<<q
+select
+    pair.id participant_id
+    user_to.telegram_id participant_telegram_id,
+    user_to.first_name participant_first_name,
+    match_user.first_name match_first_name,
+    user_match.telegram_handle match_telegram_handle,
+    participant_to.interested_in participant_interested_in,
+    match_participant.interested_in match_interested_in,
+    bu.about about_match
+from meeting_round_pair pair
+    join meeting_round_participant participant_to on pair.participant_id = participant_to.id
+    join meeting_round_participant match_participant on pair.match_participant_id = match_participant.id
+    join "telegram_user" user_to on participant_to.user_id = user_to.id
+    join "telegram_user" match_user on match_participant.user_id = match_user.id
+    join meeting_round mr on mr.id = participant_to.meeting_round_id
+    join bot_user bu on bu.user_id = match_user.id and bu.bot_id = mr.bot_id
+where participant_to.meeting_round_id = ? and match_participant.meeting_round_id = ? and pair.match_participant_contacts_sent = ?
+limit 100
+q
+                ,
+                [$currentRound->value()->pure()->raw(), $currentRound->value()->pure()->raw(), false],
+                $this->connection
+            ))
+                ->response()->pure()->raw();
     }
 }
