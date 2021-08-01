@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Domain\Participant\ReadModel;
 
-use RC\Domain\MeetingRound\MeetingRoundId\MeetingRoundId;
+use RC\Domain\MeetingRound\MeetingRoundId\Pure\MeetingRoundId;
 use RC\Domain\User\UserId\UserId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;

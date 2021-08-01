@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RC\Infrastructure\SqlDatabase\Agnostic\Query;
 
 use Exception;
+use RC\Infrastructure\Exception\StateCarrying;
 use RC\Infrastructure\ImpureInteractions\Error\AlarmDeclineWithDefaultUserMessage;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Combined;
@@ -43,7 +44,7 @@ class TransactionalQueryFromMultipleQueries implements Query
                     function (ImpureValue $compositeResult, Query $query) use ($dbh) {
                         $currentResponse = $query->response();
                         if (!$currentResponse->isSuccessful()) {
-                            throw new Exception($currentResponse->error()->logMessage()); // short-circuiting workaround
+                            throw new StateCarrying($currentResponse->error()); // short-circuiting workaround
                         }
 
                         return new Combined($compositeResult, $currentResponse);
@@ -51,9 +52,9 @@ class TransactionalQueryFromMultipleQueries implements Query
                     new Successful(new Emptie())
                 )
             ;
-        } catch (Throwable $e) {
+        } catch (StateCarrying $e) {
             $dbh->rollBack();
-            return new FailedImpureValue(new AlarmDeclineWithDefaultUserMessage($e->getMessage(), $e->getTrace()));
+            return new FailedImpureValue($e->error());
         }
 
         $dbh->commit();

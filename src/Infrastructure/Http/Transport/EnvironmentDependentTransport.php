@@ -11,6 +11,8 @@ use RC\Infrastructure\Filesystem\FilePath\FromDirAndFileName;
 use RC\Infrastructure\Http\Request\Outbound\Request as OutboundRequest;
 use RC\Infrastructure\Http\Response\Inbound\Response;
 use RC\Infrastructure\Http\Transport\Guzzle\DefaultGuzzle;
+use RC\Infrastructure\Http\Transport\Guzzle\WithConnectTimeout;
+use RC\Infrastructure\Http\Transport\Guzzle\WithTimeout;
 use RC\Infrastructure\Logging\Logs;
 
 class EnvironmentDependentTransport implements HttpTransport
@@ -35,6 +37,16 @@ class EnvironmentDependentTransport implements HttpTransport
             return new Indifferent();
         }
 
-        return new WithLogging(new DefaultGuzzle(new Client()), $logs);
+        return
+            new WithLogging(
+                new WithConnectTimeout(
+                    new WithTimeout(
+                        new DefaultGuzzle(new Client()),
+                        1
+                    ),
+                    1
+                ),
+                $logs
+            );
     }
 }

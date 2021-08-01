@@ -64,6 +64,7 @@ create table meeting_round (
   bot_id uuid,
   name text,
   start_date timestamptz,
+  invitation_date timestamptz,
   timezone text,
   available_interests jsonb,
 
@@ -109,7 +110,24 @@ create table meeting_round_participant (
   unique (user_id, meeting_round_id)
 );
 
-drop procedure if exists create_analysis_paradisis_round;
+create table meeting_round_pair (
+  id uuid,
+  participant_id uuid,
+  match_participant_id uuid,
+  match_participant_contacts_sent bool,
+
+  primary key (id),
+  unique (participant_id, match_participant_id)
+);
+
+create table meeting_round_dropout (
+  id uuid,
+  dropout_participant_id uuid,
+
+  primary key (id),
+  unique (dropout_participant_id)
+);
+
 
 grant usage, select on all sequences in schema public to rc;
 grant select, insert, update on all tables in schema public to rc;

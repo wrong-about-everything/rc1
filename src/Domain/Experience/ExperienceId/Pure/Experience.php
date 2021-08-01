@@ -14,4 +14,9 @@ abstract class Experience
     {
         return $this->value() === $experience->value();
     }
+
+    final public function greater(Experience $experience): bool
+    {
+        return $this->value() > $experience->value();
+    }
 }

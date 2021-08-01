@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace RC\Tests\Unit\Activities\Cron\InvitesToTakePartInANewRound;
 
+use Meringue\ISO8601DateTime;
+use Meringue\ISO8601Interval\Floating\NHours;
+use Meringue\Timeline\Point\Future;
+use Meringue\Timeline\Point\Now;
 use PHPUnit\Framework\TestCase;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
+use RC\Domain\MeetingRound\MeetingRoundId\Pure\FromString as RoundId;
+use RC\Domain\MeetingRound\MeetingRoundId\Pure\MeetingRoundId;
 use RC\Domain\RoundInvitation\Status\Pure\_New;
 use RC\Domain\RoundInvitation\Status\Pure\FromInteger;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
@@ -36,11 +42,11 @@ class InvitesToTakePartInANewRoundTest extends TestCase
         $this->seedUser($this->secondUserId(), $connection);
         // first meeting
         $this->seedBot($this->botId(), $connection);
-        $this->seedMeetingRound($this->meetingRoundId(), $this->botId(), $connection);
+        $this->seedMeetingRound($this->meetingRoundId(), $this->botId(), new Now(), $connection);
         $this->seedSentMeetingRoundInvitations($this->meetingRoundId(), $connection);
         // second meeting
         $this->seedBot($this->someOtherBotId(), $connection);
-        $this->seedMeetingRound($this->someOtherMeetingRoundId(), $this->someOtherBotId(), $connection);
+        $this->seedMeetingRound($this->someOtherMeetingRoundId(), $this->someOtherBotId(), new Now(), $connection);
         $this->seedNewMeetingRoundInvitations($this->someOtherMeetingRoundId(), $connection);
 
         $transport = new Indifferent();
@@ -56,8 +62,8 @@ class InvitesToTakePartInANewRoundTest extends TestCase
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(0, $transport->sentRequests());
-        $this->assertAllInvitationsAreSent($this->botId(), $connection);
-        $this->assertAllInvitationsAreNew($this->someOtherBotId(), $connection);
+        $this->assertAllInvitationsAreSent($this->meetingRoundId(), $connection);
+        $this->assertAllInvitationsAreNew($this->someOtherMeetingRoundId(), $connection);
     }
 
     public function testWhenNoneOfMeetingInvitationsAreSentThenTheFirst100InvitationsAreSent()
@@ -67,11 +73,11 @@ class InvitesToTakePartInANewRoundTest extends TestCase
         $this->seedUser($this->secondUserId(), $connection);
         // first meeting
         $this->seedBot($this->botId(), $connection);
-        $this->seedMeetingRound($this->meetingRoundId(), $this->botId(), $connection);
+        $this->seedMeetingRound($this->meetingRoundId(), $this->botId(), new Now(), $connection);
         $this->seedNewMeetingRoundInvitations($this->meetingRoundId(), $connection);
         // second meeting
         $this->seedBot($this->someOtherBotId(), $connection);
-        $this->seedMeetingRound($this->someOtherMeetingRoundId(), $this->someOtherBotId(), $connection);
+        $this->seedMeetingRound($this->someOtherMeetingRoundId(), $this->someOtherBotId(), new Now(), $connection);
         $this->seedNewMeetingRoundInvitations($this->someOtherMeetingRoundId(), $connection);
 
         $transport = new Indifferent();
@@ -87,8 +93,38 @@ class InvitesToTakePartInANewRoundTest extends TestCase
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(2, $transport->sentRequests());
-        $this->assertAllInvitationsAreSent($this->botId(), $connection);
-        $this->assertAllInvitationsAreNew($this->someOtherBotId(), $connection);
+        $this->assertAllInvitationsAreSent($this->meetingRoundId(), $connection);
+        $this->assertAllInvitationsAreNew($this->someOtherMeetingRoundId(), $connection);
+    }
+
+    public function testGivenTwoRoundsWhenNoneOfInvitationsAreSentThenTheFirst100InvitationsAreSentForTheMeetingWithMatchingInvitationDate()
+    {
+        $connection = new ApplicationConnection();
+        $this->seedUser($this->firstUserId(), $connection);
+        $this->seedUser($this->secondUserId(), $connection);
+        // first meeting
+        $this->seedBot($this->botId(), $connection);
+        $this->seedMeetingRound($this->meetingRoundId(), $this->botId(), new Now(), $connection);
+        $this->seedNewMeetingRoundInvitations($this->meetingRoundId(), $connection);
+        // second meeting
+        $this->seedMeetingRound($this->someOtherMeetingRoundId(), $this->botId(), new Future(new Now(), new NHours(1)), $connection);
+        $this->seedNewMeetingRoundInvitations($this->someOtherMeetingRoundId(), $connection);
+
+        $transport = new Indifferent();
+
+        $response =
+            (new InvitesToTakePartInANewRound(
+                $this->botId(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertCount(2, $transport->sentRequests());
+        $this->assertAllInvitationsAreSent($this->meetingRoundId(), $connection);
+        $this->assertAllInvitationsAreNew($this->someOtherMeetingRoundId(), $connection);
     }
 
     public function testWhenSomeOfMeetingInvitationsAreSentThenTheRestOfInvitationsAreSent()
@@ -98,11 +134,11 @@ class InvitesToTakePartInANewRoundTest extends TestCase
         $this->seedUser($this->secondUserId(), $connection);
         // first meeting
         $this->seedBot($this->botId(), $connection);
-        $this->seedMeetingRound($this->meetingRoundId(), $this->botId(), $connection);
+        $this->seedMeetingRound($this->meetingRoundId(), $this->botId(), new Now(), $connection);
         $this->seedOneSentAndOneNewMeetingRoundInvitations($this->meetingRoundId(), $connection);
         // second meeting
         $this->seedBot($this->someOtherBotId(), $connection);
-        $this->seedMeetingRound($this->someOtherMeetingRoundId(), $this->someOtherBotId(), $connection);
+        $this->seedMeetingRound($this->someOtherMeetingRoundId(), $this->someOtherBotId(), new Now(), $connection);
         $this->seedNewMeetingRoundInvitations($this->someOtherMeetingRoundId(), $connection);
 
         $transport = new Indifferent();
@@ -118,8 +154,8 @@ class InvitesToTakePartInANewRoundTest extends TestCase
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
-        $this->assertAllInvitationsAreSent($this->botId(), $connection);
-        $this->assertAllInvitationsAreNew($this->someOtherBotId(), $connection);
+        $this->assertAllInvitationsAreSent($this->meetingRoundId(), $connection);
+        $this->assertAllInvitationsAreNew($this->someOtherMeetingRoundId(), $connection);
     }
 
     protected function setUp(): void
@@ -143,38 +179,38 @@ class InvitesToTakePartInANewRoundTest extends TestCase
             ]);
     }
 
-    private function seedMeetingRound(string $meetingRoundId, BotId $botId, OpenConnection $connection)
+    private function seedMeetingRound(MeetingRoundId $meetingRoundId, BotId $botId, ISO8601DateTime $invitationDate, OpenConnection $connection)
     {
         (new MeetingRound($connection))
             ->insert([
-                ['id' => $meetingRoundId, 'bot_id' => $botId->value()]
+                ['id' => $meetingRoundId->value(), 'bot_id' => $botId->value(), 'invitation_date' => $invitationDate->value()]
             ]);
     }
 
-    private function seedSentMeetingRoundInvitations(string $meetingRoundId, OpenConnection $connection)
+    private function seedSentMeetingRoundInvitations(MeetingRoundId $meetingRoundId, OpenConnection $connection)
     {
         (new MeetingRoundInvitation($connection))
             ->insert([
-                ['meeting_round_id' => $meetingRoundId, 'user_id' => $this->firstUserId()->value(), 'status' => (new Sent())->value()],
-                ['meeting_round_id' => $meetingRoundId, 'user_id' => $this->secondUserId()->value(), 'status' => (new Sent())->value()],
+                ['meeting_round_id' => $meetingRoundId->value(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Sent())->value()],
+                ['meeting_round_id' => $meetingRoundId->value(), 'user_id' => $this->secondUserId()->value(), 'status' => (new Sent())->value()],
             ]);
     }
 
-    private function seedNewMeetingRoundInvitations(string $meetingRoundId, OpenConnection $connection)
+    private function seedNewMeetingRoundInvitations(MeetingRoundId $meetingRoundId, OpenConnection $connection)
     {
         (new MeetingRoundInvitation($connection))
             ->insert([
-                ['meeting_round_id' => $meetingRoundId, 'user_id' => $this->firstUserId()->value(), 'status' => (new _New())->value()],
-                ['meeting_round_id' => $meetingRoundId, 'user_id' => $this->secondUserId()->value(), 'status' => (new _New())->value()],
+                ['meeting_round_id' => $meetingRoundId->value(), 'user_id' => $this->firstUserId()->value(), 'status' => (new _New())->value()],
+                ['meeting_round_id' => $meetingRoundId->value(), 'user_id' => $this->secondUserId()->value(), 'status' => (new _New())->value()],
             ]);
     }
 
-    private function seedOneSentAndOneNewMeetingRoundInvitations(string $meetingRoundId, OpenConnection $connection)
+    private function seedOneSentAndOneNewMeetingRoundInvitations(MeetingRoundId $meetingRoundId, OpenConnection $connection)
     {
         (new MeetingRoundInvitation($connection))
             ->insert([
-                ['meeting_round_id' => $meetingRoundId, 'user_id' => $this->firstUserId()->value(), 'status' => (new Sent())->value()],
-                ['meeting_round_id' => $meetingRoundId, 'user_id' => $this->secondUserId()->value(), 'status' => (new _New())->value()],
+                ['meeting_round_id' => $meetingRoundId->value(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Sent())->value()],
+                ['meeting_round_id' => $meetingRoundId->value(), 'user_id' => $this->secondUserId()->value(), 'status' => (new _New())->value()],
             ]);
     }
 
@@ -188,14 +224,14 @@ class InvitesToTakePartInANewRoundTest extends TestCase
         return new FromUuid(new FromString('6ad926cc-6956-457e-a44d-bae2064263e2'));
     }
 
-    private function meetingRoundId(): string
+    private function meetingRoundId(): MeetingRoundId
     {
-        return 'a49926cc-6956-457e-a44d-bae206426a8c';
+        return new RoundId('a49926cc-6956-457e-a44d-bae206426a8c');
     }
 
-    private function someOtherMeetingRoundId(): string
+    private function someOtherMeetingRoundId(): MeetingRoundId
     {
-        return 'b5d926cc-6956-457e-a44d-bae206426d98';
+        return new RoundId('b5d926cc-6956-457e-a44d-bae206426d98');
     }
 
     private function firstUserId(): UserId
@@ -208,7 +244,7 @@ class InvitesToTakePartInANewRoundTest extends TestCase
         return new UserIdFromUuid(new FromString('bfd294ba-18f6-4dc0-ab35-8dc90ac4475b'));
     }
 
-    private function assertAllInvitationsAreSent(BotId $botId, OpenConnection $connection)
+    private function assertAllInvitationsAreSent(MeetingRoundId $meetingRoundId, OpenConnection $connection)
     {
         array_map(
             function (array $record) {
@@ -219,18 +255,17 @@ class InvitesToTakePartInANewRoundTest extends TestCase
 select mri.status
 from meeting_round_invitation mri
     join meeting_round mr on mri.meeting_round_id = mr.id
-    join bot b on b.id = mr.bot_id
-where mr.bot_id = ?
+where mr.id = ?
 q
                 ,
-                [$botId->value()],
+                [$meetingRoundId->value()],
                 $connection
             ))
                 ->response()->pure()->raw()
         );
     }
 
-    private function assertAllInvitationsAreNew(BotId $botId, OpenConnection $connection)
+    private function assertAllInvitationsAreNew(MeetingRoundId $meetingRoundId, OpenConnection $connection)
     {
         array_map(
             function (array $record) {
@@ -241,11 +276,10 @@ q
 select mri.status
 from meeting_round_invitation mri
     join meeting_round mr on mri.meeting_round_id = mr.id
-    join bot b on b.id = mr.bot_id
-where mr.bot_id = ?
+where mr.id = ?
 q
                 ,
-                [$botId->value()],
+                [$meetingRoundId->value()],
                 $connection
             ))
                 ->response()->pure()->raw()

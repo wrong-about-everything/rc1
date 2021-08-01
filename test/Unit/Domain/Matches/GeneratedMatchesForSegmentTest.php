@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace RC\Tests\Unit\Activities\Cron\SendsMatchesToParticipants;
+namespace RC\Tests\Unit\Domain\Matches;
 
 use PHPUnit\Framework\TestCase;
-use RC\Activities\Cron\SendsMatchesToParticipants\Matches;
+use RC\Domain\Matches\ReadModel\Pure\GeneratedMatchesForSegment;
 
-class MatchesV2Test extends TestCase
+class GeneratedMatchesForSegmentTest extends TestCase
 {
     /**
      * @dataProvider participantInterestsAndPairs
@@ -16,7 +16,7 @@ class MatchesV2Test extends TestCase
     {
         $this->assertEquals(
             $pairsAndDropouts,
-            (new Matches($participantsInterests))->value()
+            (new GeneratedMatchesForSegment($participantsInterests))->value()
         );
     }
 
@@ -250,6 +250,54 @@ class MatchesV2Test extends TestCase
                 [
                     'dropouts' => [1, 2, 3, 4, 5],
                     'matches' => [],
+                ]
+            ],
+            [
+                [
+                    1 => ['a', 'b', 'c'],
+                    2 => ['a', 'b'],
+                    3 => ['a', 'f'],
+                    4 => ['a', 'c'],
+                    5 => ['a'],
+                    6 => ['d', 'e', 'f'],
+                    7 => ['d', 'e'],
+                    8 => ['d', 'f'],
+                    9 => ['d'],
+                    10 => ['f'],
+                    11 => ['a', 'b', 'c', 'd', 'e', 'f'],
+                    12 => ['a', 'b', 'c', 'd', 'f'],
+                    13 => ['a', 'c', 'd', 'e', 'f'],
+                    14 => ['a', 'c', 'f'],
+                ],
+                [
+                    'dropouts' => [],
+                    'matches' => [[5, 2], [10, 3], [9, 7], [4, 1], [8, 6], [14, 12], [13, 11]],
+                ]
+            ],
+            [
+                [
+                    1 => ['a', 'b', 'c'],
+                    2 => ['a', 'b'],
+                    3 => ['a', 'f'],
+                    4 => ['a', 'c'],
+                    5 => ['a'],
+                    6 => ['d', 'e', 'f'],
+                    7 => ['d', 'e'],
+                    8 => ['d', 'f'],
+                    9 => ['d'],
+                    10 => ['f'],
+                    11 => ['a', 'b', 'c', 'd', 'e', 'f'],
+                    12 => ['a', 'b', 'c', 'd', 'f'],
+                    13 => ['a', 'c', 'd', 'e', 'f'],
+                    14 => ['a', 'c', 'f'],
+                    15 => ['e'],
+                    16 => ['a', 'e', 'f'],
+                    17 => ['a', 'e'],
+                    18 => ['c', 'f'],
+                ],
+                [
+                    'dropouts' => [],
+                    'matches' => [[5, 2], [10, 3], [15, 7], [9, 8], [4, 17], [18, 6], [1, 14], [16, 12], [13, 11]],
                 ]
             ],
         ];

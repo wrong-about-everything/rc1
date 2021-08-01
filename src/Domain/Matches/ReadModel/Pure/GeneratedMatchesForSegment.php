@@ -2,20 +2,26 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\Cron\SendsMatchesToParticipants;
+namespace RC\Domain\Matches\ReadModel\Pure;
 
-class Matches
+class GeneratedMatchesForSegment implements Matches
 {
     private $participants2Interests;
+    private $cached;
 
     public function __construct(array $participants2Interests)
     {
         $this->participants2Interests = $participants2Interests;
+        $this->cached = null;
     }
 
     public function value(): array
     {
-        return $this->doValue($this->participants2Interests, [], []);
+        if (is_null($this->cached)) {
+            $this->cached = $this->doValue($this->participants2Interests, [], []);
+        }
+
+        return $this->cached;
     }
 
     private function doValue(array $participants2Interests, array $dropouts, array $matches)

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply;
 
-use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Participant\RegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking;
+use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Participant\RegisteredIfNoMoreQuestionsLeftOrHisInterestIsNetworking;
 use RC\Activities\User\AcceptsInvitation\Domain\Reply\NextRoundRegistrationQuestionReply;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Participant\ParticipantId\Impure\FromWriteModelParticipant;
@@ -75,7 +75,7 @@ class NextReply implements Reply
             (new FromReadModelParticipant(
                 new ById(
                     new FromWriteModelParticipant(
-                        new RegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking(
+                        new RegisteredIfNoMoreQuestionsLeftOrHisInterestIsNetworking(
                             $this->invitationId,
                             $this->connection
                         )

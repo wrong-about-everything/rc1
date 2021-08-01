@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\MeetingRound\MeetingRoundId;
+namespace RC\Domain\MeetingRound\MeetingRoundId\Pure;
 
 abstract class MeetingRoundId
 {

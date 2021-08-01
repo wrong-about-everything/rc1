@@ -4,20 +4,25 @@ declare(strict_types=1);
 
 namespace RC\Tests\Unit\UserActions\SendsArbitraryMessage;
 
+use Meringue\ISO8601Interval\Floating\NMinutes;
+use Meringue\ISO8601Interval\Floating\OneHour;
+use Meringue\Timeline\Point\Future;
+use Meringue\Timeline\Point\Now;
+use Meringue\Timeline\Point\Past;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
-use RC\Domain\MeetingRound\MeetingRoundId\FromString as MeetingRoundFromString;
+use RC\Domain\MeetingRound\MeetingRoundId\Pure\FromString as MeetingRoundFromString;
 use RC\Domain\Participant\ReadModel\ByMeetingRoundAndUser;
 use RC\Domain\Participant\Status\Impure\FromReadModelParticipant;
 use RC\Domain\Participant\Status\Impure\FromPure;
 use RC\Domain\Participant\Status\Pure\Registered as ParticipantRegistered;
 use RC\Domain\Participant\Status\Pure\RegistrationInProgress;
 use RC\Domain\Participant\Status\Pure\Status;
-use RC\Domain\RoundInvitation\ReadModel\InvitationForTheLatestRoundByTelegramUserIdAndBotId;
+use RC\Domain\RoundInvitation\ReadModel\LatestInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromPure as ImpureStatusFromPure;
 use RC\Domain\RoundInvitation\Status\Pure\Accepted;
@@ -65,7 +70,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             );
         (new MeetingRound($connection))
             ->insert([
-                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value()]
+                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'start_date' => (new Future(new Now(), new OneHour()))->value()]
             ]);
         (new MeetingRoundInvitation($connection))
             ->insert([
@@ -107,7 +112,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             );
         (new MeetingRound($connection))
             ->insert([
-                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value()]
+                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'start_date' => (new Future(new Now(), new OneHour()))->value()]
             ]);
         (new MeetingRoundInvitation($connection))
             ->insert([
@@ -158,7 +163,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             );
         (new MeetingRound($connection))
             ->insert([
-                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value()]
+                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'start_date' => (new Future(new Now(), new OneHour()))->value()]
             ]);
         (new MeetingRoundInvitation($connection))
             ->insert([
@@ -214,7 +219,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             );
         (new MeetingRound($connection))
             ->insert([
-                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value()]
+                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'start_date' => (new Future(new Now(), new OneHour()))->value()]
             ]);
         (new MeetingRoundInvitation($connection))
             ->insert([
@@ -235,10 +240,51 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! В понедельник в 11 утра пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
         $this->participantExists($this->meetingRoundId(), $this->firstUserId(), $connection, new ParticipantRegistered());
+    }
+
+    public function testGivenNoMeetingRoundsAheadWhenUserAcceptsInvitationThenHeSeesSorryAndSeeYouNextTime()
+    {
+        $connection = new ApplicationConnection();
+        (new Bot($connection))
+            ->insert([
+                ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
+            ]);
+        (new BotUser($this->botId(), $connection))
+            ->insert(
+                ['id' => $this->firstUserId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->firstTelegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+                ['status' => (new Registered())->value()]
+            );
+        (new MeetingRound($connection))
+            ->insert([
+                ['id' => $this->meetingRoundId(), 'start_date' => (new Past(new Now(), new NMinutes(1)))->value(), 'bot_id' => $this->botId()->value()]
+            ]);
+        (new MeetingRoundInvitation($connection))
+            ->insert([
+                ['id' => $this->meetingRoundInvitationId(), 'meeting_round_id' => $this->meetingRoundId(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Sent())->value()]
+            ]);
+        $transport = new Indifferent();
+
+        $response =
+            (new SendsArbitraryMessage(
+                (new UserMessage($this->firstTelegramUserId(), (new Yes())->value()))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertCount(1, $transport->sentRequests());
+        $this->assertEquals(
+            'Раунд встреч уже идёт или уже прошёл. Мы пришлём вам приглашение на новый раунд, как только о нём станет известно. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+        );
+        $this->participantDoesNotExist($this->meetingRoundId(), $this->firstUserId(), $connection);
     }
 
     protected function setUp(): void
@@ -285,7 +331,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
     {
         $this->assertTrue(
             (new FromInvitation(
-                new InvitationForTheLatestRoundByTelegramUserIdAndBotId($telegramUserId, $botId, $connection)
+                new LatestInvitation($telegramUserId, $botId, $connection)
             ))
                 ->equals(
                     new ImpureStatusFromPure(new Declined())

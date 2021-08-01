@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace RC\Tests\Unit\UserActions\SendsArbitraryMessage;
 
+use Meringue\ISO8601Interval\Floating\OneMinute;
+use Meringue\Timeline\Point\Future;
+use Meringue\Timeline\Point\Now;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use RC\Domain\MeetingRound\MeetingRoundId\FromString as MeetingRoundIdFromString;
+use RC\Domain\MeetingRound\MeetingRoundId\Pure\FromString as MeetingRoundIdFromString;
 use RC\Domain\Participant\ReadModel\ByMeetingRoundAndUser;
 use RC\Domain\Participant\ReadModel\Participant;
 use RC\Domain\Participant\Status\Impure\FromReadModelParticipant as StatusFromParticipant;
@@ -65,7 +68,7 @@ class UserRegistersInAMeetingRoundTest extends TestCase
             );
         (new MeetingRound($connection))
             ->insert([
-                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value()]
+                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'start_date' => (new Future(new Now(), new OneMinute()))->value()]
             ]);
         (new MeetingRoundInvitation($connection))
             ->insert([
@@ -108,7 +111,7 @@ class UserRegistersInAMeetingRoundTest extends TestCase
         $this->assertTrue($secondResponse->isSuccessful());
         $this->assertCount(2, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! В понедельник в 11 утра пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[1]->url())))->value()['text']
         );
         $this->assertParticipantWithNetworkingInterestExists($this->meetingRoundId(), $this->userId(), $connection);
@@ -164,7 +167,7 @@ class UserRegistersInAMeetingRoundTest extends TestCase
             );
         (new MeetingRound($connection))
             ->insert([
-                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value()]
+                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'start_date' => (new Future(new Now(), new OneMinute()))->value()]
             ]);
         (new MeetingRoundInvitation($connection))
             ->insert([
@@ -224,7 +227,7 @@ class UserRegistersInAMeetingRoundTest extends TestCase
         $this->assertTrue($thirdResponse->isSuccessful());
         $this->assertCount(3, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! В понедельник в 11 утра пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[2]->url())))->value()['text']
         );
         $this->assertParticipantIsRegisteredWithSpecificInterest($this->meetingRoundId(), $this->userId(), $connection);
@@ -280,7 +283,7 @@ class UserRegistersInAMeetingRoundTest extends TestCase
             );
         (new MeetingRound($connection))
             ->insert([
-                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'available_interests' => $this->interestIds()]
+                ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'available_interests' => $this->interestIds(), 'start_date' => (new Future(new Now(), new OneMinute()))->value()]
             ]);
         (new MeetingRoundInvitation($connection))
             ->insert([
@@ -375,7 +378,7 @@ class UserRegistersInAMeetingRoundTest extends TestCase
         $this->assertTrue($fourthResponse->isSuccessful());
         $this->assertCount(4, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! В понедельник в 11 утра пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[3]->url())))->value()['text']
         );
         $this->assertParticipantIsRegisteredWithSpecificInterest($this->meetingRoundId(), $this->userId(), $connection);

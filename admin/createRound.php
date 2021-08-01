@@ -51,9 +51,8 @@ if(trim($answer) != ($x + $y)){
     exit;
 }
 
-$options = getopt('', ['bot_id:', 'start_date_time:']);
+$options = getopt('', ['bot_id:', 'start_date_time:', 'invitation_date_time:']);
 $connection = new ApplicationConnection();
-
 
 $botUsers =
     (new Selecting(
@@ -74,18 +73,18 @@ $response =
         [
             new SingleMutating(
                 <<<q
-            insert into meeting_round (id, bot_id, name, start_date, timezone, available_interests)
-            values (?, ?, 'Новый раунд', ?, 'Europe/Moscow', '[0, 1]')
-        q
+    insert into meeting_round (id, bot_id, name, start_date, invitation_date, timezone, available_interests)
+    values (?, ?, 'Новый раунд', ?, ?, 'Europe/Moscow', '[0, 1]')
+q
                 ,
-                [$meetingRoundId, $options['bot_id'], $options['start_date_time']],
+                [$meetingRoundId, $options['bot_id'], $options['start_date_time'], $options['invitation_date_time']],
                 $connection
             ),
             new SingleMutatingQueryWithMultipleValueSets(
                 <<<q
     insert into meeting_round_invitation (id, meeting_round_id, user_id, status)
     values (?, ?, ?, ?)
-    q
+q
                 ,
                 array_map(
                     function (array $botUserRow) use ($meetingRoundId) {

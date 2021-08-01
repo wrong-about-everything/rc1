@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace RC\Activities\Cron\InvitesToTakePartInANewRound;
 
 use RC\Domain\Bot\BotId\BotId;
-use RC\Domain\Bot\BotToken\Impure\ByBotId;
 use RC\Domain\Bot\ById;
 use RC\Domain\RoundInvitation\InvitationId\Pure\FromUuid;
 use RC\Infrastructure\Uuid\FromString as Uuid;
@@ -16,7 +15,6 @@ use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
-use RC\Domain\Bot\BotToken\Pure\FromString;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger;
 use RC\Infrastructure\UserStory\Body\Emptie;
 use RC\Infrastructure\UserStory\Existent;
@@ -55,7 +53,7 @@ class InvitesToTakePartInANewRound extends Existent
                             $this->connection,
                             $this->logs
                         ),
-                        100000 // microseconds
+                        100000
                     ))
                         ->value();
             },
@@ -66,7 +64,7 @@ from meeting_round_invitation mri
     join meeting_round mr on mri.meeting_round_id = mr.id
     join "telegram_user" u on mri.user_id = u.id
     join bot b on b.id = mr.bot_id
-where mr.bot_id = ? and status != ?
+where mr.bot_id = ? and status != ? and mr.invitation_date <= now() + interval '1 minute'
 limit 100
 q
                 ,

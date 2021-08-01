@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Participant;
 
 use RC\Domain\Participant\ParticipantId\Impure\FromReadModelParticipant;
+use RC\Domain\Participant\ReadModel\Participant as RoundParticipant;
 use RC\Domain\Participant\WriteModel\Participant;
 use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
 use RC\Domain\Participant\ReadModel\ByInvitationId;
@@ -16,7 +17,7 @@ use RC\Domain\UserInterest\InterestId\Impure\Single\FromPure;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 
-class RegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking implements Participant
+class RegisteredIfNoMoreQuestionsLeftOrHisInterestIsNetworking implements Participant
 {
     private $invitationId;
     private $connection;
@@ -46,7 +47,7 @@ class RegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking implements Partic
         if (
             !(new NextRoundRegistrationQuestion($this->invitationId, $this->connection))->value()->pure()->isPresent()
                 ||
-            (new FromParticipant($participant))->contain(new FromPure(new Networking()))
+            $this->participantIsOnlyInterestedInNetworking($participant)
         ) {
             $registeredParticipant = (new Registered($this->invitationId, $this->connection))->value();
             if (!$registeredParticipant->isSuccessful()) {
@@ -55,5 +56,14 @@ class RegisteredIfNoMoreQuestionsLeftOrHisInterestInNetworking implements Partic
         }
 
         return (new FromReadModelParticipant($participant))->value();
+    }
+
+    private function participantIsOnlyInterestedInNetworking(RoundParticipant $participant)
+    {
+        return
+            count((new FromParticipant($participant))->value()->pure()->raw()) === 1
+                &&
+            (new FromParticipant($participant))->contain(new FromPure(new Networking()))
+            ;
     }
 }

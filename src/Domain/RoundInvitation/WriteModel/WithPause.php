@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RC\Domain\RoundInvitation\WriteModel;
 
-use RC\Domain\RoundInvitation\WriteModel\Invitation;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 
 class WithPause implements Invitation

@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-namespace RC\Tests\Unit\Activities\Cron\SendsMatchesToParticipants;
+namespace RC\Tests\Unit\Domain\Matches;
 
 use PHPUnit\Framework\TestCase;
-use RC\Activities\Cron\SendsMatchesToParticipants\Matches;
+use RC\Domain\Matches\ReadModel\Pure\GeneratedMatchesForSegment;
 
-class MatchesV2For100kAmountOfParticipantsTest extends TestCase
+class GeneratedMatchesForSegmentFor100kAmountOfParticipantsTest extends TestCase
 {
     public function test1()
     {
+        $this->markTestSkipped('Skipped because it takes too long');
         $result =
-            (new Matches([
+            (new GeneratedMatchesForSegment([
                 ['d'],
                 ['a', 'b', 'c', 'd'],
                 ['c', 'a'],
