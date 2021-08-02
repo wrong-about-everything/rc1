@@ -11,6 +11,7 @@ use RC\Domain\Matches\PositionExperienceParticipantsInterestsMatrix\FromRound;
 use RC\Domain\Matches\ReadModel\Impure\GeneratedMatchesForAllParticipants;
 use RC\Domain\Matches\WriteModel\Impure\Saved;
 use RC\Domain\Matches\ReadModel\Impure\MatchesForRound;
+use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromMeetingRound;
 use RC\Domain\MeetingRound\ReadModel\ByBotIdAndStartDateTime;
 use RC\Domain\MeetingRound\ReadModel\MeetingRound;
 use RC\Domain\Participant\ParticipantId\Pure\FromString;
@@ -122,14 +123,15 @@ class SendsMatchesToParticipants extends Existent
             (new Selecting(
                 <<<q
 select
-    pair.id participant_id
+    pair.participant_id participant_id,
     user_to.telegram_id participant_telegram_id,
     user_to.first_name participant_first_name,
     match_user.first_name match_first_name,
-    user_match.telegram_handle match_telegram_handle,
+    match_user.telegram_handle match_telegram_handle,
     participant_to.interested_in participant_interested_in,
     match_participant.interested_in match_interested_in,
-    bu.about about_match
+    bu.about about_match,
+    pair.match_participant_contacts_sent
 from meeting_round_pair pair
     join meeting_round_participant participant_to on pair.participant_id = participant_to.id
     join meeting_round_participant match_participant on pair.match_participant_id = match_participant.id
@@ -137,11 +139,11 @@ from meeting_round_pair pair
     join "telegram_user" match_user on match_participant.user_id = match_user.id
     join meeting_round mr on mr.id = participant_to.meeting_round_id
     join bot_user bu on bu.user_id = match_user.id and bu.bot_id = mr.bot_id
-where participant_to.meeting_round_id = ? and match_participant.meeting_round_id = ? and pair.match_participant_contacts_sent = ?
+where participant_to.meeting_round_id = ? and match_participant.meeting_round_id = ? and pair.match_participant_contacts_sent = false
 limit 100
 q
                 ,
-                [$currentRound->value()->pure()->raw(), $currentRound->value()->pure()->raw(), false],
+                [(new FromMeetingRound($currentRound))->value()->pure()->raw(), (new FromMeetingRound($currentRound))->value()->pure()->raw()],
                 $this->connection
             ))
                 ->response()->pure()->raw();

@@ -30,7 +30,7 @@ use RC\Tests\Infrastructure\Environment\Reset;
 use RC\Tests\Infrastructure\Stub\Table\Bot;
 use RC\Tests\Infrastructure\Stub\Table\MeetingRound;
 use RC\Tests\Infrastructure\Stub\Table\MeetingRoundInvitation;
-use RC\Tests\Infrastructure\Stub\Table\User;
+use RC\Tests\Infrastructure\Stub\Table\TelegramUser;
 use RC\Activities\Cron\InvitesToTakePartInANewRound\InvitesToTakePartInANewRound;
 
 class InvitesToTakePartInANewRoundTest extends TestCase
@@ -165,7 +165,7 @@ class InvitesToTakePartInANewRoundTest extends TestCase
 
     private function seedUser(UserId $userId, OpenConnection $connection)
     {
-        (new User($connection))
+        (new TelegramUser($connection))
             ->insert([
                 ['id' => $userId->value(), 'telegram_id' => mt_rand(1, 999999)]
             ]);

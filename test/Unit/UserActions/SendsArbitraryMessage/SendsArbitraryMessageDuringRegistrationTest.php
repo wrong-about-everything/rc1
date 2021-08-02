@@ -31,6 +31,7 @@ use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Domain\User\UserStatus\Impure\FromBotUser as UserStatusFromBotUser;
 use RC\Domain\User\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
 use RC\Domain\User\UserStatus\Pure\Registered;
+use RC\Domain\User\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Domain\User\UserStatus\Pure\UserStatus;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
@@ -48,6 +49,7 @@ use RC\Tests\Infrastructure\Environment\Reset;
 use RC\Tests\Infrastructure\Stub\Table\Bot;
 use RC\Tests\Infrastructure\Stub\Table\BotUser;
 use RC\Tests\Infrastructure\Stub\Table\RegistrationQuestion;
+use RC\Tests\Infrastructure\Stub\Table\TelegramUser;
 use RC\Tests\Infrastructure\Stub\Table\UserRegistrationProgress;
 use RC\Tests\Infrastructure\Stub\TelegramMessage\UserMessage;
 use RC\UserActions\SendsArbitraryMessage\SendsArbitraryMessage;
@@ -61,11 +63,14 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
             ]);
-        (new BotUser($this->botId(), $connection))
-            ->insert(
+        (new TelegramUser($connection))
+            ->insert([
                 ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-                []
-            );
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new RegistrationIsInProgress())->value()]
+            ]);
         (new RegistrationQuestion($connection))
             ->insert([
                 ['id' => $this->firstRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
@@ -100,11 +105,14 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot', 'available_positions' => $this->availablePositionIds()]
             ]);
-        (new BotUser($this->botId(), $connection))
-            ->insert(
+        (new TelegramUser($connection))
+            ->insert([
                 ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-                []
-            );
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new RegistrationIsInProgress())->value()]
+            ]);
         (new RegistrationQuestion($connection))
             ->insert([
                 ['id' => $this->firstRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
@@ -165,11 +173,14 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
             ]);
-        (new BotUser($this->botId(), $connection))
-            ->insert(
+        (new TelegramUser($connection))
+            ->insert([
                 ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-                []
-            );
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new RegistrationIsInProgress())->value()]
+            ]);
         (new RegistrationQuestion($connection))
             ->insert([
                 ['id' => $this->firstRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
@@ -202,11 +213,14 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
             ]);
-        (new BotUser($this->botId(), $connection))
-            ->insert(
-                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo', 'position'],
-                ['position' => (new ProductManager())->value()]
-            );
+        (new TelegramUser($connection))
+            ->insert([
+                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new RegistrationIsInProgress())->value()]
+            ]);
         (new RegistrationQuestion($connection))
             ->insert([
                 ['id' => $this->firstRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
@@ -247,12 +261,14 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
             ]);
-        $userId = Uuid::uuid4()->toString();
-        (new BotUser($this->botId(), $connection))
-            ->insert(
-                ['id' => $userId, 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-                ['status' => (new Registered())->value()]
-            );
+        (new TelegramUser($connection))
+            ->insert([
+                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new Registered())->value()]
+            ]);
         $transport = new Indifferent();
 
         $response =

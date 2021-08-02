@@ -8,7 +8,7 @@ use Exception;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutatingQueryWithMultipleValueSets;
 
-class User
+class TelegramUser
 {
     private $connection;
 

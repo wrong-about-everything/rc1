@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace RC\Domain\MeetingRound\ReadModel;
 
 use Meringue\ISO8601DateTime;
+use Meringue\ISO8601Interval\Floating\OneMinute;
+use Meringue\Timeline\Point\Future;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
@@ -30,8 +32,8 @@ class ByBotIdAndStartDateTime implements MeetingRound
     {
         $meetingRound =
             (new Selecting(
-                'select * from meeting_round where bot_id = ? and start_date < ? + interval \'1 minute\'',
-                [$this->botId->value(), $this->startDateTime->value()],
+                'select * from meeting_round where bot_id = ? and start_date < ?',
+                [$this->botId->value(), (new Future($this->startDateTime, new OneMinute()))->value()],
                 $this->connection
             ))
                 ->response();

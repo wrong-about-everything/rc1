@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\SqlDatabase\Agnostic\Query;
 
+use Exception;
 use PDO;
 use RC\Infrastructure\ImpureInteractions\Error\AlarmDeclineWithDefaultUserMessage;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
@@ -19,12 +20,14 @@ class Selecting implements Query
     private $queryString;
     private $values;
     private $connection;
+    private $exceptionForTrace;
 
     public function __construct(string $queryString, array $values, OpenConnection $connection)
     {
         $this->queryString = $queryString;
         $this->values = array_values($values);
         $this->connection = $connection;
+        $this->exceptionForTrace = new Exception();
     }
 
     public function response(): ImpureValue
@@ -51,7 +54,7 @@ class Selecting implements Query
         }
 
         if ($result === false) {
-            return new FailedImpureValue(new AlarmDeclineWithDefaultUserMessage($statement->errorInfo()[2], $statement->errorInfo()));
+            return new FailedImpureValue(new AlarmDeclineWithDefaultUserMessage($statement->errorInfo()[2], $this->exceptionForTrace->getTrace()));
         }
 
         $result = $statement->fetchAll(PDO::FETCH_ASSOC);

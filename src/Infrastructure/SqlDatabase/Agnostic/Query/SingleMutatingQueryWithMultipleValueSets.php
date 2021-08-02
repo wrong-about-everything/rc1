@@ -28,6 +28,10 @@ class SingleMutatingQueryWithMultipleValueSets implements Query
 
     public function response(): ImpureValue
     {
+        if (count($this->values) === 0) {
+            return new Successful(new Emptie());
+        }
+
         try {
             $dbh = $this->connection->value();
         } catch (Throwable $e) {

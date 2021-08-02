@@ -6,54 +6,57 @@ namespace RC\Tests\Infrastructure\Stub\Table;
 
 use Exception;
 use Ramsey\Uuid\Uuid;
-use RC\Domain\Bot\BotId\BotId;
-use RC\Domain\User\UserStatus\Pure\RegistrationIsInProgress;
+use RC\Domain\Experience\ExperienceId\Pure\LessThanAYear;
+use RC\Domain\Position\PositionId\Pure\ProductManager;
+use RC\Domain\User\UserStatus\Pure\Registered;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
-use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
+use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutatingQueryWithMultipleValueSets;
 
 class BotUser
 {
-    private $botId;
     private $connection;
 
-    public function __construct(BotId $botId, OpenConnection $connection)
+    public function __construct(OpenConnection $connection)
     {
-        $this->botId = $botId;
         $this->connection = $connection;
     }
 
-    public function insert(array $user, array $botUser)
+    public function insert(array $records)
     {
-        $values = array_merge($this->defaultValues(), $user);
-        $userId = $values['id'];
-        $userInsertResponse =
-            (new SingleMutating(
-                'insert into "telegram_user" (id, first_name, last_name, telegram_id, telegram_handle) values (?, ?, ?, ?, ?)',
-                [$userId, $values['first_name'], $values['last_name'], $values['telegram_id'], $values['telegram_handle']],
-                $this->connection
-            ))
-                ->response();
-        if (!$userInsertResponse->isSuccessful()) {
-            throw new Exception(sprintf('Error while inserting user record: %s', $userInsertResponse->error()->logMessage()));
-        }
-        $userBotInsertResponse =
-            (new SingleMutating(
+        $botUserInsertResponse =
+            (new SingleMutatingQueryWithMultipleValueSets(
                 'insert into "bot_user" (id, user_id, bot_id, position, experience, about, status) values (?, ?, ?, ?, ?, ?, ?)',
-                [Uuid::uuid4()->toString(), $userId, $this->botId->value(), $botUser['position'] ?? null, $botUser['experience'] ?? null, $botUser['about'] ?? null, $botUser['status'] ?? (new RegistrationIsInProgress())->value()],
+                array_map(
+                    function (array $record) {
+                        $values = array_merge($this->defaultValues(), $record);
+                        return [
+                            $values['id'],
+                            $values['user_id'],
+                            $values['bot_id'],
+                            $values['position'],
+                            $values['experience'],
+                            $values['about'],
+                            $values['status']
+                        ];
+                    },
+                    $records
+                ),
                 $this->connection
             ))
                 ->response();
-        if (!$userBotInsertResponse->isSuccessful()) {
-            throw new Exception(sprintf('Error while inserting bot_user record: %s', $userBotInsertResponse->error()->logMessage()));
+        if (!$botUserInsertResponse->isSuccessful()) {
+            throw new Exception(sprintf('Error while inserting bot_user record: %s', $botUserInsertResponse->error()->logMessage()));
         }
     }
 
     private function defaultValues()
     {
         return [
-            'first_name' => 'Vasily III',
-            'last_name' => 'the Greatest',
-            'telegram_handle' => 'vasya',
+            'id' => Uuid::uuid4()->toString(),
+            'position' => (new ProductManager())->value(),
+            'experience' => (new LessThanAYear())->value(),
+            'about' => 'About me',
+            'status' => (new Registered())->value(),
         ];
     }
 }

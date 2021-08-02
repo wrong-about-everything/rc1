@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace RC\Domain\Matches\PositionExperienceParticipantsInterestsMatrix;
 
+use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromMeetingRound;
 use RC\Domain\MeetingRound\ReadModel\MeetingRound;
 use RC\Domain\Participant\Status\Pure\Registered;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
+use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
+use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 
@@ -32,7 +35,7 @@ class FromRound implements PositionsExperiencesParticipantsInterestsMatrix
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         $dataFromDb = $this->dataFromDb();
         if (!$dataFromDb->isSuccessful()) {
@@ -40,21 +43,24 @@ class FromRound implements PositionsExperiencesParticipantsInterestsMatrix
         }
 
         return
-            array_reduce(
-                $dataFromDb->pure()->raw(),
-                function (array $carry, array $currentRow) {
-                    if (!isset($carry[$currentRow['position']])) {
-                        $carry[$currentRow['position']] = [];
-                    }
-                    if (!isset($carry[$currentRow['position']][$currentRow['experience']])) {
-                        $carry[$currentRow['position']][$currentRow['experience']] = [];
-                    }
-                    // @todo: sort experience
+            new Successful(
+                new Present(
+                    array_reduce(
+                        $dataFromDb->pure()->raw(),
+                        function (array $carry, array $currentRow) {
+                            if (!isset($carry[$currentRow['position']])) {
+                                $carry[$currentRow['position']] = [];
+                            }
+                            if (!isset($carry[$currentRow['position']][$currentRow['experience']])) {
+                                $carry[$currentRow['position']][$currentRow['experience']] = [];
+                            }
 
-                    $carry[$currentRow['position']][$currentRow['experience']][$currentRow['participant_id']] = json_decode($currentRow['interested_in']);
-                    return $carry;
-                },
-                []
+                            $carry[$currentRow['position']][$currentRow['experience']][$currentRow['participant_id']] = json_decode($currentRow['interested_in']);
+                            return $carry;
+                        },
+                        []
+                    )
+                )
             );
     }
 
@@ -70,7 +76,7 @@ class FromRound implements PositionsExperiencesParticipantsInterestsMatrix
         where mrp.meeting_round_id = ? and mrp.status = ?
         q
                 ,
-                [$this->round->value()->pure()->raw(), (new Registered())->value()],
+                [(new FromMeetingRound($this->round))->value()->pure()->raw(), (new Registered())->value()],
                 $this->connection
             ))
                 ->response();

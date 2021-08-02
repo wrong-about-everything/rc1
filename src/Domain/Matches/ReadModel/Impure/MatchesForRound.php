@@ -42,7 +42,7 @@ q
         if (!$matches->isSuccessful()) {
             return $matches;
         }
-        if (!$matches->pure()->isPresent()) {
+        if (empty($matches->pure()->raw())) {
             return new Successful(new Emptie());
         }
 

@@ -39,37 +39,37 @@ class Saved implements Matches
             return $this->matches->value();
         }
 
-        (new TransactionalQueryFromMultipleQueries(
-            [
-                new SingleMutatingQueryWithMultipleValueSets(
-                    'insert into meeting_round_pair values (?, ?, ?)',
-                    array_reduce(
-                        $this->matches->value()->pure()->raw()['matches'],
-                        function (array $carry, array $pair) {
-                            $carry[] = [Uuid::uuid4()->toString(), $pair[0], $pair[1]];
-                            $carry[] = [Uuid::uuid4()->toString(), $pair[1], $pair[0]];
-                            return $carry;
-                        },
-                        []
+        return
+            (new TransactionalQueryFromMultipleQueries(
+                [
+                    new SingleMutatingQueryWithMultipleValueSets(
+                        'insert into meeting_round_pair values (?, ?, ?)',
+                        array_reduce(
+                            $this->matches->value()->pure()->raw()['matches'],
+                            function (array $carry, array $pair) {
+                                $carry[] = [Uuid::uuid4()->toString(), $pair[0], $pair[1]];
+                                $carry[] = [Uuid::uuid4()->toString(), $pair[1], $pair[0]];
+                                return $carry;
+                            },
+                            []
+                        ),
+                        $this->connection
                     ),
-                    $this->connection
-                ),
-                new SingleMutatingQueryWithMultipleValueSets(
-                    'insert into meeting_round_dropout values (?, ?)',
-                    array_reduce(
-                        $this->matches->value()->pure()->raw()['dropouts'],
-                        function (array $carry, $dropout) {
-                            $carry[] = [Uuid::uuid4()->toString(), $dropout];
-                            return $carry;
-                        },
-                        []
-                    ),
-                    $this->connection
-                )
-            ],
-            $this->connection
-        ))
-            ->response();
-
+                    new SingleMutatingQueryWithMultipleValueSets(
+                        'insert into meeting_round_dropout values (?, ?)',
+                        array_reduce(
+                            $this->matches->value()->pure()->raw()['dropouts'],
+                            function (array $carry, $dropout) {
+                                $carry[] = [Uuid::uuid4()->toString(), $dropout];
+                                return $carry;
+                            },
+                            []
+                        ),
+                        $this->connection
+                    )
+                ],
+                $this->connection
+            ))
+                ->response();
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\SqlDatabase\Agnostic\Query;
 
+use Exception;
 use RC\Infrastructure\ImpureInteractions\Error\AlarmDeclineWithDefaultUserMessage;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed as FailedImpureValue;
@@ -18,12 +19,14 @@ class SingleMutating implements Query
     private $queryString;
     private $values;
     private $connection;
+    private $exceptionForTrace;
 
     public function __construct(string $queryString, array $values, OpenConnection $connection)
     {
         $this->queryString = $queryString;
         $this->values = $values;
         $this->connection = $connection;
+        $this->exceptionForTrace = new Exception();
     }
 
     public function response(): ImpureValue
@@ -50,7 +53,7 @@ class SingleMutating implements Query
         }
 
         if ($result === false) {
-            return new FailedImpureValue(new AlarmDeclineWithDefaultUserMessage($statement->errorInfo()[2], $statement->errorInfo()));
+            return new FailedImpureValue(new AlarmDeclineWithDefaultUserMessage($statement->errorInfo()[2], $this->exceptionForTrace->getTrace()));
         }
 
         $statement->closeCursor();

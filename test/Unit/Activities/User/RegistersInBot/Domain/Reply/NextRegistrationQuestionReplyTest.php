@@ -20,6 +20,10 @@ use RC\Domain\Position\PositionId\Pure\ProductManager;
 use RC\Activities\User\RegistersInBot\Domain\Reply\NextRegistrationQuestionReply;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
+use RC\Domain\User\UserId\FromUuid as UserIdFromUuid;
+use RC\Domain\User\UserId\UserId;
+use RC\Domain\User\UserStatus\Pure\Registered;
+use RC\Domain\User\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
 use RC\Infrastructure\Http\Transport\Indifferent;
@@ -27,10 +31,12 @@ use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 use RC\Infrastructure\Uuid\Fixed;
+use RC\Infrastructure\Uuid\FromString;
 use RC\Tests\Infrastructure\Environment\Reset;
 use RC\Tests\Infrastructure\Stub\Table\Bot;
 use RC\Tests\Infrastructure\Stub\Table\BotUser;
 use RC\Tests\Infrastructure\Stub\Table\RegistrationQuestion;
+use RC\Tests\Infrastructure\Stub\Table\TelegramUser;
 
 class NextRegistrationQuestionReplyTest extends TestCase
 {
@@ -122,13 +128,21 @@ class NextRegistrationQuestionReplyTest extends TestCase
         return new FromUuid(new Fixed());
     }
 
+    private function userId(): UserId
+    {
+        return new UserIdFromUuid(new FromString('103729d6-330c-4123-b856-d5196812d509'));
+    }
+
     private function seedBotUser(BotId $botId, TelegramUserId $telegramUserId, OpenConnection $connection)
     {
-        (new BotUser($botId, $connection))
-            ->insert(
-                ['id' => Uuid::uuid4()->toString(), 'telegram_id' => $telegramUserId->value()],
-                []
-            );
+        (new TelegramUser($connection))
+            ->insert([
+                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $telegramUserId->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $botId->value(), 'user_id' => $this->userId()->value(), 'status' => (new RegistrationIsInProgress())->value()]
+            ]);
     }
 
     private function seedBot(BotId $botId, OpenConnection $connection)

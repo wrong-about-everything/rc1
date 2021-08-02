@@ -17,6 +17,7 @@ use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessa
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
+use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\TelegramBot\BotApiUrl;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
@@ -71,6 +72,5 @@ class NotifiedParticipant implements Participant
                 $this->connection
             ))
                 ->response();
-
     }
 }

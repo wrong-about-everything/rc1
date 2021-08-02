@@ -50,6 +50,7 @@ use RC\Tests\Infrastructure\Stub\Table\BotUser;
 use RC\Tests\Infrastructure\Stub\Table\MeetingRound;
 use RC\Tests\Infrastructure\Stub\Table\MeetingRoundInvitation;
 use RC\Tests\Infrastructure\Stub\Table\RoundRegistrationQuestion;
+use RC\Tests\Infrastructure\Stub\Table\TelegramUser;
 use RC\Tests\Infrastructure\Stub\Table\UserRegistrationProgress;
 use RC\Tests\Infrastructure\Stub\TelegramMessage\UserMessage;
 use RC\UserActions\SendsArbitraryMessage\SendsArbitraryMessage;
@@ -63,11 +64,14 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
             ]);
-        (new BotUser($this->botId(), $connection))
-            ->insert(
+        (new TelegramUser($connection))
+            ->insert([
                 ['id' => $this->firstUserId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->firstTelegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-                ['status' => (new Registered())->value()]
-            );
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Registered())->value()]
+            ]);
         (new MeetingRound($connection))
             ->insert([
                 ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'start_date' => (new Future(new Now(), new OneHour()))->value()]
@@ -105,11 +109,14 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
             ]);
-        (new BotUser($this->botId(), $connection))
-            ->insert(
+        (new TelegramUser($connection))
+            ->insert([
                 ['id' => $this->firstUserId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->firstTelegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-                ['status' => (new Registered())->value()]
-            );
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Registered())->value()]
+            ]);
         (new MeetingRound($connection))
             ->insert([
                 ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'start_date' => (new Future(new Now(), new OneHour()))->value()]
@@ -151,16 +158,22 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
             ]);
-        (new BotUser($this->botId(), $connection))
-            ->insert(
+        (new TelegramUser($connection))
+            ->insert([
                 ['id' => $this->firstUserId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->firstTelegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-                ['status' => (new Registered())->value()]
-            );
-        (new BotUser($this->botId(), $connection))
-            ->insert(
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Registered())->value()]
+            ]);
+        (new TelegramUser($connection))
+            ->insert([
                 ['id' => $this->secondUserId()->value(), 'first_name' => 'Vasil', 'last_name' => 'Belov', 'telegram_id' => $this->secondTelegramUserId()->value(), 'telegram_handle' => 'vonuchee_bydlo'],
-                ['status' => (new Registered())->value()]
-            );
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->secondUserId()->value(), 'status' => (new Registered())->value()]
+            ]);
         (new MeetingRound($connection))
             ->insert([
                 ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'start_date' => (new Future(new Now(), new OneHour()))->value()]
@@ -212,11 +225,14 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
             ]);
-        (new BotUser($this->botId(), $connection))
-            ->insert(
+        (new TelegramUser($connection))
+            ->insert([
                 ['id' => $this->firstUserId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->firstTelegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-                ['status' => (new Registered())->value()]
-            );
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Registered())->value()]
+            ]);
         (new MeetingRound($connection))
             ->insert([
                 ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'start_date' => (new Future(new Now(), new OneHour()))->value()]
@@ -253,11 +269,14 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
             ]);
-        (new BotUser($this->botId(), $connection))
-            ->insert(
+        (new TelegramUser($connection))
+            ->insert([
                 ['id' => $this->firstUserId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->firstTelegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-                ['status' => (new Registered())->value()]
-            );
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Registered())->value()]
+            ]);
         (new MeetingRound($connection))
             ->insert([
                 ['id' => $this->meetingRoundId(), 'start_date' => (new Past(new Now(), new NMinutes(1)))->value(), 'bot_id' => $this->botId()->value()]

@@ -65,7 +65,7 @@ t
                     $this->participantFirstName,
                     $this->matchFirstName,
                     $this->matchTelegramHandle,
-                    (new FromInterestId(new FromInteger($interestsInCommon[0])))->value(),
+                    (new FromInterestId(new FromInteger((int) $interestsInCommon[0])))->value(),
                     $this->aboutMatch
                 );
         }

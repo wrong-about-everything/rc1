@@ -58,7 +58,7 @@ truncate
     sample_table,
     bot,
     "group",
-    "telegram_user",
+    telegram_user,
     bot_user,
     registration_question,
     user_registration_progress,
@@ -66,8 +66,10 @@ truncate
     meeting_round_invitation,
     meeting_round_registration_question,
     user_round_registration_progress,
-    meeting_round_participant
-
+    meeting_round_participant,
+    meeting_round_pair,
+    meeting_round_dropout
+    
     cascade
 q
                 ,

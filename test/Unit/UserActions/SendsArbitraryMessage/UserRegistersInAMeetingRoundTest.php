@@ -49,6 +49,7 @@ use RC\Tests\Infrastructure\Stub\Table\BotUser;
 use RC\Tests\Infrastructure\Stub\Table\MeetingRound;
 use RC\Tests\Infrastructure\Stub\Table\MeetingRoundInvitation;
 use RC\Tests\Infrastructure\Stub\Table\RoundRegistrationQuestion;
+use RC\Tests\Infrastructure\Stub\Table\TelegramUser;
 use RC\Tests\Infrastructure\Stub\TelegramMessage\UserMessage;
 use RC\UserActions\SendsArbitraryMessage\SendsArbitraryMessage;
 
@@ -61,11 +62,14 @@ class UserRegistersInAMeetingRoundTest extends TestCase
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
             ]);
-        (new BotUser($this->botId(), $connection))
-            ->insert(
+        (new TelegramUser($connection))
+            ->insert([
                 ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-                ['status' => (new Registered())->value()]
-            );
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new Registered())->value()]
+            ]);
         (new MeetingRound($connection))
             ->insert([
                 ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'start_date' => (new Future(new Now(), new OneMinute()))->value()]
@@ -160,11 +164,14 @@ class UserRegistersInAMeetingRoundTest extends TestCase
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
             ]);
-        (new BotUser($this->botId(), $connection))
-            ->insert(
+        (new TelegramUser($connection))
+            ->insert([
                 ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-                ['status' => (new Registered())->value()]
-            );
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new Registered())->value()]
+            ]);
         (new MeetingRound($connection))
             ->insert([
                 ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'start_date' => (new Future(new Now(), new OneMinute()))->value()]
@@ -276,11 +283,14 @@ class UserRegistersInAMeetingRoundTest extends TestCase
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
             ]);
-        (new BotUser($this->botId(), $connection))
-            ->insert(
+        (new TelegramUser($connection))
+            ->insert([
                 ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-                ['status' => (new Registered())->value()]
-            );
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new Registered())->value()]
+            ]);
         (new MeetingRound($connection))
             ->insert([
                 ['id' => $this->meetingRoundId(), 'bot_id' => $this->botId()->value(), 'available_interests' => $this->interestIds(), 'start_date' => (new Future(new Now(), new OneMinute()))->value()]
