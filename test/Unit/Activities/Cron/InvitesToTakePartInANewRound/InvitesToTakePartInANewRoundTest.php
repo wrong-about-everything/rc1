@@ -158,6 +158,13 @@ class InvitesToTakePartInANewRoundTest extends TestCase
         $this->assertAllInvitationsAreNew($this->someOtherMeetingRoundId(), $connection);
     }
 
+    public function testWhenSomeParticipantsAreRegisteredDuringRegistrationInBotThenInvitationsAreSentOnlyToNonParticipants()
+    {
+        $connection = new ApplicationConnection();
+
+        $this->markTestIncomplete();
+    }
+
     protected function setUp(): void
     {
         (new Reset(new RootConnection()))->run();

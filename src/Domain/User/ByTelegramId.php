@@ -2,32 +2,26 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\RegistrationQuestion;
+namespace RC\Domain\User;
 
-use RC\Domain\User\ByTelegramId;
-use RC\Domain\User\UserId\FromUser;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
-use RC\Domain\Bot\BotId\BotId;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class NextRegistrationQuestion implements RegistrationQuestion
+class ByTelegramId implements User
 {
     private $telegramUserId;
     private $connection;
-
     private $cached;
 
-    public function __construct(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
+    public function __construct(TelegramUserId $telegramUserId, OpenConnection $connection)
     {
         $this->telegramUserId = $telegramUserId;
-        $this->botId = $botId;
         $this->connection = $connection;
-
         $this->cached = null;
     }
 
@@ -42,28 +36,25 @@ class NextRegistrationQuestion implements RegistrationQuestion
 
     private function doValue(): ImpureValue
     {
-        $registrationQuestion =
+        $response =
             (new Selecting(
                 <<<q
-        select rq.*
-        from registration_question rq
-            left join user_registration_progress urp on urp.registration_question_id = rq.id and urp.user_id = ?
-        where urp.registration_question_id is null
-        order by rq.ordinal_number asc
-        limit 1
-        q
+select u.*
+from telegram_user u
+where u.telegram_id = ?
+q
                 ,
-                [(new FromUser(new ByTelegramId($this->telegramUserId, $this->connection)))->value()],
+                [$this->telegramUserId->value()],
                 $this->connection
             ))
                 ->response();
-        if (!$registrationQuestion->isSuccessful()) {
-            return $registrationQuestion;
+        if (!$response->isSuccessful()) {
+            return $response;
         }
-        if (!isset($registrationQuestion->pure()->raw()[0])) {
+        if (!isset($response->pure()->raw()[0])) {
             return new Successful(new Emptie());
         }
 
-        return new Successful(new Present($registrationQuestion->pure()->raw()[0]));
+        return new Successful(new Present($response->pure()->raw()[0]));
     }
 }

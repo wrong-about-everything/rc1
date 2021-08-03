@@ -6,6 +6,7 @@
         "ext-soap": "*",
         "ext-json": "*",
         "ext-pdo": "*",
+        "ext-intl": "*",
         "ramsey/uuid": "*",
         "wrong-about-everything/meringue": "dev-master",
         "google/cloud-functions-framework": "*",

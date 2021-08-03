@@ -15,7 +15,7 @@ use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\ReadModel\Invitation as ReadModelInvitation;
 use RC\Domain\RoundInvitation\WriteModel\Accepted;
 use RC\Domain\RoundInvitation\WriteModel\Declined;
-use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessage;
+use RC\Infrastructure\ImpureInteractions\Error\AlarmDeclineWithDefaultUserMessage;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
@@ -78,7 +78,7 @@ class RepliedToInvitation implements Participant
         return
             new NonSuccessful(
                 new Failed(
-                    new SilentDeclineWithDefaultUserMessage(
+                    new AlarmDeclineWithDefaultUserMessage(
                         'An invitation reply answer is neither yes nor no. Either this user story was run by mistake or user replied with custom message instead of pushing a button.',
                         []
                     )

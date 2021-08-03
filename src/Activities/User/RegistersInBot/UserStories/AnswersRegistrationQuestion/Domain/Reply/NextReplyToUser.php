@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion\Domain\Reply;
 
+use Meringue\Timeline\Point\Now;
 use RC\Domain\Bot\BotId\BotId;
+use RC\Domain\MeetingRound\ReadModel\LatestNotYetStartedWithFiveMinutesGap;
+use RC\Domain\MeetingRound\ReadModel\MeetingRound;
 use RC\Domain\User\UserStatus\Impure\FromBotUser;
 use RC\Domain\User\UserStatus\Impure\FromPure;
 use RC\Domain\User\UserStatus\Pure\Registered;
@@ -33,7 +36,15 @@ class NextReplyToUser implements Reply
     public function value(): ImpureValue
     {
         if ($this->userRegistered()) {
-            return $this->congratulations();
+            $latestMeetingRound = new LatestNotYetStartedWithFiveMinutesGap($this->botId, new Now(), $this->connection);
+            if (!$latestMeetingRound->value()->isSuccessful()) {
+                return $latestMeetingRound->value();
+            }
+            if ($latestMeetingRound->value()->pure()->isPresent()) {
+                return $this->meetingRoundInvitation($latestMeetingRound);
+            } else {
+                return $this->congratulations();
+            }
         } else {
             return
                 (new NextRegistrationQuestionReply(
@@ -44,6 +55,19 @@ class NextReplyToUser implements Reply
                 ))
                     ->value();
         }
+    }
+
+    private function meetingRoundInvitation(MeetingRound $meetingRound)
+    {
+        return
+            (new MeetingRoundInvitation(
+                $meetingRound,
+                $this->telegramUserId,
+                $this->botId,
+                $this->connection,
+                $this->httpTransport
+            ))
+                ->value();
     }
 
     private function congratulations()

@@ -64,7 +64,8 @@ from meeting_round_invitation mri
     join meeting_round mr on mri.meeting_round_id = mr.id
     join "telegram_user" u on mri.user_id = u.id
     join bot b on b.id = mr.bot_id
-where mr.bot_id = ? and status != ? and mr.invitation_date <= now() + interval '1 minute'
+    left join meeting_round_participant mrp on mrp.user_id = u.id and mrp.meeting_round_id = mr.id
+where mr.bot_id = ? and mri.status != ? and mr.invitation_date <= now() + interval '1 minute' and mrp.id is null
 limit 100
 q
                 ,

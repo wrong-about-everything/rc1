@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace RC\Tests\Unit\UserActions\SendsArbitraryMessage;
 
+use Meringue\ISO8601DateTime;
+use Meringue\ISO8601DateTime\FromISO8601;
+use Meringue\ISO8601Interval\Floating\NDays;
+use Meringue\ISO8601Interval\Floating\OneDay;
+use Meringue\Timeline\Point\Future;
 use Meringue\Timeline\Point\Now;
+use Meringue\Timeline\Point\Past;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use RC\Domain\BotUser\ByTelegramUserId;
@@ -52,6 +58,7 @@ use RC\Infrastructure\Uuid\FromString;
 use RC\Tests\Infrastructure\Environment\Reset;
 use RC\Tests\Infrastructure\Stub\Table\Bot;
 use RC\Tests\Infrastructure\Stub\Table\BotUser;
+use RC\Tests\Infrastructure\Stub\Table\MeetingRound;
 use RC\Tests\Infrastructure\Stub\Table\RegistrationQuestion;
 use RC\Tests\Infrastructure\Stub\Table\TelegramUser;
 use RC\Tests\Infrastructure\Stub\Table\UserRegistrationProgress;
@@ -97,7 +104,7 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит -- напишите в @gorgonzola_support',
+            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит — напишите в @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
         $this->assertReplyButtons($this->availablePositionIds(), $transport->sentRequests()[0]);
@@ -129,7 +136,7 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит -- напишите в @gorgonzola_support',
+            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит — напишите в @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
     }
@@ -177,6 +184,33 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
         );
     }
 
+    public function testGivenMeetingRoundAheadWhenUserAnswersTheLastQuestionThenHeSeesAnInvitationToAMeetingRound()
+    {
+        $connection = new ApplicationConnection();
+        $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
+        $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
+        $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
+        $this->createRegistrationProgress($this->firstRegistrationQuestionId(), $this->userId(), $connection);
+        $this->createMeetingRound(Uuid::uuid4()->toString(), $this->botId(), new Past(new Now(), new OneDay()), new Past(new Now(), new NDays(2)), $connection);
+        $this->createMeetingRound($this->futureMeetingRoundId(), $this->botId(), new FromISO8601('2025-08-08T09:00:00+03'), new Now(), $connection);
+        $transport = new Indifferent();
+
+        $response = $this->userReply((new LessThanAYearName())->value(), $transport, $connection)->response();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionId(), $connection);
+        $this->assertPositionIs($this->telegramUserId(), $this->botId(), new ProductManager(), $connection);
+        $this->assertExperienceIs($this->telegramUserId(), $this->botId(), new LessThanAYear(), $connection);
+        $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
+        $this->assertCount(1, $transport->sentRequests());
+        $this->assertEquals(
+            'Спасибо за ответы! Кстати, у нас уже намечаются встречи, давайте может сразу запишу вас? Пришлю вам пару днём 8 августа (это пятница), а по времени уже вдвоём договоритесь. Ну что, готовы?',
+            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+        );
+    }
+
     protected function setUp(): void
     {
         (new Reset(new RootConnection()))->run();
@@ -216,6 +250,11 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
     private function firstRegistrationQuestionId(): RegistrationQuestionId
     {
         return new RegistrationQuestionIdFromString('203729d6-330c-4123-b856-d5196812d509');
+    }
+
+    private function futureMeetingRoundId(): string
+    {
+        return Uuid::uuid4()->toString();
     }
 
     private function secondRegistrationQuestionId(): RegistrationQuestionId
@@ -260,6 +299,14 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
         (new UserRegistrationProgress($connection))
             ->insert([
                 ['registration_question_id' => $registrationQuestionId->value()->pure()->raw(), 'user_id' => $userId->value()]
+            ]);
+    }
+
+    private function createMeetingRound(string $meetingRoundId, BotId $botId, ISO8601DateTime $startDateTime, ISO8601DateTime $invitationDateTime, $connection)
+    {
+        (new MeetingRound($connection))
+            ->insert([
+                ['id' => $meetingRoundId, 'bot_id' => $botId->value(), 'start_date' => $startDateTime->value(), 'invitation_date' => $invitationDateTime->value()]
             ]);
     }
 

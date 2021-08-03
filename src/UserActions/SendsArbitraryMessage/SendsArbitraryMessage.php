@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace RC\UserActions\SendsArbitraryMessage;
 
 use Meringue\ISO8601DateTime;
-use Meringue\Timeline\Point\Now;
 use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\AnswersRoundRegistrationQuestion;
 use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\RepliesToRoundInvitation;
 use RC\Domain\BotUser\ByTelegramUserId;
@@ -75,21 +74,20 @@ class SendsArbitraryMessage extends Existent
         }
 
         if ($userStatus->equals(new ImpureUserStatusFromPure(new RegistrationIsInProgress()))) {
-            return $this->answersRegistrationQuestion();
-        } elseif ($userStatus->equals(new ImpureUserStatusFromPure(new Registered())) && $this->thereIsAPendingExpiredInvitation($this->latestInvitation())) {
-            $this->noRoundsAhead()->value();
-            return new Successful(new Emptie());
-        } elseif ($userStatus->equals(new ImpureUserStatusFromPure(new Registered())) && $this->thereIsAPendingNonExpiredInvitation($this->latestInvitation())) {
-            return $this->repliesToRoundInvitation();
-        } elseif ($userStatus->equals(new ImpureUserStatusFromPure(new Registered())) && $this->thereIsAUserRegisteringForARound()) {
-            return $this->answersRoundRegistrationQuestion();
-        } else {
-            $userIsAlreadyRegisteredValue = $this->replyInCaseOfAnyUncertainty()->value();
-            if (!$userIsAlreadyRegisteredValue->isSuccessful()) {
-                $this->logs->receive(new FromNonSuccessfulImpureValue($userIsAlreadyRegisteredValue));
-                $this->sorry()->value();
-                return new Successful(new Emptie());
+            $this->answersRegistrationQuestion();
+        } elseif ($userStatus->equals(new ImpureUserStatusFromPure(new Registered()))) {
+            $latestInvitation = $this->latestInvitation();
+            if ($this->thereIsAPendingExpiredInvitation($latestInvitation)) {
+                $this->noRoundsAhead()->value();
+            } elseif ($this->thereIsAPendingNonExpiredInvitation($latestInvitation)) {
+                $this->repliesToRoundInvitation();
+            } elseif ($this->thereIsAUserRegisteringForARound($latestInvitation)) {
+                $this->answersRoundRegistrationQuestion();
+            } else {
+                $this->replyInCaseOfAnyUncertainty()->value();
             }
+        } else {
+            $this->replyInCaseOfAnyUncertainty()->value();
         }
 
         $this->logs->receive(new InformationMessage('User sends arbitrary message scenario finished'));
@@ -103,7 +101,7 @@ class SendsArbitraryMessage extends Existent
             new FromBotUser(
                 new ByTelegramUserId(
                     new FromParsedTelegramMessage($this->message),
-                    new FromUuid(new UuidFromString($this->botId)),
+                    $this->botId(),
                     $this->connection
                 )
             );
@@ -128,7 +126,7 @@ class SendsArbitraryMessage extends Existent
             new NoRoundsAhead(
                 new FromParsedTelegramMessage($this->message),
                 new ByBotId(
-                    new FromUuid(new UuidFromString($this->botId)),
+                    $this->botId(),
                     $this->connection
                 ),
                 $this->httpTransport
@@ -154,7 +152,7 @@ class SendsArbitraryMessage extends Existent
             new Sorry(
                 new FromParsedTelegramMessage($this->message),
                 new ByBotId(
-                    new FromUuid(new UuidFromString($this->botId)),
+                    $this->botId(),
                     $this->connection
                 ),
                 $this->httpTransport
@@ -166,10 +164,15 @@ class SendsArbitraryMessage extends Existent
         return
             new InCaseOfAnyUncertainty(
                 new FromParsedTelegramMessage($this->message),
-                new FromUuid(new UuidFromString($this->botId)),
+                $this->botId(),
                 $this->connection,
                 $this->httpTransport
             );
+    }
+
+    private function botId()
+    {
+        return new FromUuid(new UuidFromString($this->botId));
     }
 
     private function thereIsAPendingExpiredInvitation(Invitation $invitation)
@@ -219,7 +222,7 @@ class SendsArbitraryMessage extends Existent
         return
             new LatestInvitation(
                 new FromParsedTelegramMessage($this->message),
-                new FromUuid(new UuidFromString($this->botId)),
+                $this->botId(),
                 $this->connection
             );
     }
@@ -228,7 +231,6 @@ class SendsArbitraryMessage extends Existent
     {
         return
             (new RepliesToRoundInvitation(
-                $this->now,
                 $this->message,
                 $this->botId,
                 $this->httpTransport,
@@ -238,17 +240,11 @@ class SendsArbitraryMessage extends Existent
                 ->response();
     }
 
-    private function thereIsAUserRegisteringForARound()
+    private function thereIsAUserRegisteringForARound(Invitation $latestInvitation)
     {
         $participant =
             new ByInvitationId(
-                new InvitationId(
-                    new LatestInvitation(
-                        new FromParsedTelegramMessage($this->message),
-                        new FromUuid(new UuidFromString($this->botId)),
-                        $this->connection
-                    )
-                ),
+                new InvitationId($latestInvitation),
                 $this->connection
             );
         if (!$participant->exists()->isSuccessful()) {

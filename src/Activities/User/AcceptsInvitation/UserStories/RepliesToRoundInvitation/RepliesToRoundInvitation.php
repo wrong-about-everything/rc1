@@ -30,16 +30,14 @@ use RC\Infrastructure\Uuid\FromString as UuidFromString;
 
 class RepliesToRoundInvitation extends Existent
 {
-    private $now;
     private $message;
     private $botId;
     private $httpTransport;
     private $connection;
     private $logs;
 
-    public function __construct(ISO8601DateTime $now, array $message, string $botId, HttpTransport $httpTransport, OpenConnection $connection, Logs $logs)
+    public function __construct(array $message, string $botId, HttpTransport $httpTransport, OpenConnection $connection, Logs $logs)
     {
-        $this->now = $now;
         $this->message = $message;
         $this->botId = $botId;
         $this->httpTransport = $httpTransport;
@@ -61,7 +59,6 @@ class RepliesToRoundInvitation extends Existent
         $participantRepliedToInvitationValue = $this->participantRepliedToInvitation($invitation)->value();
         if (!$participantRepliedToInvitationValue->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($participantRepliedToInvitationValue));
-            // if user input is invalid reply with error
             $this->sorry()->value();
             return new Successful(new Emptie());
         }

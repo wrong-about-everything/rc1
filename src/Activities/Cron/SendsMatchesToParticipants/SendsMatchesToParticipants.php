@@ -12,7 +12,7 @@ use RC\Domain\Matches\ReadModel\Impure\GeneratedMatchesForAllParticipants;
 use RC\Domain\Matches\WriteModel\Impure\Saved;
 use RC\Domain\Matches\ReadModel\Impure\MatchesForRound;
 use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromMeetingRound;
-use RC\Domain\MeetingRound\ReadModel\ByBotIdAndStartDateTime;
+use RC\Domain\MeetingRound\ReadModel\LatestAlreadyStarted;
 use RC\Domain\MeetingRound\ReadModel\MeetingRound;
 use RC\Domain\Participant\ParticipantId\Pure\FromString;
 use RC\Infrastructure\Http\Transport\HttpTransport;
@@ -49,7 +49,7 @@ class SendsMatchesToParticipants extends Existent
     {
         $this->logs->receive(new InformationMessage('Cron sends matches to participants scenario started'));
 
-        $currentRound = new ByBotIdAndStartDateTime($this->botId, new Now(), $this->connection);
+        $currentRound = new LatestAlreadyStarted($this->botId, new Now(), $this->connection);
         if (!$currentRound->value()->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($currentRound->value()));
             return new Successful(new Emptie());

@@ -64,7 +64,7 @@ use RC\Tests\Infrastructure\Stub\Table\TelegramUser;
 use RC\Tests\Infrastructure\Stub\TelegramMessage\UserMessage;
 use RC\UserActions\SendsArbitraryMessage\SendsArbitraryMessage;
 
-class UserRegistersInAMeetingRoundTest extends TestCase
+class UserRegistersForAMeetingRoundTest extends TestCase
 {
     public function testWhenThereAreSeveralPastInvitationsAndOneActiveThenUserIsAbleToRegisterForIt()
     {
@@ -260,7 +260,7 @@ class UserRegistersInAMeetingRoundTest extends TestCase
         $this->assertTrue($secondResponse->isSuccessful());
         $this->assertCount(2, $transport->sentRequests());
         $this->assertEquals(
-            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит -- напишите в @gorgonzola_support',
+            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит — напишите в @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[1]->url())))->value()['text']
         );
         $this->assertButtonNamesInReply($this->interestIds(), $transport->sentRequests()[0]);

@@ -22,7 +22,7 @@ class WithTimeout extends Guzzle
         if (!$iRealizeThatHighTimeoutCanPutTheSystemDown && $timeout > 30) {
             throw new Exception(
                 'Increasing timeout THAT much will cause the whole system to run out of workers way too soon.'
-                    . ' If you are sure you do fully realize the consequences, set the third argument to true -- and let God be with you.'
+                    . ' If you are sure you do fully realize the consequences, set the third argument to true — and let God be with you.'
             );
         }
 
