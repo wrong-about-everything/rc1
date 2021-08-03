@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RC\Tests\Infrastructure\Stub\Table;
 
 use Exception;
+use Ramsey\Uuid\Uuid;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutatingQueryWithMultipleValueSets;
 
@@ -40,6 +41,7 @@ class RoundRegistrationQuestion
     private function defaultValues()
     {
         return [
+            'id' => Uuid::uuid4()->toString(),
             'ordinal_number' => 1,
             'text' => 'Привет, как дела, как здоровье, азаза?',
         ];

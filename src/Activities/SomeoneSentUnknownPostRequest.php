@@ -9,6 +9,7 @@ use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\UserStory\Body\Emptie;
 use RC\Infrastructure\UserStory\Existent;
 use RC\Infrastructure\UserStory\Response;
+use RC\Infrastructure\UserStory\Response\RetryableServerError;
 use RC\Infrastructure\UserStory\Response\Successful;
 
 class SomeoneSentUnknownPostRequest extends Existent
@@ -24,8 +25,12 @@ class SomeoneSentUnknownPostRequest extends Existent
 
     public function response(): Response
     {
-        $this->logs->receive(new InformationMessage(sprintf('Someone sent unknown POST request with body %s', $this->body)));
+        if ($this->body === '') {
+            $this->logs->receive(new InformationMessage('Someone sent unknown POST request with empty body'));
+            return new RetryableServerError(new Emptie());
+        }
 
+        $this->logs->receive(new InformationMessage(sprintf('Someone sent unknown POST request with body %s', $this->body)));
         return new Successful(new Emptie());
     }
 }

@@ -47,7 +47,7 @@ from meeting_round_invitation mri
     join meeting_round mr on mri.meeting_round_id = mr.id
     join "telegram_user" u on mri.user_id = u.id
 where u.telegram_id = ? and mr.bot_id = ?
-order by mr.invitation_date desc
+order by mr.invitation_date desc, mr.start_date desc
 limit 1
 q
                 ,

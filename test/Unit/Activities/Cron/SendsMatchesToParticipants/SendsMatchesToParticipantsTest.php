@@ -31,7 +31,7 @@ use RC\Tests\Infrastructure\Stub\Table\TelegramUser;
 
 class SendsMatchesToParticipantsTest extends TestCase
 {
-    public function testWhenThereAreTwoPairsThenFourParticipantsReceiveTheirMatch()
+    public function testWhenThereAreTwoPairsWithCommonInterestsThenFourParticipantsReceiveTheirMatch()
     {
         $transport = new Indifferent();
         $connection = new ApplicationConnection();

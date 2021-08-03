@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\UserActions\SendsArbitraryMessage;
 
+use Meringue\ISO8601DateTime;
 use Meringue\Timeline\Point\Now;
 use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\AnswersRoundRegistrationQuestion;
 use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\RepliesToRoundInvitation;
@@ -45,14 +46,16 @@ use RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion\An
 
 class SendsArbitraryMessage extends Existent
 {
+    private $now;
     private $message;
     private $botId;
     private $httpTransport;
     private $connection;
     private $logs;
 
-    public function __construct(array $message, string $botId, HttpTransport $httpTransport, OpenConnection $connection, Logs $logs)
+    public function __construct(ISO8601DateTime $now, array $message, string $botId, HttpTransport $httpTransport, OpenConnection $connection, Logs $logs)
     {
+        $this->now = $now;
         $this->message = $message;
         $this->botId = $botId;
         $this->httpTransport = $httpTransport;
@@ -207,7 +210,7 @@ class SendsArbitraryMessage extends Existent
                 )
             ))
                 ->earlierThan(
-                    new Now()
+                    $this->now
                 );
     }
 
@@ -225,6 +228,7 @@ class SendsArbitraryMessage extends Existent
     {
         return
             (new RepliesToRoundInvitation(
+                $this->now,
                 $this->message,
                 $this->botId,
                 $this->httpTransport,

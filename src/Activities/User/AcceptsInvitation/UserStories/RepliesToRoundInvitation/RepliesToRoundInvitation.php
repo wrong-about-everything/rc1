@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation;
 
+use Meringue\ISO8601DateTime;
 use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Participant\RepliedToInvitation;
 use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Reply\NextReply;
 use RC\Domain\Bot\BotId\FromUuid;
@@ -29,14 +30,16 @@ use RC\Infrastructure\Uuid\FromString as UuidFromString;
 
 class RepliesToRoundInvitation extends Existent
 {
+    private $now;
     private $message;
     private $botId;
     private $httpTransport;
     private $connection;
     private $logs;
 
-    public function __construct(array $message, string $botId, HttpTransport $httpTransport, OpenConnection $connection, Logs $logs)
+    public function __construct(ISO8601DateTime $now, array $message, string $botId, HttpTransport $httpTransport, OpenConnection $connection, Logs $logs)
     {
+        $this->now = $now;
         $this->message = $message;
         $this->botId = $botId;
         $this->httpTransport = $httpTransport;

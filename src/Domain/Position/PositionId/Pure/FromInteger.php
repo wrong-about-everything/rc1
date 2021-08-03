@@ -27,8 +27,8 @@ class FromInteger extends Position
     {
         return [
             (new ProductManager())->value() => new ProductManager(),
-            (new ProductDesigner())->value() => new ProductDesigner(),
             (new Analyst())->value() => new Analyst(),
+            (new ProductDesigner())->value() => new ProductDesigner(),
         ];
     }
 }

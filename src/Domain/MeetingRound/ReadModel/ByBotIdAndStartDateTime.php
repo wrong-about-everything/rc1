@@ -32,7 +32,7 @@ class ByBotIdAndStartDateTime implements MeetingRound
     {
         $meetingRound =
             (new Selecting(
-                'select * from meeting_round where bot_id = ? and start_date < ?',
+                'select * from meeting_round where bot_id = ? and start_date < ? order by start_date desc limit 1',
                 [$this->botId->value(), (new Future($this->startDateTime, new OneMinute()))->value()],
                 $this->connection
             ))

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Tests\Unit\UserActions\SendsArbitraryMessage;
 
+use Meringue\Timeline\Point\Now;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use RC\Domain\BotUser\ByTelegramUserId;
@@ -24,6 +25,7 @@ use RC\Domain\Position\PositionName\FromPosition;
 use RC\Domain\Position\PositionName\ProductManagerName;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionId\Impure\FromString as RegistrationQuestionIdFromString;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionId\Impure\RegistrationQuestionId;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\RegistrationQuestionType;
 use RC\Domain\User\UserId\FromUuid as UserIdFromUuid;
 use RC\Domain\User\UserId\UserId;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
@@ -33,8 +35,10 @@ use RC\Domain\User\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
 use RC\Domain\User\UserStatus\Pure\Registered;
 use RC\Domain\User\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Domain\User\UserStatus\Pure\UserStatus;
+use RC\Infrastructure\Http\Request\Outbound\Request;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
+use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Http\Transport\Indifferent;
 use RC\Infrastructure\Logging\Logs\DevNull;
 use RC\Domain\Bot\BotId\BotId;
@@ -59,34 +63,14 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
     public function testWhenNewUserAnswersTheFirstQuestionThenHisAnswerIsPersistedAndHeSeesTheSecondQuestion()
     {
         $connection = new ApplicationConnection();
-        (new Bot($connection))
-            ->insert([
-                ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
-            ]);
-        (new TelegramUser($connection))
-            ->insert([
-                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-            ]);
-        (new BotUser($connection))
-            ->insert([
-                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new RegistrationIsInProgress())->value()]
-            ]);
-        (new RegistrationQuestion($connection))
-            ->insert([
-                ['id' => $this->firstRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
-                ['id' => $this->secondRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Experience())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 2, 'text' => 'А опыт?'],
-            ]);
+        $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
+        $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
+        $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
         $transport = new Indifferent();
 
-        $response =
-            (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), (new ProductManagerName())->value()))->value(),
-                $this->botId()->value(),
-                $transport,
-                $connection,
-                new DevNull()
-            ))
-                ->response();
+        $response = $this->userReply((new ProductManagerName())->value(), $transport, $connection)->response();
 
         $this->assertTrue($response->isSuccessful());
         $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionId(), $connection);
@@ -98,37 +82,17 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
         );
     }
 
-    public function testWhenNewUserAnswersTheFirstQuestionWithTextInsteadOfPressingButtonThenHeSeesValidationError()
+    public function testWhenNewUserAnswersTheFirstQuestionWithTextInsteadOfPressingButtonThenHeSeesValidationErrorAndWhenHeAnswersWithAButtonThenHeSeesTheSecondQuestion()
     {
         $connection = new ApplicationConnection();
-        (new Bot($connection))
-            ->insert([
-                ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot', 'available_positions' => $this->availablePositionIds()]
-            ]);
-        (new TelegramUser($connection))
-            ->insert([
-                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-            ]);
-        (new BotUser($connection))
-            ->insert([
-                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new RegistrationIsInProgress())->value()]
-            ]);
-        (new RegistrationQuestion($connection))
-            ->insert([
-                ['id' => $this->firstRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
-                ['id' => $this->secondRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Experience())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 2, 'text' => 'А опыт?'],
-            ]);
+        $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
+        $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
+        $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
         $transport = new Indifferent();
 
-        $response =
-            (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), 'что?'))->value(),
-                $this->botId()->value(),
-                $transport,
-                $connection,
-                new DevNull()
-            ))
-                ->response();
+        $response = $this->userReply('что?', $transport, $connection)->response();
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -136,25 +100,9 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
             'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит -- напишите в @gorgonzola_support',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
-        $this->assertEquals(
-            $this->positionNamesFromPositionIds($this->availablePositionIds()),
-            array_map(
-                function (array $option) {
-                    return $option[0]['text'];
-                },
-                json_decode((new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['reply_markup'], true)['keyboard']
-            )
-        );
+        $this->assertReplyButtons($this->availablePositionIds(), $transport->sentRequests()[0]);
 
-        $secondResponse =
-            (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), (new ProductManagerName())->value()))->value(),
-                $this->botId()->value(),
-                $transport,
-                $connection,
-                new DevNull()
-            ))
-                ->response();
+        $secondResponse = $this->userReply((new ProductManagerName())->value(), $transport, $connection)->response();
 
         $this->assertTrue($secondResponse->isSuccessful());
         $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionId(), $connection);
@@ -166,37 +114,17 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
         );
     }
 
-    public function testWhenNewUserAnswersTheFirstQuestionWithTextInsteadOfPressingButtonThenHeSeesValidationErrorAndWhenHeAnswersWithAButtonThenHeSeesTheSecondQuestion()
+    public function testWhenNewUserAnswersTheFirstQuestionWithTextInsteadOfPressingButtonThenHeSeesValidationError()
     {
         $connection = new ApplicationConnection();
-        (new Bot($connection))
-            ->insert([
-                ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
-            ]);
-        (new TelegramUser($connection))
-            ->insert([
-                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-            ]);
-        (new BotUser($connection))
-            ->insert([
-                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new RegistrationIsInProgress())->value()]
-            ]);
-        (new RegistrationQuestion($connection))
-            ->insert([
-                ['id' => $this->firstRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
-                ['id' => $this->secondRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Experience())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 2, 'text' => 'А опыт?'],
-            ]);
+        $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
+        $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
+        $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
         $transport = new Indifferent();
 
-        $response =
-            (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), 'что?'))->value(),
-                $this->botId()->value(),
-                $transport,
-                $connection,
-                new DevNull()
-            ))
-                ->response();
+        $response = $this->userReply('что?', $transport, $connection)->response();
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -209,38 +137,15 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
     public function testWhenExistingButNotYetRegisteredUserAnswersTheLastQuestionThenHeBecomesRegisteredAndSeesCongratulations()
     {
         $connection = new ApplicationConnection();
-        (new Bot($connection))
-            ->insert([
-                ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
-            ]);
-        (new TelegramUser($connection))
-            ->insert([
-                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-            ]);
-        (new BotUser($connection))
-            ->insert([
-                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new RegistrationIsInProgress())->value()]
-            ]);
-        (new RegistrationQuestion($connection))
-            ->insert([
-                ['id' => $this->firstRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
-                ['id' => $this->secondRegistrationQuestionId()->value()->pure()->raw(), 'profile_record_type' => (new Experience())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 2, 'text' => 'А опыт?'],
-            ]);
-        (new UserRegistrationProgress($connection))
-            ->insert([
-                ['registration_question_id' => $this->firstRegistrationQuestionId()->value()->pure()->raw(), 'user_id' => $this->userId()->value()]
-            ]);
+        $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
+        $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
+        $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
+        $this->createRegistrationProgress($this->firstRegistrationQuestionId(), $this->userId(), $connection);
         $transport = new Indifferent();
 
-        $response =
-            (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), (new LessThanAYearName())->value()))->value(),
-                $this->botId()->value(),
-                $transport,
-                $connection,
-                new DevNull()
-            ))
-                ->response();
+        $response = $this->userReply((new LessThanAYearName())->value(), $transport, $connection)->response();
 
         $this->assertTrue($response->isSuccessful());
         $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionId(), $connection);
@@ -257,29 +162,12 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
     public function testWhenRegisteredUserSendsArbitraryMessageThenHeSeesStatusInfo()
     {
         $connection = new ApplicationConnection();
-        (new Bot($connection))
-            ->insert([
-                ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
-            ]);
-        (new TelegramUser($connection))
-            ->insert([
-                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
-            ]);
-        (new BotUser($connection))
-            ->insert([
-                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new Registered())->value()]
-            ]);
+        $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
+        $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
+        $this->createBotUser($this->botId(), $this->userId(), new Registered(), $connection);
         $transport = new Indifferent();
 
-        $response =
-            (new SendsArbitraryMessage(
-                (new UserMessage($this->telegramUserId(), (new LessThanAYearName())->value()))->value(),
-                $this->botId()->value(),
-                $transport,
-                $connection,
-                new DevNull()
-            ))
-                ->response();
+        $response = $this->userReply((new LessThanAYearName())->value(), $transport, $connection)->response();
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -335,6 +223,59 @@ class SendsArbitraryMessageDuringRegistrationTest extends TestCase
         return new RegistrationQuestionIdFromString('303729d6-330c-4123-b856-d5196812d509');
     }
 
+    private function createBot(BotId $botId, array $availablePositionIds, OpenConnection $connection)
+    {
+        (new Bot($connection))
+            ->insert([
+                ['id' => $botId->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot', 'available_positions' => $availablePositionIds]
+            ]);
+    }
+
+    private function createTelegramUser(UserId $userId, TelegramUserId $telegramUserId, $connection)
+    {
+        (new TelegramUser($connection))
+            ->insert([
+                ['id' => $userId->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $telegramUserId->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+            ]);
+    }
+
+    private function createBotUser(BotId $botId, UserId $userId, UserStatus $status, $connection)
+    {
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $botId->value(), 'user_id' => $userId->value(), 'status' => $status->value()]
+            ]);
+    }
+
+    private function createRegistrationQuestion(RegistrationQuestionId $registrationQuestionId, RegistrationQuestionType $questionType, BotId $botId, int $ordinalNumber, string $text, OpenConnection $connection)
+    {
+        (new RegistrationQuestion($connection))
+            ->insert([
+                ['id' => $registrationQuestionId->value()->pure()->raw(), 'profile_record_type' => $questionType->value(), 'bot_id' => $botId->value(), 'ordinal_number' => $ordinalNumber, 'text' => $text],
+            ]);
+    }
+
+    private function createRegistrationProgress(RegistrationQuestionId $registrationQuestionId, UserId $userId, OpenConnection $connection)
+    {
+        (new UserRegistrationProgress($connection))
+            ->insert([
+                ['registration_question_id' => $registrationQuestionId->value()->pure()->raw(), 'user_id' => $userId->value()]
+            ]);
+    }
+
+    private function userReply(string $text, HttpTransport $transport, OpenConnection $connection)
+    {
+        return
+            new SendsArbitraryMessage(
+                new Now(),
+                (new UserMessage($this->telegramUserId(), $text))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            );
+    }
+
     private function assertUserRegistrationProgressUpdated(UserId $userId, RegistrationQuestionId $registrationQuestionId, OpenConnection $connection)
     {
         $this->assertNotEmpty(
@@ -385,6 +326,19 @@ q
                 ->equals(
                     new ImpureUserStatusFromPure($userStatus)
                 )
+        );
+    }
+
+    private function assertReplyButtons(array $availablePositionIds, Request $request)
+    {
+        $this->assertEquals(
+            $this->positionNamesFromPositionIds($availablePositionIds),
+            array_map(
+                function (array $option) {
+                    return $option[0]['text'];
+                },
+                json_decode((new FromQuery(new FromUrl($request->url())))->value()['reply_markup'], true)['keyboard']
+            )
         );
     }
 }

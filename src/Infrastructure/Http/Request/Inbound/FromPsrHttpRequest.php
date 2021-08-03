@@ -47,7 +47,7 @@ class FromPsrHttpRequest implements Request
                 new HttpMethodFromString($request->getMethod()),
                 new FromString($request->getUri()->__toString()),
                 $request->getHeaders(),
-                $request->getBody()->getContents()
+                $request->getBody()->__toString()
             );
     }
 }
