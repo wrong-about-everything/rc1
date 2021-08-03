@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace RC\UserActions\PressesStart;
 
+use RC\Domain\TelegramBot\Reply\FillInYourUserNameAndFirstName;
 use RC\Domain\TelegramBot\Reply\InCaseOfAnyUncertainty;
 use RC\Domain\User\UserStatus\Impure\FromBotUser;
 use RC\Domain\User\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
+use RC\Domain\User\UserStatus\Impure\UserStatus;
 use RC\Domain\User\UserStatus\Pure\Registered;
 use RC\Domain\User\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
@@ -47,6 +49,11 @@ class PressesStart extends Existent
     {
         $this->logs->receive(new InformationMessage('User presses start scenario started'));
 
+        if ($this->eitherUsernameOrFirstNameIsEmpty()) {
+            $this->fillInYourUsernameAndFirstName()->value();
+            return new Successful(new Emptie());
+        }
+
         $userStatus = $this->userStatus();
         if (!$userStatus->value()->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($userStatus->value()));
@@ -78,7 +85,19 @@ class PressesStart extends Existent
         return new Successful(new Emptie());
     }
 
-    private function userStatus()
+    private function eitherUsernameOrFirstNameIsEmpty(): bool
+    {
+        return
+            !isset($this->message['message']['from']['first_name'])
+                ||
+            empty($this->message['message']['from']['first_name'])
+                ||
+            !isset($this->message['message']['from']['username'])
+                ||
+            empty($this->message['message']['from']['username']);
+    }
+
+    private function userStatus(): UserStatus
     {
         return
             new FromBotUser(
@@ -100,6 +119,19 @@ class PressesStart extends Existent
                 new FromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),
                 $this->connection,
+                $this->httpTransport
+            );
+    }
+
+    private function fillInYourUsernameAndFirstName()
+    {
+        return
+            new FillInYourUserNameAndFirstName(
+                new FromParsedTelegramMessage($this->message),
+                new ByBotId(
+                    new FromUuid(new UuidFromString($this->botId)),
+                    $this->connection
+                ),
                 $this->httpTransport
             );
     }

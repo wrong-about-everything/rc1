@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+use Meringue\Timeline\Point\Now;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RC\Activities\Cron\SendsMatchesToParticipants\SendsMatchesToParticipants;
@@ -99,7 +100,7 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                         [
                             new ArbitraryTelegramUserMessageRoute(),
                             function (array $parsedTelegramMessage, string $botId) use ($transport, $logs) {
-                                return new SendsArbitraryMessage($parsedTelegramMessage, $botId, $transport, new ApplicationConnection(), $logs);
+                                return new SendsArbitraryMessage(new Now(), $parsedTelegramMessage, $botId, $transport, new ApplicationConnection(), $logs);
                             }
                         ],
                         [

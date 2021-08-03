@@ -17,7 +17,7 @@ use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
-use RC\Domain\MeetingRound\MeetingRoundId\Pure\FromString as MeetingRoundFromString;
+use RC\Domain\MeetingRound\MeetingRoundId\Pure\FromString as MeetingRoundIdFromString;
 use RC\Domain\Participant\ReadModel\ByMeetingRoundAndUser;
 use RC\Domain\Participant\Status\Impure\FromReadModelParticipant;
 use RC\Domain\Participant\Status\Impure\FromPure;
@@ -62,7 +62,7 @@ use RC\Tests\Infrastructure\Stub\Table\UserRegistrationProgress;
 use RC\Tests\Infrastructure\Stub\TelegramMessage\UserMessage;
 use RC\UserActions\SendsArbitraryMessage\SendsArbitraryMessage;
 
-class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
+class UserRepliesToInvitationReplyTest extends TestCase
 {
     public function testWhenUserDeclinesRoundInvitationThenInvitationBecomesDeclinedAndHeSeesSeeYouNextTimeMessage()
     {
@@ -392,16 +392,6 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
         return 'a00641bf-d3e2-4d58-b959-a6f15d410bd0';
     }
 
-    private function meetingRoundInvitationId(): string
-    {
-        return '333729d6-330c-4123-b856-d5196812d444';
-    }
-
-    private function pastMeetingRoundInvitationId(): string
-    {
-        return '5f34e0a6-8dc8-491f-ad06-d48ab30c193b';
-    }
-
     private function firstUserId(): UserId
     {
         return new UserIdFromUuid(new FromString('103729d6-330c-4123-b856-d5196812d509'));
@@ -433,7 +423,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
     {
         $participant =
             new ByMeetingRoundAndUser(
-                new MeetingRoundFromString($meetingRoundId),
+                new MeetingRoundIdFromString($meetingRoundId),
                 $userId,
                 $connection
             );
@@ -450,7 +440,7 @@ class SendsArbitraryMessageDuringRoundInvitationReplyTest extends TestCase
     {
         $this->assertFalse(
             (new ByMeetingRoundAndUser(
-                new MeetingRoundFromString($meetingRoundId),
+                new MeetingRoundIdFromString($meetingRoundId),
                 $userId,
                 $connection
             ))

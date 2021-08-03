@@ -9,8 +9,11 @@ use Ramsey\Uuid\Uuid;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\BotUser\ByTelegramUserId;
+use RC\Domain\Position\PositionId\Pure\ProductManager;
+use RC\Domain\Position\PositionName\ProductManagerName;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
+use RC\Domain\User\ByTelegramId;
 use RC\Domain\User\RegisteredInBot;
 use RC\Domain\User\UserId\FromUuid as UserIdFromUuid;
 use RC\Domain\User\UserId\UserId;
@@ -34,10 +37,44 @@ use RC\Tests\Infrastructure\Stub\Table\TelegramUser;
 use RC\Tests\Infrastructure\Stub\TelegramMessage\StartCommandMessage;
 use RC\Tests\Infrastructure\Stub\Table\BotUser;
 use RC\Tests\Infrastructure\Stub\Table\UserRegistrationProgress;
+use RC\Tests\Infrastructure\Stub\TelegramMessage\StartCommandMessageWithEmptyUsername;
 use RC\UserActions\PressesStart\PressesStart;
 
 class PressesStartTest extends TestCase
 {
+    public function testWhenNewUserDoesNotHaveUsernameThenHeSeesAPromptMessageToSetIt()
+    {
+        $connection = new ApplicationConnection();
+        (new Bot($connection))
+            ->insert([
+                ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
+            ]);
+        $transport = new Indifferent();
+
+        $response =
+            (new PressesStart(
+                (new StartCommandMessageWithEmptyUsername($this->telegramUserId()))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertUserDoesNotExist($this->telegramUserId(), $this->botId(), $connection);
+        $this->assertCount(1, $transport->sentRequests());
+        $this->assertEquals(
+            <<<t
+Для того, чтобы мы смогли передать ваши контакты будущим собеседникам, нам нужно знать ваше имя и ник. Если не знаете, где именно всё это надо указать, вот пошаговая инструкция: https://aboutmessengers.ru/kak-pomenyat-imya-v-telegramme/. 
+
+Если хотите сохранить инкогнито, вы вполне можете указать вымышленное имя. Если не знаете, какой ник выбрать, попробуйте этот — {$this->time()}. Обещать не могу, но, думаю, он свободен. 
+t
+            ,
+            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+        );
+    }
+
     public function testGivenNoUsersAreRegisteredInBotWhenNewUserPressesStartThenHeSeesTheFirstQuestion()
     {
         $connection = new ApplicationConnection();
@@ -335,5 +372,17 @@ class PressesStartTest extends TestCase
         $this->assertEquals('dremuchee_bydlo', $user->pure()->raw()['telegram_handle']);
         $profile = (new ByTelegramUserId($telegramUserId, $botId, $connection))->value();
         $this->assertTrue($profile->pure()->isPresent());
+    }
+
+    private function assertUserDoesNotExist(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
+    {
+        $this->assertFalse(
+            (new ByTelegramId($telegramUserId, $connection))->value()->pure()->isPresent()
+        );
+    }
+
+    private function time()
+    {
+        return time();
     }
 }

@@ -8,7 +8,6 @@ use Meringue\ISO8601DateTime;
 use Meringue\ISO8601DateTime\FromISO8601;
 use Meringue\ISO8601Interval\Floating\NDays;
 use Meringue\ISO8601Interval\Floating\OneDay;
-use Meringue\Timeline\Point\Future;
 use Meringue\Timeline\Point\Now;
 use Meringue\Timeline\Point\Past;
 use PHPUnit\Framework\TestCase;
@@ -65,7 +64,7 @@ use RC\Tests\Infrastructure\Stub\Table\UserRegistrationProgress;
 use RC\Tests\Infrastructure\Stub\TelegramMessage\UserMessage;
 use RC\UserActions\SendsArbitraryMessage\SendsArbitraryMessage;
 
-class SendsArbitraryMessageDuringRegistrationTest extends TestCase
+class UserRegistersInBotTest extends TestCase
 {
     public function testWhenNewUserAnswersTheFirstQuestionThenHisAnswerIsPersistedAndHeSeesTheSecondQuestion()
     {
