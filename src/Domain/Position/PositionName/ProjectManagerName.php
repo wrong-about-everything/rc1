@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace RC\Domain\Position\PositionName;
 
-class AnalystName extends PositionName
+class ProjectManagerName extends PositionName
 {
     public function value(): string
     {
-        return 'Аналитик';
+        return 'Проджект-менеджер';
     }
 
     public function exists(): bool

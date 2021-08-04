@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Domain\Position\PositionId\Pure;
 
-class Analyst extends Position
+class SystemOrBusinessAnalyst extends Position
 {
     public function value(): int
     {

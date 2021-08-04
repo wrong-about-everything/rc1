@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace RC\Domain\Position\PositionId\Pure;
 
-use RC\Domain\Position\PositionName\AnalystName;
+use RC\Domain\Position\PositionName\CEOName;
+use RC\Domain\Position\PositionName\MarketerName;
+use RC\Domain\Position\PositionName\ProductAnalystName;
+use RC\Domain\Position\PositionName\ProjectManagerName;
+use RC\Domain\Position\PositionName\SystemOrBusinessAnalystName;
 use RC\Domain\Position\PositionName\PositionName;
 use RC\Domain\Position\PositionName\ProductDesignerName;
 use RC\Domain\Position\PositionName\ProductManagerName;
@@ -33,7 +37,11 @@ class FromPositionName extends Position
         return [
             (new ProductManagerName())->value() => new ProductManager(),
             (new ProductDesignerName())->value() => new ProductDesigner(),
-            (new AnalystName())->value() => new Analyst(),
+            (new SystemOrBusinessAnalystName())->value() => new SystemOrBusinessAnalyst(),
+            (new CEOName())->value() => new CEO(),
+            (new ProjectManagerName())->value() => new ProjectManager(),
+            (new ProductAnalystName())->value() => new ProductAnalyst(),
+            (new MarketerName())->value() => new Marketer(),
         ];
     }
 }

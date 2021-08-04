@@ -114,27 +114,4 @@ class NextRegistrationQuestionReply implements Reply
                 ])
         ];
     }
-
-    private function answerOptions(RegistrationQuestion $currentRegistrationQuestion)
-    {
-        if ((new FromRegistrationQuestion($currentRegistrationQuestion))->equals(new FromPure(new Position()))) {
-            return
-                array_map(
-                    function (int $position) {
-                        return [['text' => (new FromPosition(new FromInteger($position)))->value()]];
-                    },
-                    (new AvailablePositions($this->botId, $this->connection))->value()->pure()->raw()
-                );
-        } elseif ((new FromRegistrationQuestion($currentRegistrationQuestion))->equals(new FromPure(new Experience()))) {
-            return
-                array_map(
-                    function (int $experience) {
-                        return [['text' => (new FromExperience(new ExperienceFromInteger($experience)))->value()]];
-                    },
-                    (new AvailableExperiences($this->botId, $this->connection))->value()->pure()->raw()
-                );
-        }
-
-        return [];
-    }
 }

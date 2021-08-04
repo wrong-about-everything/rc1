@@ -10,7 +10,7 @@ abstract class TelegramUserId
 
     abstract public function exists(): bool;
 
-    final public function equal(TelegramUserId $userId): bool
+    final public function equals(TelegramUserId $userId): bool
     {
         return $this->value() === $userId->value();
     }

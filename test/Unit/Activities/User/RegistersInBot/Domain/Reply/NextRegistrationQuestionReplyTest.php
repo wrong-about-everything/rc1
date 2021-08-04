@@ -14,7 +14,7 @@ use RC\Domain\Experience\ExperienceId\Pure\GreaterThanSix;
 use RC\Domain\Experience\ExperienceId\Pure\LessThanAYear;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
-use RC\Domain\Position\PositionId\Pure\Analyst;
+use RC\Domain\Position\PositionId\Pure\SystemOrBusinessAnalyst;
 use RC\Domain\Position\PositionId\Pure\ProductDesigner;
 use RC\Domain\Position\PositionId\Pure\ProductManager;
 use RC\Activities\User\RegistersInBot\Domain\Reply\NextRegistrationQuestionReply;
@@ -60,9 +60,8 @@ class NextRegistrationQuestionReplyTest extends TestCase
         $this->assertEquals('Кем работаете?', (new FromQuery(new FromUrl($httpTransport->sentRequests()[0]->url())))->value()['text']);
         $this->assertEquals(
             [
-                [['text' => 'Продакт-менеджер']],
-                [['text' => 'Продуктовый дизайнер']],
-                [['text' => 'Аналитик']],
+                [['text' => 'Продакт-менеджер'], ['text' => 'Продуктовый дизайнер']],
+                [['text' => 'Системный/бизнес-аналитик']],
             ],
             json_decode(
                 (new FromQuery(
@@ -96,10 +95,8 @@ class NextRegistrationQuestionReplyTest extends TestCase
         $this->assertEquals('Сколько?', (new FromQuery(new FromUrl($httpTransport->sentRequests()[0]->url())))->value()['text']);
         $this->assertEquals(
             [
-                [['text' => 'Меньше года']],
-                [['text' => 'От года до трёх лет']],
-                [['text' => 'От трёх лет до шести']],
-                [['text' => 'Больше шести лет']],
+                [['text' => 'Меньше года'], ['text' => 'От года до трёх лет']],
+                [['text' => 'От трёх лет до шести'], ['text' => 'Больше шести лет']],
             ],
             json_decode(
                 (new FromQuery(
@@ -151,7 +148,7 @@ class NextRegistrationQuestionReplyTest extends TestCase
             ->insert([
                 [
                     'id' => $botId->value(),
-                    'available_positions' => [(new ProductManager())->value(), (new ProductDesigner())->value(), (new Analyst())->value()],
+                    'available_positions' => [(new ProductManager())->value(), (new ProductDesigner())->value(), (new SystemOrBusinessAnalyst())->value()],
                     'available_experiences' => [(new LessThanAYear())->value(), (new BetweenAYearAndThree())->value(), (new BetweenThreeYearsAndSix())->value(), (new GreaterThanSix())->value()],
                 ]
             ]);

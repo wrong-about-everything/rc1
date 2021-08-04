@@ -28,7 +28,11 @@ class FromString extends PositionName
         return [
             (new ProductManagerName())->value() => new ProductManagerName(),
             (new ProductDesignerName())->value() => new ProductDesignerName(),
-            (new AnalystName())->value() => new AnalystName(),
+            (new SystemOrBusinessAnalystName())->value() => new SystemOrBusinessAnalystName(),
+            (new CEOName())->value() => new CEOName(),
+            (new ProjectManagerName())->value() => new ProjectManagerName(),
+            (new ProductAnalystName())->value() => new ProductAnalystName(),
+            (new MarketerName())->value() => new MarketerName(),
         ][$positionName] ?? new NonExistent();
     }
 }

@@ -52,31 +52,47 @@ class FromRegistrationQuestion implements AnswerOptions
         }
 
         if ((new RegistrationQuestionType($this->registrationQuestion))->equals(new FromPure(new Position()))) {
-            return
-                new Successful(
-                    new Present(
-                        array_map(
-                            function (int $position) {
-                                return [['text' => (new FromPosition(new FromInteger($position)))->value()]];
-                            },
-                            (new AvailablePositions($this->botId, $this->connection))->value()->pure()->raw()
-                        )
-                    )
-                );
+            return new Successful(new Present($this->twoPositionsInARow()));
         } elseif ((new RegistrationQuestionType($this->registrationQuestion))->equals(new FromPure(new Experience()))) {
-            return
-                new Successful(
-                    new Present(
-                        array_map(
-                            function (int $experience) {
-                                return [['text' => (new FromExperience(new ExperienceFromInteger($experience)))->value()]];
-                            },
-                            (new AvailableExperiences($this->botId, $this->connection))->value()->pure()->raw()
-                        )
-                    )
-                );
+            return new Successful(new Present($this->twoExperiencesInARow()));
         }
 
         return new Successful(new Present([]));
+    }
+
+    private function twoPositionsInARow()
+    {
+        return
+            array_reduce(
+                (new AvailablePositions($this->botId, $this->connection))->value()->pure()->raw(),
+                function (array $carry, int $position) {
+                    if (empty($carry) || count($carry[count($carry) - 1]) === 2) {
+                        $carry[] = [['text' => (new FromPosition(new FromInteger($position)))->value()]];
+                    } else {
+                        $carry[count($carry) - 1][] = ['text' => (new FromPosition(new FromInteger($position)))->value()];
+                    }
+
+                    return $carry;
+                },
+                []
+            );
+    }
+
+    private function twoExperiencesInARow()
+    {
+        return
+            array_reduce(
+                (new AvailableExperiences($this->botId, $this->connection))->value()->pure()->raw(),
+                function (array $carry, int $experience) {
+                    if (empty($carry) || count($carry[count($carry) - 1]) === 2) {
+                        $carry[] = [['text' => (new FromExperience(new ExperienceFromInteger($experience)))->value()]];
+                    } else {
+                        $carry[count($carry) - 1][] = ['text' => (new FromExperience(new ExperienceFromInteger($experience)))->value()];
+                    }
+
+                    return $carry;
+                },
+                []
+            );
     }
 }

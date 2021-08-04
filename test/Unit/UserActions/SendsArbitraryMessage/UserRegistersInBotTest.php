@@ -27,6 +27,7 @@ use RC\Domain\Position\PositionId\Pure\Position as UserPosition;
 use RC\Domain\Position\PositionId\Pure\ProductDesigner;
 use RC\Domain\Position\PositionId\Pure\ProductManager;
 use RC\Domain\Position\PositionName\FromPosition;
+use RC\Domain\Position\PositionName\ProductDesignerName;
 use RC\Domain\Position\PositionName\ProductManagerName;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionId\Impure\FromString as RegistrationQuestionIdFromString;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionId\Impure\RegistrationQuestionId;
@@ -378,13 +379,10 @@ q
     private function assertReplyButtons(array $availablePositionIds, Request $request)
     {
         $this->assertEquals(
-            $this->positionNamesFromPositionIds($availablePositionIds),
-            array_map(
-                function (array $option) {
-                    return $option[0]['text'];
-                },
-                json_decode((new FromQuery(new FromUrl($request->url())))->value()['reply_markup'], true)['keyboard']
-            )
+            [
+                [['text' => (new ProductManagerName())->value()], ['text' => (new ProductDesignerName())->value()]]
+            ],
+            json_decode((new FromQuery(new FromUrl($request->url())))->value()['reply_markup'], true)['keyboard']
         );
     }
 }

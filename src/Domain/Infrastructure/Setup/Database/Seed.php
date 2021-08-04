@@ -9,7 +9,11 @@ use RC\Domain\Experience\ExperienceId\Pure\BetweenAYearAndThree;
 use RC\Domain\Experience\ExperienceId\Pure\BetweenThreeYearsAndSix;
 use RC\Domain\Experience\ExperienceId\Pure\GreaterThanSix;
 use RC\Domain\Experience\ExperienceId\Pure\LessThanAYear;
-use RC\Domain\Position\PositionId\Pure\Analyst;
+use RC\Domain\Position\PositionId\Pure\CEO;
+use RC\Domain\Position\PositionId\Pure\Marketer;
+use RC\Domain\Position\PositionId\Pure\ProductAnalyst;
+use RC\Domain\Position\PositionId\Pure\ProjectManager;
+use RC\Domain\Position\PositionId\Pure\SystemOrBusinessAnalyst;
 use RC\Domain\Position\PositionId\Pure\ProductDesigner;
 use RC\Domain\Position\PositionId\Pure\ProductManager;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\About;
@@ -21,7 +25,6 @@ use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\TransactionalQueryFromMultipleQueries;
-use RC\Infrastructure\Uuid\RandomUUID;
 
 class Seed
 {
@@ -61,8 +64,21 @@ class Seed
                     '1f6d0fd5-3179-47fb-b92d-f6bec4e8f016',
                     '1884532101:AAGlJklZYP5j72nC2UcvB0IbD05i70kQqWc',
                     '@gorgonzola_sandwich_bot',
-                    json_encode([(new ProductManager())->value(), (new ProductDesigner())->value(), (new Analyst())->value(), ]),
-                    json_encode([(new LessThanAYear())->value(), (new BetweenAYearAndThree())->value(), (new BetweenThreeYearsAndSix())->value(), (new GreaterThanSix())->value(), ])
+                    json_encode([
+                        (new ProductManager())->value(),
+                        (new ProductDesigner())->value(),
+                        (new SystemOrBusinessAnalyst())->value(),
+                        (new ProductAnalyst())->value(),
+                        (new CEO())->value(),
+                        (new ProjectManager())->value(),
+                        (new Marketer())->value(),
+                    ]),
+                    json_encode([
+                        (new LessThanAYear())->value(),
+                        (new BetweenAYearAndThree())->value(),
+                        (new BetweenThreeYearsAndSix())->value(),
+                        (new GreaterThanSix())->value()
+                    ])
                 ],
                 $this->connection
             ))

@@ -10,7 +10,7 @@ use RC\Domain\Experience\ExperienceId\Pure\BetweenThreeYearsAndSix;
 use RC\Domain\Experience\ExperienceId\Pure\GreaterThanSix;
 use RC\Domain\Experience\ExperienceId\Pure\LessThanAYear;
 use RC\Domain\Matches\ReadModel\Pure\WithExperiencesThatTouchEachOther;
-use RC\Domain\Position\PositionId\Pure\Analyst;
+use RC\Domain\Position\PositionId\Pure\SystemOrBusinessAnalyst;
 use RC\Domain\Position\PositionId\Pure\ProductDesigner;
 use RC\Domain\Position\PositionId\Pure\ProductManager;
 
@@ -83,7 +83,7 @@ class WithExperiencesThatTouchEachOtherTest extends TestCase
                         (new LessThanAYear())->value() => 6,
                         (new BetweenThreeYearsAndSix())->value() => 7,
                     ],
-                    (new Analyst())->value() => [
+                    (new SystemOrBusinessAnalyst())->value() => [
                         (new GreaterThanSix())->value() => 9,
                         (new LessThanAYear())->value() => 8,
                     ],
