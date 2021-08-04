@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace RC\Domain\MeetingRound\ReadModel;
 
 use Meringue\ISO8601DateTime;
-use Meringue\ISO8601Interval\Floating\NMinutes;
-use Meringue\Timeline\Point\Future;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
@@ -15,7 +13,7 @@ use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 
-class LatestNotYetStartedWithFiveMinutesGap implements MeetingRound
+class LatestNotYetStarted implements MeetingRound
 {
     private $botId;
     private $startDateTime;
@@ -44,7 +42,7 @@ class LatestNotYetStartedWithFiveMinutesGap implements MeetingRound
         $meetingRound =
             (new Selecting(
                 'select * from meeting_round where bot_id = ? and start_date > ? order by start_date desc limit 1',
-                [$this->botId->value(), (new Future($this->startDateTime, new NMinutes(5)))->value()],
+                [$this->botId->value(), $this->startDateTime->value()],
                 $this->connection
             ))
                 ->response();

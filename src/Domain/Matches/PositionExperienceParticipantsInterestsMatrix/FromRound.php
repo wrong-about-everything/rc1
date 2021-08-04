@@ -37,6 +37,12 @@ class FromRound implements PositionsExperiencesParticipantsInterestsMatrix
 
     private function doValue(): ImpureValue
     {
+        if (!$this->round->value()->isSuccessful()) {
+            return $this->round->value();
+        }
+        if (!$this->round->value()->pure()->isPresent()) {
+            return $this->round->value();
+        }
         $dataFromDb = $this->dataFromDb();
         if (!$dataFromDb->isSuccessful()) {
             return $dataFromDb;

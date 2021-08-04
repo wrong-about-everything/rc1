@@ -20,15 +20,26 @@ class LatestAlreadyStarted implements MeetingRound
     private $botId;
     private $startDateTime;
     private $connection;
+    private $cached;
 
     public function __construct(BotId $botId, ISO8601DateTime $startDateTime, OpenConnection $connection)
     {
         $this->botId = $botId;
         $this->startDateTime = $startDateTime;
         $this->connection = $connection;
+        $this->cached = null;
     }
 
     public function value(): ImpureValue
+    {
+        if (is_null($this->cached)) {
+            $this->cached = $this->doValue();
+        }
+
+        return $this->cached;
+    }
+
+    private function doValue(): ImpureValue
     {
         $meetingRound =
             (new Selecting(

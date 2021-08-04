@@ -33,7 +33,7 @@ class Saved implements Matches
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         if (!$this->matches->value()->isSuccessful()) {
             return $this->matches->value();

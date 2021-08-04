@@ -16,14 +16,25 @@ class ById implements MeetingRound
 {
     private $meetingRoundId;
     private $connection;
+    private $cached;
 
     public function __construct(MeetingRoundId $meetingRoundId, OpenConnection $connection)
     {
         $this->meetingRoundId = $meetingRoundId;
         $this->connection = $connection;
+        $this->cached = null;
     }
 
     public function value(): ImpureValue
+    {
+        if (is_null($this->cached)) {
+            $this->cached = $this->doValue();
+        }
+
+        return $this->cached;
+    }
+
+    private function doValue(): ImpureValue
     {
         if (!$this->meetingRoundId->value()->isSuccessful() || $this->meetingRoundId->value()->pure()->raw() === false) {
             return $this->meetingRoundId->value();

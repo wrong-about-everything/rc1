@@ -30,7 +30,7 @@ class WithExperiencesThatTouchEachOther implements Matches
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): array
     {
         $matches = [];
         $dropouts = [];

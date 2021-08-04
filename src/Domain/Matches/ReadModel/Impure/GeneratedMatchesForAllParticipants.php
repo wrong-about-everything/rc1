@@ -32,9 +32,12 @@ class GeneratedMatchesForAllParticipants implements Matches
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         if (!$this->positionsExperiencesParticipantsInterestsMatrix->value()->isSuccessful()) {
+            return $this->positionsExperiencesParticipantsInterestsMatrix->value();
+        }
+        if (!$this->positionsExperiencesParticipantsInterestsMatrix->value()->pure()->isPresent()) {
             return $this->positionsExperiencesParticipantsInterestsMatrix->value();
         }
 

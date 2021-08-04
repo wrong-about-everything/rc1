@@ -45,7 +45,7 @@ class FromRegistrationQuestion implements AnswerOptions
         return $this->cached;
     }
 
-    private function doValue()
+    private function doValue(): ImpureValue
     {
         if (!$this->registrationQuestion->value()->isSuccessful()) {
             return $this->registrationQuestion->value();
