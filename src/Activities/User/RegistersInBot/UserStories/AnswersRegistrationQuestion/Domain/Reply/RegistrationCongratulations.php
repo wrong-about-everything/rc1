@@ -53,7 +53,7 @@ class RegistrationCongratulations implements Reply
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Поздравляю, вы зарегистрировались! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+                                'text' => 'Поздравляю, вы зарегистрировались! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
                             ]),
                             new FromImpure($botToken)
                         ),

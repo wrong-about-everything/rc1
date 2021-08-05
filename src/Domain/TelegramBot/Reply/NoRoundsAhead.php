@@ -58,7 +58,7 @@ class NoRoundsAhead implements Reply
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Раунд встреч уже идёт или уже прошёл. Мы пришлём вам приглашение на новый раунд, как только о нём станет известно. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+                                'text' => 'Раунд встреч уже идёт или уже прошёл. Мы пришлём вам приглашение на новый раунд, как только о нём станет известно. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
                             ]),
                             new FromImpure($this->botToken)
                         ),

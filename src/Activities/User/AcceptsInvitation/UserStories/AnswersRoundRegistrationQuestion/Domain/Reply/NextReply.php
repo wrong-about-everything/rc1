@@ -7,12 +7,15 @@ namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrat
 use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Participant\RegisteredIfNoMoreQuestionsLeftOrHisInterestIsNetworking;
 use RC\Activities\User\AcceptsInvitation\Domain\Reply\NextRoundRegistrationQuestionReply;
 use RC\Domain\Bot\BotId\BotId;
+use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromInvitation;
+use RC\Domain\MeetingRound\ReadModel\ById as MeetingRoundById;
 use RC\Domain\Participant\ParticipantId\Impure\FromWriteModelParticipant;
 use RC\Domain\Participant\ReadModel\ById;
 use RC\Domain\Participant\Status\Impure\FromPure;
 use RC\Domain\Participant\Status\Impure\FromReadModelParticipant;
 use RC\Domain\Participant\Status\Pure\Registered;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
+use RC\Domain\RoundInvitation\ReadModel\ByImpureId;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
@@ -63,6 +66,7 @@ class NextReply implements Reply
             (new RoundRegistrationCongratulations(
                 $this->telegramUserId,
                 $this->botId,
+                new MeetingRoundById(new FromInvitation(new ByImpureId($this->invitationId, $this->connection)), $this->connection),
                 $this->connection,
                 $this->httpTransport
             ))

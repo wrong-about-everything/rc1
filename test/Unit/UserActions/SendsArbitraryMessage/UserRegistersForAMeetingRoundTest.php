@@ -94,7 +94,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->assertTrue($secondResponse->isSuccessful());
         $this->assertCount(2, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[1]->url())))->value()['text']
         );
         $this->assertParticipantWithNetworkingInterestExists($this->meetingRoundId(), $this->userId(), $connection);
@@ -104,7 +104,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->assertTrue($thirdResponse->isSuccessful());
         $this->assertCount(3, $transport->sentRequests());
         $this->assertEquals(
-            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[2]->url())))->value()['text']
         );
         $this->assertParticipantWithNetworkingInterestExists($this->meetingRoundId(), $this->userId(), $connection);
@@ -114,7 +114,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->assertTrue($fourthResponse->isSuccessful());
         $this->assertCount(4, $transport->sentRequests());
         $this->assertEquals(
-            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[3]->url())))->value()['text']
         );
         $this->assertParticipantWithNetworkingInterestExists($this->meetingRoundId(), $this->userId(), $connection);
@@ -146,7 +146,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->assertTrue($secondResponse->isSuccessful());
         $this->assertCount(2, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[1]->url())))->value()['text']
         );
         $this->assertParticipantWithNetworkingInterestExists($this->meetingRoundId(), $this->userId(), $connection);
@@ -156,7 +156,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->assertTrue($thirdResponse->isSuccessful());
         $this->assertCount(3, $transport->sentRequests());
         $this->assertEquals(
-            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[2]->url())))->value()['text']
         );
         $this->assertParticipantWithNetworkingInterestExists($this->meetingRoundId(), $this->userId(), $connection);
@@ -166,7 +166,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->assertTrue($fourthResponse->isSuccessful());
         $this->assertCount(4, $transport->sentRequests());
         $this->assertEquals(
-            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[3]->url())))->value()['text']
         );
         $this->assertParticipantWithNetworkingInterestExists($this->meetingRoundId(), $this->userId(), $connection);
@@ -207,7 +207,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->assertTrue($thirdResponse->isSuccessful());
         $this->assertCount(3, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[2]->url())))->value()['text']
         );
         $this->assertParticipantIsRegisteredWithSpecificInterest($this->meetingRoundId(), $this->userId(), $connection);
@@ -217,7 +217,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->assertTrue($fourthResponse->isSuccessful());
         $this->assertCount(4, $transport->sentRequests());
         $this->assertEquals(
-            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[3]->url())))->value()['text']
         );
         $this->assertParticipantIsRegisteredWithSpecificInterest($this->meetingRoundId(), $this->userId(), $connection);
@@ -227,7 +227,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->assertTrue($fifthResponse->isSuccessful());
         $this->assertCount(5, $transport->sentRequests());
         $this->assertEquals(
-            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[4]->url())))->value()['text']
         );
         $this->assertParticipantIsRegisteredWithSpecificInterest($this->meetingRoundId(), $this->userId(), $connection);
@@ -260,7 +260,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->assertTrue($secondResponse->isSuccessful());
         $this->assertCount(2, $transport->sentRequests());
         $this->assertEquals(
-            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит — напишите в @gorgonzola_support',
+            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит — напишите в @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[1]->url())))->value()['text']
         );
         $this->assertButtonNamesInReply($this->interestIds(), $transport->sentRequests()[0]);
@@ -279,7 +279,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->assertTrue($fourthResponse->isSuccessful());
         $this->assertCount(4, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[3]->url())))->value()['text']
         );
         $this->assertParticipantIsRegisteredWithSpecificInterest($this->meetingRoundId(), $this->userId(), $connection);
@@ -289,7 +289,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->assertTrue($fifthResponse->isSuccessful());
         $this->assertCount(5, $transport->sentRequests());
         $this->assertEquals(
-            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[4]->url())))->value()['text']
         );
         $this->assertParticipantIsRegisteredWithSpecificInterest($this->meetingRoundId(), $this->userId(), $connection);
@@ -299,7 +299,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->assertTrue($sixthResponse->isSuccessful());
         $this->assertCount(6, $transport->sentRequests());
         $this->assertEquals(
-            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[5]->url())))->value()['text']
         );
         $this->assertParticipantIsRegisteredWithSpecificInterest($this->meetingRoundId(), $this->userId(), $connection);

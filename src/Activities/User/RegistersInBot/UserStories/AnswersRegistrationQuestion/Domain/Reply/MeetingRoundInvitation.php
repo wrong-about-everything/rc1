@@ -20,6 +20,7 @@ use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
 use RC\Infrastructure\Http\Transport\HttpTransport;
+use RC\Infrastructure\HumanReadableDateTime\AccusativeDateTimeInMoscowTimeZone;
 use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessage;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
@@ -95,59 +96,6 @@ class MeetingRoundInvitation implements Reply
 
     private function meetingRoundHumanReadableStartDate()
     {
-        $startDateTime = new StartDateTime($this->meetingRound);
-        if ((new TheBeginningOfADay(new Now()))->equalsTo(new TheBeginningOfADay($startDateTime))) {
-            return
-                (new IntlDateFormatter(
-                    'ru-RU',
-                    IntlDateFormatter::SHORT,
-                    IntlDateFormatter::SHORT,
-                    IntlTimeZone::createTimeZone('Europe/Moscow'),
-                    IntlDateFormatter::GREGORIAN,
-                    'уже сегодня'
-                ))
-                    ->format(
-                        new DateTime($startDateTime->value())
-                    );
-        } elseif ((new TheBeginningOfADay(new Now()))->equalsTo(new TheBeginningOfADay(new Tomorrow($startDateTime)))) {
-            return
-                (new IntlDateFormatter(
-                    'ru-RU',
-                    IntlDateFormatter::SHORT,
-                    IntlDateFormatter::SHORT,
-                    IntlTimeZone::createTimeZone('Europe/Moscow'),
-                    IntlDateFormatter::GREGORIAN,
-                    'завтра днём, d MMMM (это EEEE)'
-                ))
-                    ->format(
-                        new DateTime($startDateTime->value())
-                    );
-        } elseif ((new TheBeginningOfADay(new Now()))->equalsTo(new TheBeginningOfADay(new Tomorrow(new Tomorrow($startDateTime))))) {
-            return
-                (new IntlDateFormatter(
-                    'ru-RU',
-                    IntlDateFormatter::SHORT,
-                    IntlDateFormatter::SHORT,
-                    IntlTimeZone::createTimeZone('Europe/Moscow'),
-                    IntlDateFormatter::GREGORIAN,
-                    'послезавтра днём, d MMMM (это EEEE)'
-                ))
-                    ->format(
-                        new DateTime($startDateTime->value())
-                    );
-        }
-
-        return
-            (new IntlDateFormatter(
-                'ru-RU',
-                IntlDateFormatter::SHORT,
-                IntlDateFormatter::SHORT,
-                IntlTimeZone::createTimeZone('Europe/Moscow'),
-                IntlDateFormatter::GREGORIAN,
-                'днём d MMMM (это EEEE)'
-            ))
-                ->format(
-                    new DateTime($startDateTime->value())
-                );
+        return (new AccusativeDateTimeInMoscowTimeZone(new Now(), new StartDateTime($this->meetingRound)))->value();
     }
 }

@@ -59,7 +59,7 @@ class InvitationDeclinedAndSeeYouNextTime implements Reply
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Хорошо, тогда до следующего раза! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+                                'text' => 'Хорошо, тогда до следующего раза! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
                             ]),
                             new FromImpure($this->botToken)
                         ),

@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply;
 
+use Meringue\Timeline\Point\Now;
+use RC\Domain\MeetingRound\ReadModel\MeetingRound;
+use RC\Domain\MeetingRound\StartDateTime;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
 use RC\Infrastructure\Http\Transport\HttpTransport;
+use RC\Infrastructure\HumanReadableDateTime\AccusativeDateTimeInMoscowTimeZone;
 use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessage;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
@@ -26,13 +30,15 @@ class RoundRegistrationCongratulations implements Reply
 {
     private $telegramUserId;
     private $botId;
+    private $meetingRound;
     private $connection;
     private $httpTransport;
 
-    public function __construct(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection, HttpTransport $httpTransport)
+    public function __construct(TelegramUserId $telegramUserId, BotId $botId, MeetingRound $meetingRound, OpenConnection $connection, HttpTransport $httpTransport)
     {
         $this->telegramUserId = $telegramUserId;
         $this->botId = $botId;
+        $this->meetingRound = $meetingRound;
         $this->connection = $connection;
         $this->httpTransport = $httpTransport;
     }
@@ -53,7 +59,11 @@ class RoundRegistrationCongratulations implements Reply
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+                                'text' =>
+                                    sprintf(
+                                        'Поздравляю, вы зарегистрировались! %s пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
+                                        $this->ucfirst((new AccusativeDateTimeInMoscowTimeZone(new Now(), new StartDateTime($this->meetingRound)))->value())
+                                    ),
                             ]),
                             new FromImpure($botToken)
                         ),
@@ -66,5 +76,10 @@ class RoundRegistrationCongratulations implements Reply
         }
 
         return new Successful(new Emptie());
+    }
+
+    private function ucfirst(string $s)
+    {
+        return mb_strtoupper(mb_substr($s, 0, 1)) . mb_substr($s, 1);
     }
 }

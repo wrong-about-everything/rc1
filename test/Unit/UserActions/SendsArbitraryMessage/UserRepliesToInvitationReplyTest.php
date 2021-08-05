@@ -89,7 +89,7 @@ class UserRepliesToInvitationReplyTest extends TestCase
         $this->assertInvitationIsDeclined($this->firstTelegramUserId(), $this->botId(), $connection);
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'Хорошо, тогда до следующего раза! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Хорошо, тогда до следующего раза! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
         $this->participantDoesNotExist($this->meetingRoundId(), $this->firstUserId(), $connection);
@@ -163,7 +163,7 @@ class UserRepliesToInvitationReplyTest extends TestCase
         $this->participantExists($this->meetingRoundId(), $this->firstUserId(), $connection, new RegistrationInProgress());
     }
 
-    public function testGivenPastMeetingRoundAndActiveMeetingRoundWhenUserAcceptsRoundInvitationThenInvitationBecomesAcceptedAndHeBecomesAParticipantWithRegistrationInProgressStatusAndHeSeesTheFirstRoundRegistrationQuestion()
+    public function testWhenUserAcceptsFirstInvitationForRoundWithoutQuestionsThenItBecomesAcceptedAndHeBecomesAParticipantWithRegisteredStatus()
     {
         $connection = new ApplicationConnection();
         $this->createBot($this->botId(), $connection);
@@ -187,7 +187,7 @@ class UserRepliesToInvitationReplyTest extends TestCase
             ->response();
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
         $this->participantExists($this->pastMeetingRoundId(), $this->firstUserId(), $connection, new ParticipantRegistered());
@@ -203,7 +203,7 @@ class UserRepliesToInvitationReplyTest extends TestCase
             ->response();
         $this->assertCount(2, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
         $this->participantExists($this->pastMeetingRoundId(), $this->secondUserId(), $connection, new ParticipantRegistered());
@@ -223,7 +223,7 @@ class UserRepliesToInvitationReplyTest extends TestCase
             ->response();
         $this->assertCount(3, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
         $this->participantExists($this->meetingRoundId(), $this->firstUserId(), $connection, new ParticipantRegistered());
@@ -239,7 +239,7 @@ class UserRepliesToInvitationReplyTest extends TestCase
             ->response();
         $this->assertCount(4, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
         $this->participantExists($this->meetingRoundId(), $this->secondUserId(), $connection, new ParticipantRegistered());
@@ -269,7 +269,7 @@ class UserRepliesToInvitationReplyTest extends TestCase
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! В понедельник днём пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
         $this->participantExists($this->meetingRoundId(), $this->firstUserId(), $connection, new ParticipantRegistered());
@@ -299,7 +299,7 @@ class UserRepliesToInvitationReplyTest extends TestCase
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'Раунд встреч уже идёт или уже прошёл. Мы пришлём вам приглашение на новый раунд, как только о нём станет известно. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Раунд встреч уже идёт или уже прошёл. Мы пришлём вам приглашение на новый раунд, как только о нём станет известно. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
         $this->participantDoesNotExist($this->meetingRoundId(), $this->firstUserId(), $connection);

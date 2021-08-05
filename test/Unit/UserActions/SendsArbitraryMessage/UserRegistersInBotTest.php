@@ -104,7 +104,7 @@ class UserRegistersInBotTest extends TestCase
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит — напишите в @gorgonzola_support',
+            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит — напишите в @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
         $this->assertReplyButtons($this->availablePositionIds(), $transport->sentRequests()[0]);
@@ -136,7 +136,7 @@ class UserRegistersInBotTest extends TestCase
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит — напишите в @gorgonzola_support',
+            'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит — напишите в @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
     }
@@ -161,7 +161,7 @@ class UserRegistersInBotTest extends TestCase
         $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'Поздравляю, вы зарегистрировались! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support',
+            'Поздравляю, вы зарегистрировались! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
     }
@@ -179,7 +179,7 @@ class UserRegistersInBotTest extends TestCase
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
     }
@@ -206,7 +206,7 @@ class UserRegistersInBotTest extends TestCase
         $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'Спасибо за ответы! Кстати, у нас уже намечаются встречи, давайте может сразу запишу вас? Пришлю вам пару днём 8 августа (это пятница), а по времени уже вдвоём договоритесь. Ну что, готовы?',
+            'Спасибо за ответы! Кстати, у нас уже намечаются встречи, давайте может сразу запишу вас? Пришлю вам пару 8 августа (это пятница), а по времени уже вдвоём договоритесь. Ну что, готовы?',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
     }

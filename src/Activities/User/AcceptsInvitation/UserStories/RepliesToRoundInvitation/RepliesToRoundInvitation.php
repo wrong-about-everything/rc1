@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation;
 
-use Meringue\ISO8601DateTime;
 use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Participant\RepliedToInvitation;
 use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Reply\NextReply;
 use RC\Domain\Bot\BotId\FromUuid;

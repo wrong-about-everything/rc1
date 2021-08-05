@@ -9,6 +9,8 @@ use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQue
 use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Participant\RegisteredIfNoMoreQuestionsLeft;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
+use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromInvitation as MeetingRoundIdFromInvitation;
+use RC\Domain\MeetingRound\ReadModel\ById as MeetingRoundById;
 use RC\Domain\Participant\ParticipantId\Impure\FromWriteModelParticipant;
 use RC\Domain\Participant\ReadModel\ById;
 use RC\Domain\Participant\Status\Impure\FromPure;
@@ -17,6 +19,7 @@ use RC\Domain\Participant\Status\Pure\Registered;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
 use RC\Domain\RoundInvitation\InvitationId\Pure\FromImpure;
 use RC\Domain\RoundInvitation\ReadModel\ById as InvitationById;
+use RC\Domain\RoundInvitation\ReadModel\ByImpureId;
 use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromPure as ImpureInvitationStatusFromPure;
 use RC\Domain\RoundInvitation\Status\Pure\Declined;
@@ -83,6 +86,7 @@ class NextReply implements Reply
             (new RoundRegistrationCongratulations(
                 $this->telegramUserId,
                 $this->botId,
+                new MeetingRoundById(new MeetingRoundIdFromInvitation(new ByImpureId($this->invitationId, $this->connection)), $this->connection),
                 $this->connection,
                 $this->httpTransport
             ))

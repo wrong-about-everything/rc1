@@ -75,7 +75,7 @@ class GoogleCloudServerlessTest extends TestCase
             $response->getStatusCode()
         );
         $this->assertEquals(
-            json_encode('Простите, у нас что-то сломалось. Скорее всего, мы об этом уже знаем, но на всякий случай, напишите пожалуйста об этом в @gorgonzola_support.'),
+            json_encode('Простите, у нас что-то сломалось. Скорее всего, мы об этом уже знаем, но на всякий случай, напишите пожалуйста об этом в @gorgonzola_support_bot.'),
             $response->getBody()->getContents()
         );
     }

@@ -16,13 +16,9 @@ use RC\Domain\BotUser\ByTelegramUserId;
 use RC\Domain\Experience\ExperienceName\LessThanAYearName;
 use RC\Domain\MeetingRound\MeetingRoundId\Pure\FromString as MeetingRoundIdFromString;
 use RC\Domain\Participant\ReadModel\ByMeetingRoundAndUser;
-use RC\Domain\Participant\ReadModel\Participant;
 use RC\Domain\Participant\Status\Impure\FromPure;
 use RC\Domain\Participant\Status\Impure\FromReadModelParticipant;
-use RC\Domain\Participant\Status\Impure\FromReadModelParticipant as StatusFromParticipant;
-use RC\Domain\Participant\Status\Impure\FromPure as ImpureStatusFromPure;
 use RC\Domain\Participant\Status\Pure\Registered as ParticipantRegistered;
-use RC\Domain\Participant\Status\Pure\RegistrationInProgress;
 use RC\Domain\Participant\Status\Pure\Status;
 use RC\Domain\Position\PositionId\Pure\ProductDesigner;
 use RC\Domain\Position\PositionId\Pure\ProductManager;
@@ -31,16 +27,10 @@ use RC\Domain\RegistrationQuestion\RegistrationQuestionId\Impure\RegistrationQue
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\RegistrationQuestionType;
-use RC\Domain\RoundInvitation\Status\Pure\Status as InvitationStatus;
-use RC\Domain\RoundRegistrationQuestion\Type\Pure\RoundRegistrationQuestionType;
 use RC\Domain\User\UserStatus\Impure\FromBotUser as UserStatusFromBotUser;
 use RC\Domain\User\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
 use RC\Domain\User\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Domain\User\UserStatus\Pure\UserStatus;
-use RC\Domain\UserInterest\InterestId\Impure\Multiple\FromParticipant;
-use RC\Domain\UserInterest\InterestId\Impure\Single\FromPure as ImpureInterestFromPure;
-use RC\Domain\UserInterest\InterestId\Pure\Single\FromInteger as InterestIdFromInteger;
-use RC\Domain\UserInterest\InterestName\Pure\FromInterestId;
 use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
 use RC\Domain\UserInterest\InterestId\Pure\Single\SpecificArea;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
@@ -49,29 +39,23 @@ use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\User\UserId\FromUuid as UserIdFromUuid;
 use RC\Domain\User\UserId\UserId;
 use RC\Domain\User\UserStatus\Pure\Registered;
-use RC\Infrastructure\Http\Request\Outbound\Request;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Http\Transport\Indifferent;
-use RC\Infrastructure\Logging\LogId;
 use RC\Infrastructure\Logging\Logs\DevNull;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
-use RC\Infrastructure\Logging\Logs\StdOut;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 use RC\Infrastructure\Uuid\Fixed;
 use RC\Infrastructure\Uuid\FromString;
-use RC\Infrastructure\Uuid\UUID as InfrastructureUUID;
 use RC\Tests\Infrastructure\Environment\Reset;
 use RC\Tests\Infrastructure\Stub\Table\Bot;
 use RC\Tests\Infrastructure\Stub\Table\BotUser;
 use RC\Tests\Infrastructure\Stub\Table\MeetingRound;
-use RC\Tests\Infrastructure\Stub\Table\MeetingRoundInvitation;
 use RC\Tests\Infrastructure\Stub\Table\RegistrationQuestion;
-use RC\Tests\Infrastructure\Stub\Table\RoundRegistrationQuestion;
 use RC\Tests\Infrastructure\Stub\Table\TelegramUser;
 use RC\Tests\Infrastructure\Stub\Table\UserRegistrationProgress;
 use RC\Tests\Infrastructure\Stub\TelegramMessage\UserMessage;
@@ -98,11 +82,11 @@ class UserRegistersForAMeetingRoundDuringRegistrationTest extends TestCase
         $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'Спасибо за ответы! Кстати, у нас уже намечаются встречи, давайте может сразу запишу вас? Пришлю вам пару днём 8 августа (это пятница), а по времени уже вдвоём договоритесь. Ну что, готовы?',
+            'Спасибо за ответы! Кстати, у нас уже намечаются встречи, давайте может сразу запишу вас? Пришлю вам пару 8 августа (это пятница), а по времени уже вдвоём договоритесь. Ну что, готовы?',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
 
-        $invitationResponse = $this->userReply((new Yes())->value(), $transport, $connection)->response();
+        $this->userReply((new Yes())->value(), $transport, $connection)->response();
         $this->participantExists($this->futureMeetingRoundId(), $this->userId(), $connection, new ParticipantRegistered());
     }
 

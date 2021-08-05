@@ -53,7 +53,7 @@ class InCaseOfAnyUncertainty implements Reply
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+                                'text' => 'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
                             ]),
                             new FromImpure($botToken)
                         ),

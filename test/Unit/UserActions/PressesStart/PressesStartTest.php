@@ -330,7 +330,7 @@ t
         $this->assertUserExists($this->telegramUserId(), $this->botId(), $connection);
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support!',
+            'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
     }
