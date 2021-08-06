@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation;
+namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation;
 
-use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Participant\RepliedToInvitation;
-use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Reply\NextReply;
+use RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\Participant\RepliedToInvitation;
+use RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\Reply\NextReply;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Participant\WriteModel\Participant;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation as InvitationIdFromInvitation;
@@ -27,7 +27,7 @@ use RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Response\Successful;
 use RC\Infrastructure\Uuid\FromString as UuidFromString;
 
-class RepliesToRoundInvitation extends Existent
+class AcceptsOrDeclinesInvitation extends Existent
 {
     private $message;
     private $botId;

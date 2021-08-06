@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Reply;
+namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\Reply;
 
 use RC\Domain\Bot\BotToken\Impure\BotToken;
 use RC\Domain\Bot\BotToken\Pure\FromImpure;

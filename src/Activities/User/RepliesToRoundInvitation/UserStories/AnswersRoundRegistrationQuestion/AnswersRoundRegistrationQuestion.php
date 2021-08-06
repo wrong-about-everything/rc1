@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion;
+namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion;
 
-use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply\NextReply;
-use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\ParticipantAnsweredToRoundRegistrationQuestion;
+use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply\NextReply;
+use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\ParticipantAnsweredToRoundRegistrationQuestion;
 use RC\Domain\AnswerOptions\AnswerOptions;
 use RC\Domain\AnswerOptions\FromRoundRegistrationQuestion as AnswerOptionsFromRoundRegistrationQuestion;
 use RC\Domain\Bot\BotId\FromUuid;

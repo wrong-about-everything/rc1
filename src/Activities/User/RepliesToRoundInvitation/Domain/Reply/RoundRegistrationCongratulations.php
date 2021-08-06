@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\AcceptsInvitation\Domain\Reply;
+namespace RC\Activities\User\RepliesToRoundInvitation\Domain\Reply;
 
 use Meringue\Timeline\Point\Now;
 use RC\Domain\MeetingRound\ReadModel\MeetingRound;

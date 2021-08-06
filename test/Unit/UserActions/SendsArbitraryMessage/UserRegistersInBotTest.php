@@ -221,17 +221,6 @@ class UserRegistersInBotTest extends TestCase
         return [(new ProductManager())->value(), (new ProductDesigner())->value()];
     }
 
-    private function positionNamesFromPositionIds(array $positionIds)
-    {
-        return
-            array_map(
-                function (int $positionId) {
-                    return (new FromPosition(new PositionFromInteger($positionId)))->value();
-                },
-                $positionIds
-            );
-    }
-
     private function telegramUserId(): TelegramUserId
     {
         return new FromInteger(654987);

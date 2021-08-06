@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace RC\UserActions\SendsArbitraryMessage;
 
 use Meringue\ISO8601DateTime;
-use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\AnswersRoundRegistrationQuestion;
-use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\RepliesToRoundInvitation;
+use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\AnswersRoundRegistrationQuestion;
+use RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\AcceptsOrDeclinesInvitation;
 use RC\Domain\BotUser\ByTelegramUserId;
 use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromInvitation as MeetingRoundFromInvitation;
 use RC\Domain\MeetingRound\ReadModel\ById;
@@ -230,7 +230,7 @@ class SendsArbitraryMessage extends Existent
     private function repliesToRoundInvitation()
     {
         return
-            (new RepliesToRoundInvitation(
+            (new AcceptsOrDeclinesInvitation(
                 $this->message,
                 $this->botId,
                 $this->httpTransport,

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\AcceptsInvitation\Domain\Reply;
+namespace RC\Activities\User\RepliesToRoundInvitation\Domain\Reply;
 
 use RC\Domain\AnswerOptions\FromRoundRegistrationQuestion as AnswerOptionsFromRoundRegistrationQuestion;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;

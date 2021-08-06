@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply;
+namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\Reply;
 
-use RC\Activities\User\AcceptsInvitation\Domain\Reply\RoundRegistrationCongratulations;
-use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Participant\RegisteredIfNoMoreQuestionsLeftOrHisInterestIsNetworking;
-use RC\Activities\User\AcceptsInvitation\Domain\Reply\NextRoundRegistrationQuestionReply;
+use RC\Activities\User\RepliesToRoundInvitation\Domain\Reply\NextRoundRegistrationQuestionReply;
+use RC\Activities\User\RepliesToRoundInvitation\Domain\Reply\RoundRegistrationCongratulations;
+use RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\Participant\RegisteredIfNoMoreQuestionsLeft;
 use RC\Domain\Bot\BotId\BotId;
-use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromInvitation;
+use RC\Domain\Bot\BotToken\Impure\ByBotId;
+use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromInvitation as MeetingRoundIdFromInvitation;
 use RC\Domain\MeetingRound\ReadModel\ById as MeetingRoundById;
 use RC\Domain\Participant\ParticipantId\Impure\FromWriteModelParticipant;
 use RC\Domain\Participant\ReadModel\ById;
@@ -16,7 +17,12 @@ use RC\Domain\Participant\Status\Impure\FromPure;
 use RC\Domain\Participant\Status\Impure\FromReadModelParticipant;
 use RC\Domain\Participant\Status\Pure\Registered;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
+use RC\Domain\RoundInvitation\InvitationId\Pure\FromImpure;
+use RC\Domain\RoundInvitation\ReadModel\ById as InvitationById;
 use RC\Domain\RoundInvitation\ReadModel\ByImpureId;
+use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
+use RC\Domain\RoundInvitation\Status\Impure\FromPure as ImpureInvitationStatusFromPure;
+use RC\Domain\RoundInvitation\Status\Pure\Declined;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
@@ -46,7 +52,9 @@ class NextReply implements Reply
             return $this->invitationId->value();
         }
 
-        if ($this->participantRegisteredForARound()) {
+        if ((new FromInvitation(new InvitationById(new FromImpure($this->invitationId), $this->connection)))->equals(new ImpureInvitationStatusFromPure(new Declined()))) {
+            return $this->seeYouNextTime();
+        } elseif ($this->participantRegisteredForARound()) {
             return $this->congratulations();
         } else {
             return
@@ -61,13 +69,24 @@ class NextReply implements Reply
         }
     }
 
+    private function seeYouNextTime()
+    {
+        return
+            (new InvitationDeclinedAndSeeYouNextTime(
+                $this->telegramUserId,
+                new ByBotId($this->botId, $this->connection),
+                $this->httpTransport
+            ))
+                ->value();
+    }
+
     private function congratulations()
     {
         return
             (new RoundRegistrationCongratulations(
                 $this->telegramUserId,
                 $this->botId,
-                new MeetingRoundById(new FromInvitation(new ByImpureId($this->invitationId, $this->connection)), $this->connection),
+                new MeetingRoundById(new MeetingRoundIdFromInvitation(new ByImpureId($this->invitationId, $this->connection)), $this->connection),
                 $this->connection,
                 $this->httpTransport
             ))
@@ -80,7 +99,7 @@ class NextReply implements Reply
             (new FromReadModelParticipant(
                 new ById(
                     new FromWriteModelParticipant(
-                        new RegisteredIfNoMoreQuestionsLeftOrHisInterestIsNetworking(
+                        new RegisteredIfNoMoreQuestionsLeft(
                             $this->invitationId,
                             $this->connection
                         )

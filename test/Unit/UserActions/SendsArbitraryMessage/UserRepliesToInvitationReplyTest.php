@@ -40,6 +40,7 @@ use RC\Domain\User\UserStatus\Pure\Registered;
 use RC\Domain\User\UserStatus\Pure\UserStatus;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
+use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Http\Transport\Indifferent;
 use RC\Infrastructure\Logging\Logs\DevNull;
 use RC\Domain\Bot\BotId\BotId;
@@ -74,16 +75,7 @@ class UserRepliesToInvitationReplyTest extends TestCase
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->firstUserId(), new Sent(), $connection);
         $transport = new Indifferent();
 
-        $response =
-            (new SendsArbitraryMessage(
-                new Now(),
-                (new UserMessage($this->firstTelegramUserId(), (new No())->value()))->value(),
-                $this->botId()->value(),
-                $transport,
-                $connection,
-                new DevNull()
-            ))
-                ->response();
+        $response = $this->userReplies($this->firstTelegramUserId(), (new No())->value(), new Now(), $transport, $connection);
 
         $this->assertTrue($response->isSuccessful());
         $this->assertInvitationIsDeclined($this->firstTelegramUserId(), $this->botId(), $connection);
@@ -104,19 +96,9 @@ class UserRepliesToInvitationReplyTest extends TestCase
         $this->createMeetingRound($this->meetingRoundId(), $this->botId(), new Future(new Now(), new OneHour()), new Now(), $connection);
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->firstUserId(), new Sent(), $connection);
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new NetworkingOrSomeSpecificArea(), 1, 'how r u?', $connection);
-
         $transport = new Indifferent();
 
-        $response =
-            (new SendsArbitraryMessage(
-                new Now(),
-                (new UserMessage($this->firstTelegramUserId(), (new Yes())->value()))->value(),
-                $this->botId()->value(),
-                $transport,
-                $connection,
-                new DevNull()
-            ))
-                ->response();
+        $response = $this->userReplies($this->firstTelegramUserId(), (new Yes())->value(), new Now(), $transport, $connection);
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -143,16 +125,7 @@ class UserRepliesToInvitationReplyTest extends TestCase
         $this->createUserRegistrationProgress($this->registrationQuestionId(), $this->secondUserId(), $connection);
         $transport = new Indifferent();
 
-        $response =
-            (new SendsArbitraryMessage(
-                new Now(),
-                (new UserMessage($this->firstTelegramUserId(), (new Yes())->value()))->value(),
-                $this->botId()->value(),
-                $transport,
-                $connection,
-                new DevNull()
-            ))
-                ->response();
+        $response = $this->userReplies($this->firstTelegramUserId(), (new Yes())->value(), new Now(), $transport, $connection);
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -176,15 +149,8 @@ class UserRepliesToInvitationReplyTest extends TestCase
         $this->createMeetingRoundInvitation($this->pastMeetingRoundId(), $this->secondUserId(), new Sent(), $connection);
         $transport = new Indifferent();
 
-        (new SendsArbitraryMessage(
-            new Past(new Now(), new NHours(2)),
-            (new UserMessage($this->firstTelegramUserId(), (new Yes())->value()))->value(),
-            $this->botId()->value(),
-            $transport,
-            $connection,
-            new DevNull()
-        ))
-            ->response();
+        $this->userReplies($this->firstTelegramUserId(), (new Yes())->value(), new Past(new Now(), new NHours(2)), $transport, $connection);
+
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
             'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
@@ -192,15 +158,8 @@ class UserRepliesToInvitationReplyTest extends TestCase
         );
         $this->participantExists($this->pastMeetingRoundId(), $this->firstUserId(), $connection, new ParticipantRegistered());
 
-        (new SendsArbitraryMessage(
-            new Past(new Now(), new NHours(2)),
-            (new UserMessage($this->secondTelegramUserId(), (new Yes())->value()))->value(),
-            $this->botId()->value(),
-            $transport,
-            $connection,
-            new DevNull()
-        ))
-            ->response();
+        $this->userReplies($this->secondTelegramUserId(), (new Yes())->value(), new Past(new Now(), new NHours(2)), $transport, $connection);
+
         $this->assertCount(2, $transport->sentRequests());
         $this->assertEquals(
             'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
@@ -212,15 +171,8 @@ class UserRepliesToInvitationReplyTest extends TestCase
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->firstUserId(), new Sent(), $connection);
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->secondUserId(), new Sent(), $connection);
 
-        (new SendsArbitraryMessage(
-            new Past(new Now(), new NHours(2)),
-            (new UserMessage($this->firstTelegramUserId(), (new Yes())->value()))->value(),
-            $this->botId()->value(),
-            $transport,
-            $connection,
-            new DevNull()
-        ))
-            ->response();
+        $this->userReplies($this->firstTelegramUserId(), (new Yes())->value(), new Past(new Now(), new NHours(2)), $transport, $connection);
+
         $this->assertCount(3, $transport->sentRequests());
         $this->assertEquals(
             'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
@@ -228,15 +180,8 @@ class UserRepliesToInvitationReplyTest extends TestCase
         );
         $this->participantExists($this->meetingRoundId(), $this->firstUserId(), $connection, new ParticipantRegistered());
 
-        (new SendsArbitraryMessage(
-            new Past(new Now(), new NHours(2)),
-            (new UserMessage($this->secondTelegramUserId(), (new Yes())->value()))->value(),
-            $this->botId()->value(),
-            $transport,
-            $connection,
-            new DevNull()
-        ))
-            ->response();
+        $this->userReplies($this->secondTelegramUserId(), (new Yes())->value(), new Past(new Now(), new NHours(2)), $transport, $connection);
+
         $this->assertCount(4, $transport->sentRequests());
         $this->assertEquals(
             'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
@@ -255,16 +200,7 @@ class UserRepliesToInvitationReplyTest extends TestCase
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->firstUserId(), new Sent(), $connection);
         $transport = new Indifferent();
 
-        $response =
-            (new SendsArbitraryMessage(
-                new Now(),
-                (new UserMessage($this->firstTelegramUserId(), (new Yes())->value()))->value(),
-                $this->botId()->value(),
-                $transport,
-                $connection,
-                new DevNull()
-            ))
-                ->response();
+        $response = $this->userReplies($this->firstTelegramUserId(), (new Yes())->value(), new Now(), $transport, $connection);
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -285,16 +221,7 @@ class UserRepliesToInvitationReplyTest extends TestCase
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->firstUserId(), new Sent(), $connection);
         $transport = new Indifferent();
 
-        $response =
-            (new SendsArbitraryMessage(
-                new Now(),
-                (new UserMessage($this->firstTelegramUserId(), (new Yes())->value()))->value(),
-                $this->botId()->value(),
-                $transport,
-                $connection,
-                new DevNull()
-            ))
-                ->response();
+        $response = $this->userReplies($this->firstTelegramUserId(), (new Yes())->value(), new Now(), $transport, $connection);
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -308,6 +235,20 @@ class UserRepliesToInvitationReplyTest extends TestCase
     protected function setUp(): void
     {
         (new Reset(new RootConnection()))->run();
+    }
+
+    private function userReplies(TelegramUserId $who, string $what, ISO8601DateTime $when, HttpTransport $transport, OpenConnection $connection)
+    {
+        return
+            (new SendsArbitraryMessage(
+                $when,
+                (new UserMessage($who, $what))->value(),
+                $this->botId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
     }
 
     private function createBot(BotId $botId, OpenConnection $connection)

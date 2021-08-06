@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Participant;
+namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Participant;
 
 use RC\Domain\Participant\ParticipantId\Impure\FromReadModelParticipant;
 use RC\Domain\Participant\ReadModel\Participant as RoundParticipant;
