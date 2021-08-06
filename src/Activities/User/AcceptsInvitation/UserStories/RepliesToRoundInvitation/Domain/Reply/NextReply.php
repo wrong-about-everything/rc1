@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Reply;
 
 use RC\Activities\User\AcceptsInvitation\Domain\Reply\NextRoundRegistrationQuestionReply;
-use RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply\RoundRegistrationCongratulations;
+use RC\Activities\User\AcceptsInvitation\Domain\Reply\RoundRegistrationCongratulations;
 use RC\Activities\User\AcceptsInvitation\UserStories\RepliesToRoundInvitation\Domain\Participant\RegisteredIfNoMoreQuestionsLeft;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;

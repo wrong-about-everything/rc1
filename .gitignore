@@ -1,5 +1,4 @@
 /deploy
-deploy.sh
 /vendor
 /.idea
 .directory

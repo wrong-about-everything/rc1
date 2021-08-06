@@ -7,16 +7,22 @@ namespace PhinxConfig;
 use Dotenv\Dotenv as OneAndOnly;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\Credentials\RootCredentials;
 use RC\Infrastructure\Filesystem\DirPath\FromAbsolutePathString;
+use RC\Infrastructure\Filesystem\DirPath\FromNestedDirectoryNames;
+use RC\Infrastructure\Filesystem\Filename\PortableFromString;
 use RC\Infrastructure\SqlDatabase\Agnostic\Connection\DatabaseName\SpecifiedDatabaseName;
 use RC\Infrastructure\SqlDatabase\Agnostic\Connection\DefaultConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Connection\Host\FromString;
 use RC\Infrastructure\SqlDatabase\Agnostic\Connection\Port\FromString as PortFromString;
 
-if (file_exists(realpath(dirname(__DIR__)) . DIRECTORY_SEPARATOR . '.env.dev')) {
-    OneAndOnly::createUnsafeImmutable((new FromAbsolutePathString(dirname(__DIR__)))->value()->pure()->raw(), '.env.dev')->load();
-} else {
-    // prod env variable should be set manually
-}
+OneAndOnly::createUnsafeImmutable(
+    (new FromNestedDirectoryNames(
+        new FromAbsolutePathString(dirname(__DIR__)),
+        new PortableFromString('deploy')
+    ))
+        ->value()->pure()->raw(),
+    '.env.prod'
+)
+    ->load();
 
 $pdo =
     (new DefaultConnection(

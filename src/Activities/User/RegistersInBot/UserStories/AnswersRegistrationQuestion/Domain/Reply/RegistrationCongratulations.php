@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion\Domain\Reply;
 
+use RC\Domain\Bot\BotToken\Impure\BotToken;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -44,7 +45,17 @@ class RegistrationCongratulations implements Reply
             return $botToken->value();
         }
 
-        $telegramResponse =
+        $telegramResponse = $this->congratulations($botToken);
+        if (!$telegramResponse->isAvailable()) {
+            return new Failed(new SilentDeclineWithDefaultUserMessage('Response from telegram is not available', []));
+        }
+
+        return new Successful(new Emptie());
+    }
+
+    private function congratulations(BotToken $botToken)
+    {
+        return
             $this->httpTransport
                 ->response(
                     new OutboundRequest(
@@ -54,6 +65,7 @@ class RegistrationCongratulations implements Reply
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
                                 'text' => 'Поздравляю, вы зарегистрировались! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
+                                'reply_markup' => json_encode(['remove_keyboard' => true])
                             ]),
                             new FromImpure($botToken)
                         ),
@@ -61,11 +73,5 @@ class RegistrationCongratulations implements Reply
                         ''
                     )
                 );
-
-        if (!$telegramResponse->isAvailable()) {
-            return new Failed(new SilentDeclineWithDefaultUserMessage('Response from telegram is not available', []));
-        }
-
-        return new Successful(new Emptie());
     }
 }

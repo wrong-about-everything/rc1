@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\AcceptsInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply;
+namespace RC\Activities\User\AcceptsInvitation\Domain\Reply;
 
 use Meringue\Timeline\Point\Now;
 use RC\Domain\MeetingRound\ReadModel\MeetingRound;
@@ -62,8 +62,9 @@ class RoundRegistrationCongratulations implements Reply
                                 'text' =>
                                     sprintf(
                                         'Поздравляю, вы зарегистрировались! %s пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
-                                        $this->ucfirst((new AccusativeDateTimeInMoscowTimeZone(new Now(), new StartDateTime($this->meetingRound)))->value())
+                                        $this->ucfirst((new AccusativeDateTimeInMoscowTimeZone(new Now(), new StartDateTime($this->meetingRound)))->value()),
                                     ),
+                                'reply_markup' => json_encode(['remove_keyboard' => true])
                             ]),
                             new FromImpure($botToken)
                         ),
