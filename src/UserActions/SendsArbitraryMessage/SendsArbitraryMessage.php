@@ -5,14 +5,22 @@ declare(strict_types=1);
 namespace RC\UserActions\SendsArbitraryMessage;
 
 use Meringue\ISO8601DateTime;
+use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AcceptsOrDeclinesInvitation\AcceptsOrDeclinesFeedbackInvitation;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\AnswersRoundRegistrationQuestion;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\AcceptsOrDeclinesInvitation;
+use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\BotUser\ByTelegramUserId;
-use RC\Domain\FeedbackInvitation\ReadModel\NonExistent;
+use RC\Domain\FeedbackInvitation\ReadModel\LatestByFeedbackDate;
 use RC\Domain\FeedbackInvitation\ReadModel\FeedbackInvitation;
+use RC\Domain\FeedbackInvitation\Status\Impure\FromFeedbackInvitation;
+use RC\Domain\FeedbackInvitation\Status\Impure\FromPure as FromPureFeedbackInvitationStatus;
+use RC\Domain\FeedbackInvitation\Status\Pure\Accepted;
+use RC\Domain\FeedbackInvitation\Status\Pure\Sent as FeedbackInvitationSent;
+use RC\Domain\FeedbackQuestion\FirstNonAnsweredFeedbackQuestion;
 use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromInvitation as MeetingRoundFromInvitation;
 use RC\Domain\MeetingRound\ReadModel\ById;
 use RC\Domain\MeetingRound\StartDateTime;
+use RC\Domain\Participant\ParticipantId\Impure\FromFeedbackInvitation as ParticipantIdFromFeedbackInvitation;
 use RC\Domain\Participant\ReadModel\ByInvitationId;
 use RC\Domain\Participant\Status\Impure\FromPure as ParticipantStatus;
 use RC\Domain\Participant\Status\Impure\FromReadModelParticipant;
@@ -38,6 +46,7 @@ use RC\Infrastructure\Logging\Logs;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
 use RC\Domain\TelegramBot\Reply\Sorry;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
+use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 use RC\Infrastructure\UserStory\Body\Emptie;
 use RC\Infrastructure\UserStory\Existent;
 use RC\Infrastructure\UserStory\Response;
@@ -89,7 +98,7 @@ class SendsArbitraryMessage extends Existent
                 $this->answersRoundRegistrationQuestion();
             } elseif ($this->thereIsAPendingFeedbackInvitation($feedbackInvitation)) {
                 $this->acceptsOrDeclinesFeedbackInvitation();
-            } elseif ($this->thereIsAnAcceptedFeedbackInvitation($feedbackInvitation)) {
+            } elseif ($this->thereIsAUserAnsweringFeedbackQuestions($feedbackInvitation)) {
                 $this->answersFeedbackQuestion();
             } else {
                 $this->replyInCaseOfAnyUncertainty()->value();
@@ -213,7 +222,6 @@ class SendsArbitraryMessage extends Existent
 
     private function thereIsAPendingFeedbackInvitation(FeedbackInvitation $feedbackInvitation)
     {
-        return false;
         $feedbackInvitationStatus = new FromFeedbackInvitation($feedbackInvitation);
         if (!$feedbackInvitationStatus->exists()->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($feedbackInvitationStatus->value()));
@@ -226,9 +234,8 @@ class SendsArbitraryMessage extends Existent
         return $feedbackInvitationStatus->equals(new FromPureFeedbackInvitationStatus(new FeedbackInvitationSent()));
     }
 
-    private function thereIsAnAcceptedFeedbackInvitation(FeedbackInvitation $feedbackInvitation)
+    private function thereIsAUserAnsweringFeedbackQuestions(FeedbackInvitation $feedbackInvitation)
     {
-        return false;
         $feedbackInvitationStatus = new FromFeedbackInvitation($feedbackInvitation);
         if (!$feedbackInvitationStatus->exists()->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($feedbackInvitationStatus->value()));
@@ -238,7 +245,17 @@ class SendsArbitraryMessage extends Existent
             return false;
         }
 
-        return $feedbackInvitationStatus->equals(new FromPureFeedbackInvitationStatus(new FeedbackInvitationSent()));
+        return $feedbackInvitationStatus->equals(new FromPureFeedbackInvitationStatus(new Accepted())) && $this->thereIsAtLeastOneFeedbackQuestionLeft($feedbackInvitation);
+    }
+
+    private function thereIsAtLeastOneFeedbackQuestionLeft(FeedbackInvitation $feedbackInvitation)
+    {
+        return
+            (new FirstNonAnsweredFeedbackQuestion(
+                new ParticipantIdFromFeedbackInvitation($feedbackInvitation),
+                $this->connection
+            ))
+                ->value()->pure()->isPresent();
     }
 
     private function meetingRoundAlreadyStarted(Invitation $invitation)
@@ -267,13 +284,26 @@ class SendsArbitraryMessage extends Existent
 
     private function feedbackInvitation(): FeedbackInvitation
     {
-        return new NonExistent();
+        return new LatestByFeedbackDate(new FromParsedTelegramMessage($this->message), $this->botId(), $this->connection);
     }
 
     private function acceptsOrDeclinesRoundInvitation()
     {
         return
             (new AcceptsOrDeclinesInvitation(
+                $this->message,
+                $this->botId,
+                $this->httpTransport,
+                $this->connection,
+                $this->logs
+            ))
+                ->response();
+    }
+
+    private function acceptsOrDeclinesFeedbackInvitation()
+    {
+        return
+            (new AcceptsOrDeclinesFeedbackInvitation(
                 $this->message,
                 $this->botId,
                 $this->httpTransport,

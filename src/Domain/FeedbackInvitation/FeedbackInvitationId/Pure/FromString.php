@@ -19,4 +19,9 @@ class FromString implements FeedbackInvitationId
     {
         return $this->uuid;
     }
+
+    public function exists(): bool
+    {
+        return true;
+    }
 }

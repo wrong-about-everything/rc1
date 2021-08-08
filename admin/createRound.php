@@ -51,7 +51,7 @@ if(trim($answer) != ($x + $y)){
     exit;
 }
 
-$options = getopt('', ['bot_id:', 'start_date_time:', 'invitation_date_time:']);
+$options = getopt('', ['bot_id:', 'start_date_time:', 'invitation_date_time:', 'feedback_date_time:']);
 $connection = new ApplicationConnection();
 
 $botUsers =
@@ -62,9 +62,7 @@ $botUsers =
     ))
         ->response();
 if (!$botUsers->isSuccessful()) {
-    var_dump($botUsers->error()->logMessage());
-    var_dump($botUsers->error()->context());
-    die();
+    die($botUsers->error()->logMessage());
 }
 
 $meetingRoundId = Uuid::uuid4()->toString();
@@ -73,11 +71,11 @@ $response =
         [
             new SingleMutating(
                 <<<q
-    insert into meeting_round (id, bot_id, name, start_date, invitation_date, timezone, available_interests)
-    values (?, ?, 'Новый раунд', ?, ?, 'Europe/Moscow', '[0, 1]')
+    insert into meeting_round (id, bot_id, name, start_date, invitation_date, feedback_date, timezone, available_interests)
+    values (?, ?, 'Новый раунд', ?, ?, ?, 'Europe/Moscow', '[0, 1]')
 q
                 ,
-                [$meetingRoundId, $options['bot_id'], $options['start_date_time'], $options['invitation_date_time']],
+                [$meetingRoundId, $options['bot_id'], $options['start_date_time'], $options['invitation_date_time'], $options['feedback_date_time']],
                 $connection
             ),
             new SingleMutatingQueryWithMultipleValueSets(
@@ -121,9 +119,7 @@ q
     ))
         ->response();
 if (!$response->isSuccessful()) {
-    var_dump($response->error()->logMessage());
-    var_dump($response->error()->context());
-    die();
+    die($response->error()->logMessage());
 }
 
 die('Success!');

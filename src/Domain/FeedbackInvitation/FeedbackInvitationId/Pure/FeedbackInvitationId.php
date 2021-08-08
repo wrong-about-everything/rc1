@@ -7,4 +7,6 @@ namespace RC\Domain\FeedbackInvitation\FeedbackInvitationId\Pure;
 interface FeedbackInvitationId
 {
     public function value(): string;
+
+    public function exists(): bool;
 }

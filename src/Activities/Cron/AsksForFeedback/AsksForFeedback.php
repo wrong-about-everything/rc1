@@ -6,7 +6,6 @@ namespace RC\Activities\Cron\AsksForFeedback;
 
 use Meringue\Timeline\Point\Now;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\Uuid as RamseyUuid;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\ById;
 use RC\Domain\FeedbackInvitation\FeedbackInvitationId\Pure\FromString;
@@ -109,7 +108,7 @@ values (?, ?, ?)
 q
                 ,
                 array_map(
-                    function (array $participantId) {
+                    function (array $participantId) use ($meetingRoundWithLatestFeedbackDate) {
                         return [Uuid::uuid4()->toString(), $participantId['id'], (new Generated())->value()];
                     },
                     $this->participantsThatHadAPairInAMeetingRound($meetingRoundWithLatestFeedbackDate)

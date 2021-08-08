@@ -163,7 +163,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         $this->assertCount(2, $transport->sentRequests());
         $this->assertEquals(
             'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
-            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+            (new FromQuery(new FromUrl($transport->sentRequests()[1]->url())))->value()['text']
         );
         $this->participantExists($this->pastMeetingRoundId(), $this->secondUserId(), $connection, new ParticipantRegistered());
 
@@ -176,7 +176,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         $this->assertCount(3, $transport->sentRequests());
         $this->assertEquals(
             'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
-            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+            (new FromQuery(new FromUrl($transport->sentRequests()[2]->url())))->value()['text']
         );
         $this->participantExists($this->meetingRoundId(), $this->firstUserId(), $connection, new ParticipantRegistered());
 
@@ -185,7 +185,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         $this->assertCount(4, $transport->sentRequests());
         $this->assertEquals(
             'Поздравляю, вы зарегистрировались! Сегодня пришлю вам пару для разговора. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
-            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+            (new FromQuery(new FromUrl($transport->sentRequests()[3]->url())))->value()['text']
         );
         $this->participantExists($this->meetingRoundId(), $this->secondUserId(), $connection, new ParticipantRegistered());
     }

@@ -9,4 +9,6 @@ use RC\Infrastructure\ImpureInteractions\ImpureValue;
 interface FeedbackInvitationId
 {
     public function value(): ImpureValue;
+
+    public function exists(): ImpureValue;
 }

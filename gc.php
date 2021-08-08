@@ -8,9 +8,9 @@ use Meringue\Timeline\Point\Now;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RC\Activities\Admin\SeesMatches;
+use RC\Activities\Cron\AsksForFeedback\AsksForFeedback;
 use RC\Activities\Cron\SendsMatchesToParticipants\SendsMatchesToParticipants;
 use RC\Domain\Bot\BotId\FromQuery;
-use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\UserStory\Authorized;
 use RC\Domain\UserStory\Body\TelegramFallbackResponseBody;
@@ -40,7 +40,6 @@ use RC\Infrastructure\Routing\Route\RouteByTelegramBotCommand;
 use RC\Infrastructure\TelegramBot\UserCommand\Start;
 use RC\Infrastructure\UserStory\ByRoute;
 use RC\Infrastructure\UserStory\Response\Successful;
-use RC\Infrastructure\Uuid\FromString;
 use RC\Infrastructure\Uuid\RandomUUID;
 use RC\Activities\Cron\InvitesToTakePartInANewRound\InvitesToTakePartInANewRound;
 use RC\Activities\Sample;
@@ -120,6 +119,15 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                             ),
                             function (Query $query) use ($transport, $logs) {
                                 return new SendsMatchesToParticipants(new FromQuery($query), $transport, new ApplicationConnection(), $logs);
+                            }
+                        ],
+                        [
+                            new RouteByMethodAndPathPatternWithQuery(
+                                new Post(),
+                                '/cron/asks_for_feedback'
+                            ),
+                            function (Query $query) use ($transport, $logs) {
+                                return new AsksForFeedback(new FromQuery($query), $transport, new ApplicationConnection(), $logs);
                             }
                         ],
                         [
