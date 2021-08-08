@@ -10,7 +10,7 @@ use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Experience\ExperienceName\FromString;
 use RC\Domain\Position\PositionName\FromString as PositionNameFromString;
 use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
-use RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion\Domain\Reply\NextReplyToUser;
+use RC\Activities\User\RegistersInBot\UserStories\Domain\Reply\NextReplyToUser;
 use RC\Domain\RegistrationQuestion\RegistrationQuestion;
 use RC\Domain\TelegramBot\Reply\ValidationError;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Impure\FromPure;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion\Domain\Reply;
+namespace RC\Activities\User\RegistersInBot\UserStories\Domain\Reply;
 
 use RC\Domain\Bot\BotToken\Impure\BotToken;
 use RC\Infrastructure\Http\Request\Method\Post;

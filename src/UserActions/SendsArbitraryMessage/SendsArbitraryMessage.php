@@ -8,6 +8,8 @@ use Meringue\ISO8601DateTime;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\AnswersRoundRegistrationQuestion;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\AcceptsOrDeclinesInvitation;
 use RC\Domain\BotUser\ByTelegramUserId;
+use RC\Domain\FeedbackInvitation\ReadModel\NonExistent;
+use RC\Domain\FeedbackInvitation\ReadModel\FeedbackInvitation;
 use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromInvitation as MeetingRoundFromInvitation;
 use RC\Domain\MeetingRound\ReadModel\ById;
 use RC\Domain\MeetingRound\StartDateTime;
@@ -76,13 +78,19 @@ class SendsArbitraryMessage extends Existent
         if ($userStatus->equals(new ImpureUserStatusFromPure(new RegistrationIsInProgress()))) {
             $this->answersRegistrationQuestion();
         } elseif ($userStatus->equals(new ImpureUserStatusFromPure(new Registered()))) {
-            $latestInvitation = $this->latestInvitation();
-            if ($this->thereIsAPendingExpiredInvitation($latestInvitation)) {
+            $latestRoundInvitation = $this->latestRoundInvitation();
+            $feedbackInvitation = $this->feedbackInvitation();
+
+            if ($this->thereIsAPendingExpiredRoundInvitation($latestRoundInvitation)) {
                 $this->noRoundsAhead()->value();
-            } elseif ($this->thereIsAPendingNonExpiredInvitation($latestInvitation)) {
-                $this->repliesToRoundInvitation();
-            } elseif ($this->thereIsAUserRegisteringForARound($latestInvitation)) {
+            } elseif ($this->thereIsAPendingNonExpiredRoundInvitation($latestRoundInvitation)) {
+                $this->acceptsOrDeclinesRoundInvitation();
+            } elseif ($this->thereIsAUserRegisteringForARound($latestRoundInvitation)) {
                 $this->answersRoundRegistrationQuestion();
+            } elseif ($this->thereIsAPendingFeedbackInvitation($feedbackInvitation)) {
+                $this->acceptsOrDeclinesFeedbackInvitation();
+            } elseif ($this->thereIsAnAcceptedFeedbackInvitation($feedbackInvitation)) {
+                $this->answersFeedbackQuestion();
             } else {
                 $this->replyInCaseOfAnyUncertainty()->value();
             }
@@ -175,7 +183,7 @@ class SendsArbitraryMessage extends Existent
         return new FromUuid(new UuidFromString($this->botId));
     }
 
-    private function thereIsAPendingExpiredInvitation(Invitation $invitation)
+    private function thereIsAPendingExpiredRoundInvitation(Invitation $invitation)
     {
         $latestInvitationStatus = new FromInvitation($invitation);
         if (!$latestInvitationStatus->exists()->isSuccessful()) {
@@ -189,7 +197,7 @@ class SendsArbitraryMessage extends Existent
         return $this->meetingRoundAlreadyStarted($invitation) && $latestInvitationStatus->equals(new FromPure(new Sent()));
     }
 
-    private function thereIsAPendingNonExpiredInvitation(Invitation $invitation)
+    private function thereIsAPendingNonExpiredRoundInvitation(Invitation $invitation)
     {
         $latestInvitationStatus = new FromInvitation($invitation);
         if (!$latestInvitationStatus->exists()->isSuccessful()) {
@@ -201,6 +209,36 @@ class SendsArbitraryMessage extends Existent
         }
 
         return !$this->meetingRoundAlreadyStarted($invitation) && $latestInvitationStatus->equals(new FromPure(new Sent()));
+    }
+
+    private function thereIsAPendingFeedbackInvitation(FeedbackInvitation $feedbackInvitation)
+    {
+        return false;
+        $feedbackInvitationStatus = new FromFeedbackInvitation($feedbackInvitation);
+        if (!$feedbackInvitationStatus->exists()->isSuccessful()) {
+            $this->logs->receive(new FromNonSuccessfulImpureValue($feedbackInvitationStatus->value()));
+            return false;
+        }
+        if ($feedbackInvitationStatus->exists()->pure()->raw() === false) {
+            return false;
+        }
+
+        return $feedbackInvitationStatus->equals(new FromPureFeedbackInvitationStatus(new FeedbackInvitationSent()));
+    }
+
+    private function thereIsAnAcceptedFeedbackInvitation(FeedbackInvitation $feedbackInvitation)
+    {
+        return false;
+        $feedbackInvitationStatus = new FromFeedbackInvitation($feedbackInvitation);
+        if (!$feedbackInvitationStatus->exists()->isSuccessful()) {
+            $this->logs->receive(new FromNonSuccessfulImpureValue($feedbackInvitationStatus->value()));
+            return false;
+        }
+        if ($feedbackInvitationStatus->exists()->pure()->raw() === false) {
+            return false;
+        }
+
+        return $feedbackInvitationStatus->equals(new FromPureFeedbackInvitationStatus(new FeedbackInvitationSent()));
     }
 
     private function meetingRoundAlreadyStarted(Invitation $invitation)
@@ -217,7 +255,7 @@ class SendsArbitraryMessage extends Existent
                 );
     }
 
-    private function latestInvitation(): Invitation
+    private function latestRoundInvitation(): Invitation
     {
         return
             new LatestInvitation(
@@ -227,7 +265,12 @@ class SendsArbitraryMessage extends Existent
             );
     }
 
-    private function repliesToRoundInvitation()
+    private function feedbackInvitation(): FeedbackInvitation
+    {
+        return new NonExistent();
+    }
+
+    private function acceptsOrDeclinesRoundInvitation()
     {
         return
             (new AcceptsOrDeclinesInvitation(

@@ -25,7 +25,7 @@ create table "telegram_user" (
   id uuid primary key,
   first_name text,
   last_name text,
-  telegram_id int,
+  telegram_id bigint,
   telegram_handle text,
 
   unique (telegram_id)
@@ -63,8 +63,9 @@ create table meeting_round (
   id uuid,
   bot_id uuid,
   name text,
-  start_date timestamptz,
   invitation_date timestamptz,
+  start_date timestamptz,
+  feedback_date timestamptz,
   timezone text,
   available_interests jsonb,
 
@@ -127,6 +128,31 @@ create table meeting_round_dropout (
 
   primary key (id),
   unique (dropout_participant_id)
+);
+
+create table feedback_invitation (
+  id uuid,
+  participant_id uuid,
+  status smallint,
+
+  primary key (id),
+  unique (participant_id)
+);
+
+create table feedback_question (
+  id uuid,
+  meeting_round_id uuid,
+  ordinal_number smallint,
+  text text,
+
+  primary key (id)
+);
+
+create table user_feedback_progress (
+  feedback_question_id uuid,
+  participant_id uuid,
+
+  primary key (feedback_question_id, participant_id)
 );
 
 

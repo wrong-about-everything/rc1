@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion\Domain\Reply;
+namespace RC\Activities\User\RegistersInBot\UserStories\Domain\BotUser;
 
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\BotUser\BotUser;

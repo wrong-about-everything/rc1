@@ -68,8 +68,11 @@ truncate
     user_round_registration_progress,
     meeting_round_participant,
     meeting_round_pair,
-    meeting_round_dropout
-    
+    meeting_round_dropout,
+    feedback_invitation,
+    feedback_question,
+    user_feedback_progress
+
     cascade
 q
                 ,

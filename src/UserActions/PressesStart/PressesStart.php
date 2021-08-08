@@ -26,7 +26,7 @@ use RC\Infrastructure\UserStory\Existent;
 use RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Response\Successful;
 use RC\Infrastructure\Uuid\FromString as UuidFromString;
-use RC\Activities\User\RegistersInBot\UserStories\PressesStartDuringRegistrationForSomeReason\PressesStartDuringRegistration;
+use RC\Activities\User\RegistersInBot\UserStories\NonRegisteredUserPressesStart\NonRegisteredUserPressesStart;
 
 class PressesStart extends Existent
 {
@@ -63,7 +63,7 @@ class PressesStart extends Existent
 
         if ($userStatus->equals(new ImpureUserStatusFromPure(new RegistrationIsInProgress()))) {
             return
-                (new PressesStartDuringRegistration(
+                (new NonRegisteredUserPressesStart(
                     $this->message,
                     $this->botId,
                     $this->httpTransport,

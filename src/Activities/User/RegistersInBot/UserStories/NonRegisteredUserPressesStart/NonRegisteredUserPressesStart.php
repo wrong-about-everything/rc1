@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\RegistersInBot\UserStories\PressesStartDuringRegistrationForSomeReason;
+namespace RC\Activities\User\RegistersInBot\UserStories\NonRegisteredUserPressesStart;
 
+use RC\Activities\User\RegistersInBot\UserStories\Domain\Reply\NextReplyToUser;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
@@ -18,9 +19,8 @@ use RC\Infrastructure\UserStory\Existent;
 use RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Response\Successful;
 use RC\Infrastructure\Uuid\FromString as UuidFromString;
-use RC\Activities\User\RegistersInBot\Domain\Reply\NextRegistrationQuestionReply;
 
-class PressesStartDuringRegistration extends Existent
+class NonRegisteredUserPressesStart extends Existent
 {
     private $message;
     private $botId;
@@ -41,7 +41,7 @@ class PressesStartDuringRegistration extends Existent
     {
         $this->logs->receive(new InformationMessage('User presses start during registration scenario started'));
 
-        $registrationStepValue = $this->registrationStep()->value();
+        $registrationStepValue = $this->nextReplu()->value();
         if (!$registrationStepValue->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($registrationStepValue));
             $this->sorry()->value();
@@ -52,14 +52,14 @@ class PressesStartDuringRegistration extends Existent
         return new Successful(new Emptie());
     }
 
-    private function registrationStep()
+    private function nextReplu()
     {
         return
-            new NextRegistrationQuestionReply(
+            new NextReplyToUser(
                 new FromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),
-                $this->connection,
-                $this->httpTransport
+                $this->httpTransport,
+                $this->connection
             );
     }
 

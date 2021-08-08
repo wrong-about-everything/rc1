@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion\Domain\Reply;
+namespace RC\Activities\User\RegistersInBot\UserStories\Domain\Reply;
 
 use Meringue\Timeline\Point\Now;
+use RC\Activities\User\RegistersInBot\UserStories\Domain\BotUser\RegisteredIfNoMoreQuestionsLeft;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\MeetingRound\ReadModel\LatestNotYetStartedWithFiveMinutesGap;
 use RC\Domain\MeetingRound\ReadModel\MeetingRound;
