@@ -4,21 +4,16 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQuestion;
 
+use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQuestion\Domain\Participant\AnsweredFeedbackQuestion;
 use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQuestion\Domain\Reply\NextReply;
-use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQuestion\Domain\ParticipantAnsweredToRoundRegistrationQuestion;
-use RC\Domain\AnswerOptions\AnswerOptions;
-use RC\Domain\AnswerOptions\FromRoundRegistrationQuestion as AnswerOptionsFromRoundRegistrationQuestion;
+use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
-use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation;
-use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
-use RC\Domain\RoundInvitation\ReadModel\LatestInvitation;
-use RC\Domain\RoundRegistrationQuestion\NextRoundRegistrationQuestion;
-use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestion;
-use RC\Domain\RoundRegistrationQuestion\Type\Impure\FromPure;
-use RC\Domain\RoundRegistrationQuestion\Type\Impure\FromRoundRegistrationQuestion;
-use RC\Domain\RoundRegistrationQuestion\Type\Pure\NetworkingOrSomeSpecificArea;
-use RC\Domain\TelegramBot\Reply\ValidationError;
-use RC\Domain\UserInterest\InterestName\Pure\FromString;
+use RC\Domain\FeedbackInvitation\ReadModel\FeedbackInvitation;
+use RC\Domain\FeedbackInvitation\ReadModel\LatestByFeedbackDate;
+use RC\Domain\FeedbackQuestion\FeedbackQuestion;
+use RC\Domain\FeedbackQuestion\FirstNonAnsweredFeedbackQuestion;
+use RC\Domain\Participant\ParticipantId\Impure\FromFeedbackInvitation as ParticipantIdFromFeedbackInvitation;
+use RC\Domain\Participant\WriteModel\Participant;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
@@ -54,79 +49,47 @@ class AnswersFeedbackQuestion extends Existent
 
     public function response(): Response
     {
-        $this->logs->receive(new InformationMessage('User answers round invitation question scenario started.'));
+        $this->logs->receive(new InformationMessage('User answers feedback question scenario started.'));
 
-        $invitationId = $this->invitationId();
-        $currentlyAnsweredQuestion = new NextRoundRegistrationQuestion($invitationId, $this->connection);
-        if ($this->isInvalid($currentlyAnsweredQuestion, new UserReply($this->message))) {
-            $this->validationError(new AnswerOptionsFromRoundRegistrationQuestion($currentlyAnsweredQuestion, $invitationId, $this->connection))->value();
-            return new Successful(new Emptie());
-        }
+        $latestFeedbackInvitation = new LatestByFeedbackDate(new FromParsedTelegramMessage($this->message), $this->botId(), $this->connection);
+        $currentlyAnsweredQuestion = $this->currentlyAnsweredQuestion($latestFeedbackInvitation);
 
-        $participantValue = $this->participant($invitationId, $currentlyAnsweredQuestion)->value();
+        $participantValue = $this->participantAnsweredFeedbackQuestion($latestFeedbackInvitation, new UserReply($this->message), $currentlyAnsweredQuestion)->value();
         if (!$participantValue->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($participantValue));
             $this->sorry()->value();
             return new Successful(new Emptie());
         }
 
-        $nextReply = $this->nextReplyToUser($invitationId)->value();
+        $nextReply = $this->nextReplyToUser($latestFeedbackInvitation)->value();
         if (!$nextReply->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($nextReply));
             $this->sorry()->value();
             return new Successful(new Emptie());
         }
 
-        $this->logs->receive(new InformationMessage('User answers round invitation question scenario started.'));
+        $this->logs->receive(new InformationMessage('User answers feedback question scenario finished.'));
 
         return new Successful(new Emptie());
     }
 
-    private function validationError(AnswerOptions $answerOptions)
+    private function currentlyAnsweredQuestion(FeedbackInvitation $latestFeedbackInvitation): FeedbackQuestion
     {
         return
-            new ValidationError(
-                $answerOptions,
-                new FromParsedTelegramMessage($this->message),
-                new ByBotId(
-                    new FromUuid(new UuidFromString($this->botId)),
-                    $this->connection
-                ),
-                $this->httpTransport
-            );
-    }
-
-    private function isInvalid(RoundRegistrationQuestion $currentlyAnsweredQuestion, UserMessage $userReply): bool
-    {
-        return
-            (
-                (new FromRoundRegistrationQuestion($currentlyAnsweredQuestion))->equals(new FromPure(new NetworkingOrSomeSpecificArea()))
-                &&
-                !(new FromString($userReply->value()))->exists()
-            );
-    }
-
-    private function invitationId()
-    {
-        return
-            new FromInvitation(
-                new LatestInvitation(
-                    new FromParsedTelegramMessage($this->message),
-                    new FromUuid(new UuidFromString($this->botId)),
-                    $this->connection
-                )
-            );
-    }
-
-    private function participant(InvitationId $invitationId, RoundRegistrationQuestion $roundRegistrationQuestion)
-    {
-        return
-            new ParticipantAnsweredToRoundRegistrationQuestion(
-                new UserReply($this->message),
-                $invitationId,
-                $roundRegistrationQuestion,
+            new FirstNonAnsweredFeedbackQuestion(
+                new ParticipantIdFromFeedbackInvitation($latestFeedbackInvitation),
                 $this->connection
             );
+    }
+
+    private function participantAnsweredFeedbackQuestion(FeedbackInvitation $feedbackInvitation, UserMessage $userReply, FeedbackQuestion $feedbackQuestion): Participant
+    {
+        return new AnsweredFeedbackQuestion($feedbackInvitation, $userReply, $feedbackQuestion, $this->connection);
+    }
+
+    private function botId(): BotId
+    {
+        return new FromUuid(new UuidFromString($this->botId));
     }
 
     private function sorry()
@@ -142,11 +105,11 @@ class AnswersFeedbackQuestion extends Existent
             );
     }
 
-    private function nextReplyToUser(InvitationId $invitationId)
+    private function nextReplyToUser(FeedbackInvitation $feedbackInvitation)
     {
         return
             new NextReply(
-                $invitationId,
+                $feedbackInvitation,
                 new FromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),
                 $this->httpTransport,

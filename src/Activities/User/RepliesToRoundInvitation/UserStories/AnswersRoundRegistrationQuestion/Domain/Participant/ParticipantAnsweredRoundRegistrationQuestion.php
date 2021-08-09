@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQuestion\Domain;
+namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Participant;
 
 use Exception;
 use RC\Domain\Participant\WriteModel\Participant;
@@ -25,7 +25,7 @@ use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\TransactionalQueryFromMultipleQueries;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\UserMessage;
 
-class ParticipantAnsweredToRoundRegistrationQuestion implements Participant
+class ParticipantAnsweredRoundRegistrationQuestion implements Participant
 {
     private $userMessage;
     private $invitationId;

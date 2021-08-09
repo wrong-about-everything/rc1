@@ -46,8 +46,8 @@ class FirstNonAnsweredFeedbackQuestion implements FeedbackQuestion
 select fq.*
 from feedback_question fq
     join meeting_round_participant mrp on mrp.meeting_round_id = fq.meeting_round_id
-    left join user_feedback_progress ufp on ufp.participant_id = mrp.id
-where mrp.id = ? and ufp.feedback_question_id is null
+    left join feedback_answer fa on fa.feedback_question_id = fq.id
+where mrp.id = ? and fa.feedback_question_id is null
 order by fq.ordinal_number asc
 limit 1
 q

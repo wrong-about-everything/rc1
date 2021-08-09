@@ -71,7 +71,7 @@ truncate
     meeting_round_dropout,
     feedback_invitation,
     feedback_question,
-    user_feedback_progress
+    feedback_answer
 
     cascade
 q

@@ -57,7 +57,6 @@ class NextFeedbackQuestionReply implements Reply
         if (!$response->isAvailable() || !$response->code()->equals(new Ok())) {
             return new Failed(new SilentDeclineWithDefaultUserMessage('Response from telegram is not successful', []));
         }
-        // @todo: use the single infrastructure Reply class with retries
 
         return new Successful(new Emptie());
     }

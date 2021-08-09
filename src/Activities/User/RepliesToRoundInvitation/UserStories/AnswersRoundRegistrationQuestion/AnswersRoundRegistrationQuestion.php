@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion;
 
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply\NextReply;
-use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\ParticipantAnsweredToRoundRegistrationQuestion;
+use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Participant\ParticipantAnsweredRoundRegistrationQuestion;
 use RC\Domain\AnswerOptions\AnswerOptions;
 use RC\Domain\AnswerOptions\FromRoundRegistrationQuestion as AnswerOptionsFromRoundRegistrationQuestion;
 use RC\Domain\Bot\BotId\FromUuid;
@@ -63,7 +63,7 @@ class AnswersRoundRegistrationQuestion extends Existent
             return new Successful(new Emptie());
         }
 
-        $participantValue = $this->participant($invitationId, $currentlyAnsweredQuestion)->value();
+        $participantValue = $this->participantAnsweredRoundRegistrationQuestion($invitationId, new UserReply($this->message), $currentlyAnsweredQuestion)->value();
         if (!$participantValue->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($participantValue));
             $this->sorry()->value();
@@ -77,7 +77,7 @@ class AnswersRoundRegistrationQuestion extends Existent
             return new Successful(new Emptie());
         }
 
-        $this->logs->receive(new InformationMessage('User answers round invitation question scenario started.'));
+        $this->logs->receive(new InformationMessage('User answers round invitation question scenario finished.'));
 
         return new Successful(new Emptie());
     }
@@ -118,11 +118,11 @@ class AnswersRoundRegistrationQuestion extends Existent
             );
     }
 
-    private function participant(InvitationId $invitationId, RoundRegistrationQuestion $roundRegistrationQuestion)
+    private function participantAnsweredRoundRegistrationQuestion(InvitationId $invitationId, UserMessage $userMessage, RoundRegistrationQuestion $roundRegistrationQuestion)
     {
         return
-            new ParticipantAnsweredToRoundRegistrationQuestion(
-                new UserReply($this->message),
+            new ParticipantAnsweredRoundRegistrationQuestion(
+                $userMessage,
                 $invitationId,
                 $roundRegistrationQuestion,
                 $this->connection

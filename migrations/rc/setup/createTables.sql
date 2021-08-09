@@ -148,9 +148,10 @@ create table feedback_question (
   primary key (id)
 );
 
-create table user_feedback_progress (
+create table feedback_answer (
   feedback_question_id uuid,
   participant_id uuid,
+  text text,
 
   primary key (feedback_question_id, participant_id)
 );

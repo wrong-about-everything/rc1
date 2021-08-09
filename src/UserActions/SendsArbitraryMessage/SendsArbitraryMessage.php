@@ -6,6 +6,7 @@ namespace RC\UserActions\SendsArbitraryMessage;
 
 use Meringue\ISO8601DateTime;
 use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AcceptsOrDeclinesInvitation\AcceptsOrDeclinesFeedbackInvitation;
+use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQuestion\AnswersFeedbackQuestion;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\AnswersRoundRegistrationQuestion;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\AcceptsOrDeclinesInvitation;
 use RC\Domain\Bot\BotId\BotId;
@@ -98,7 +99,7 @@ class SendsArbitraryMessage extends Existent
                 $this->answersRoundRegistrationQuestion();
             } elseif ($this->thereIsAPendingFeedbackInvitation($feedbackInvitation)) {
                 $this->acceptsOrDeclinesFeedbackInvitation();
-            } elseif ($this->thereIsAUserAnsweringFeedbackQuestions($feedbackInvitation)) {
+            } elseif ($this->userIsAnsweringFeedbackQuestions($feedbackInvitation)) {
                 $this->answersFeedbackQuestion();
             } else {
                 $this->replyInCaseOfAnyUncertainty()->value();
@@ -234,7 +235,7 @@ class SendsArbitraryMessage extends Existent
         return $feedbackInvitationStatus->equals(new FromPureFeedbackInvitationStatus(new FeedbackInvitationSent()));
     }
 
-    private function thereIsAUserAnsweringFeedbackQuestions(FeedbackInvitation $feedbackInvitation)
+    private function userIsAnsweringFeedbackQuestions(FeedbackInvitation $feedbackInvitation)
     {
         $feedbackInvitationStatus = new FromFeedbackInvitation($feedbackInvitation);
         if (!$feedbackInvitationStatus->exists()->isSuccessful()) {
@@ -304,6 +305,19 @@ class SendsArbitraryMessage extends Existent
     {
         return
             (new AcceptsOrDeclinesFeedbackInvitation(
+                $this->message,
+                $this->botId,
+                $this->httpTransport,
+                $this->connection,
+                $this->logs
+            ))
+                ->response();
+    }
+
+    private function answersFeedbackQuestion()
+    {
+        return
+            (new AnswersFeedbackQuestion(
                 $this->message,
                 $this->botId,
                 $this->httpTransport,
