@@ -53,7 +53,8 @@ class NotifiedParticipant implements Participant
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->participantTelegramId->value(),
-                                'text' => $this->text
+                                'text' => $this->text,
+                                'parse_mode' => 'MarkdownV2'
                             ]),
                             new FromImpure($this->botToken)
                         ),

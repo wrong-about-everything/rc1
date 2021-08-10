@@ -41,7 +41,7 @@ class NonRegisteredUserPressesStart extends Existent
     {
         $this->logs->receive(new InformationMessage('User presses start during registration scenario started'));
 
-        $registrationStepValue = $this->nextReplu()->value();
+        $registrationStepValue = $this->nextReply()->value();
         if (!$registrationStepValue->isSuccessful()) {
             $this->logs->receive(new FromNonSuccessfulImpureValue($registrationStepValue));
             $this->sorry()->value();
@@ -52,7 +52,7 @@ class NonRegisteredUserPressesStart extends Existent
         return new Successful(new Emptie());
     }
 
-    private function nextReplu()
+    private function nextReply()
     {
         return
             new NextReplyToUser(
