@@ -105,7 +105,7 @@ class PressesStart extends Existent
                     new FromParsedTelegramMessage($this->message),
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->message['message']['from']['first_name'],
-                    $this->message['message']['from']['last_name'],
+                    $this->message['message']['from']['last_name'] ?? '',
                     $this->message['message']['from']['username'],
                     $this->connection
                 )
