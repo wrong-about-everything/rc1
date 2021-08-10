@@ -58,7 +58,7 @@ class Sorry implements Reply
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Простите, у нас что-то сломалось. Попробуйте ещё пару раз, и если не заработает — напишите, пожалуйста, в @gorgonzola_support_bot_bot',
+                                'text' => 'Простите, у нас что-то сломалось. Попробуйте ещё пару раз, и если не заработает — напишите, пожалуйста, в @gorgonzola_support_bot',
                             ]),
                             new FromImpure($this->botToken)
                         ),
