@@ -65,13 +65,13 @@ class Seed
                     '1884532101:AAGlJklZYP5j72nC2UcvB0IbD05i70kQqWc',
                     '@gorgonzola_sandwich_bot',
                     json_encode([
-                        (new ProductManager())->value(),
-                        (new ProductDesigner())->value(),
-                        (new SystemOrBusinessAnalyst())->value(),
-                        (new ProductAnalyst())->value(),
                         (new CEO())->value(),
+                        (new ProductManager())->value(),
                         (new ProjectManager())->value(),
                         (new Marketer())->value(),
+                        (new ProductDesigner())->value(),
+                        (new ProductAnalyst())->value(),
+                        (new SystemOrBusinessAnalyst())->value(),
                     ]),
                     json_encode([
                         (new LessThanAYear())->value(),

@@ -82,7 +82,12 @@ class UserRegistersForAMeetingRoundDuringRegistrationTest extends TestCase
         $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
-            'Спасибо за ответы! Кстати, у нас уже намечаются встречи, давайте может сразу запишу вас? Пришлю вам пару 8 августа (это пятница), а по времени уже вдвоём договоритесь. Ну что, готовы?',
+            <<<q
+Спасибо за ответы!
+
+У нас уже намечаются встречи, готовы поучаствовать? Пришлю вам пару 8 августа (это пятница), а по времени договоритесь между собой.
+q
+            ,
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
 

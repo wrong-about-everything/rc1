@@ -62,7 +62,12 @@ class MeetingRoundInvitation implements Reply
                                 'chat_id' => $this->telegramUserId->value(),
                                 'text' =>
                                     sprintf(
-                                        'Спасибо за ответы! Кстати, у нас уже намечаются встречи, давайте может сразу запишу вас? Пришлю вам пару %s, а по времени уже вдвоём договоритесь. Ну что, готовы?',
+                                        <<<q
+Спасибо за ответы!
+
+У нас уже намечаются встречи, готовы поучаствовать? Пришлю вам пару %s, а по времени договоритесь между собой.
+q
+                                        ,
                                         $this->meetingRoundHumanReadableStartDate()
                                     ),
                                 'reply_markup' =>
