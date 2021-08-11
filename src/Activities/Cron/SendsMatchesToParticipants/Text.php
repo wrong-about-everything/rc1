@@ -6,6 +6,7 @@ namespace RC\Activities\Cron\SendsMatchesToParticipants;
 
 use RC\Domain\UserInterest\InterestId\Pure\Single\FromInteger;
 use RC\Domain\UserInterest\InterestName\Pure\FromInterestId;
+use RC\Infrastructure\TelegramBot\MessageToUser\MarkdownV2;
 
 class Text
 {
@@ -33,61 +34,67 @@ class Text
             return
                 sprintf(
                     <<<t
-Привет, %s!
+Привет, %s\!
 
-Ваша пара на этой неделе — %s (@%s).
-Вот что ваш собеседник написал о себе:
+Ваша пара на этой неделе — %s \(@%s\)\.
+Вот что ваш собеседник написал о себе\:
 
-_«%s»_.
+_«%s»_
 
-Приятного общения!
+Приятного общения\!
 t
                     ,
-                    $this->participantFirstName,
-                    $this->matchFirstName,
-                    $this->matchTelegramHandle,
-                    $this->aboutMatch
+                    (new MarkdownV2($this->participantFirstName))->value(),
+                    (new MarkdownV2($this->matchFirstName))->value(),
+                    (new MarkdownV2($this->matchTelegramHandle))->value(),
+                    (new MarkdownV2($this->aboutMatch))->value()
                 );
         } elseif (count($interestsInCommon) === 1) {
             return
                 sprintf(
                     <<<t
-Привет, %s!
+Привет, %s\!
 
-Ваша пара на этой неделе — %s (@%s). Среди ваших общих интересов — %s.
-Вот что ваш собеседник написал о себе:
+Ваша пара на этой неделе — %s \(@%s\)\. Среди ваших общих интересов — %s\.
+Вот что ваш собеседник написал о себе\:
 
-_«%s»_.
+_«%s»_
 
-Приятного общения!
+Приятного общения\!
 t
                     ,
-                    $this->participantFirstName,
-                    $this->matchFirstName,
-                    $this->matchTelegramHandle,
-                    (new FromInterestId(new FromInteger((int) $interestsInCommon[0])))->value(),
-                    $this->aboutMatch
+                    (new MarkdownV2($this->participantFirstName))->value(),
+                    (new MarkdownV2($this->matchFirstName))->value(),
+                    (new MarkdownV2($this->matchTelegramHandle))->value(),
+                    (new MarkdownV2(
+                        (new FromInterestId(
+                            new FromInteger((int) $interestsInCommon[0])
+                        ))
+                            ->value()
+                    ))
+                        ->value(),
+                    (new MarkdownV2($this->aboutMatch))->value()
                 );
         }
 
         return
             sprintf(
                 <<<t
-Привет, %s!
+Привет, %s\!
 
-Ваша пара на этой неделе — %s (@%s). У вас совпали такие интересы: %s.
-Вот что ваш собеседник написал о себе:
+Ваша пара на этой неделе — %s \(@%s\)\. У вас совпали такие интересы\: %s\.
+Вот что ваш собеседник написал о себе\:
 
-_«%s»_.
+_«%s»_
 
-Приятного общения!
+Приятного общения\!
 t
                 ,
-                $this->participantFirstName,
-                $this->matchFirstName,
-                $this->matchTelegramHandle,
-                $this->multipleInterests($interestsInCommon),
-                $this->aboutMatch
+                (new MarkdownV2($this->participantFirstName))->value(),
+                (new MarkdownV2($this->matchFirstName))->value(),
+                (new MarkdownV2($this->matchTelegramHandle))->value(),
+                (new MarkdownV2($this->multipleInterests($interestsInCommon)))->value(),
+                (new MarkdownV2($this->aboutMatch))->value()
             );
     }
 
