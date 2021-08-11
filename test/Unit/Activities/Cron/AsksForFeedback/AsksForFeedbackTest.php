@@ -57,6 +57,32 @@ class AsksForFeedbackTest extends TestCase
         $this->cronRequest($transport, $connection);
 
         $this->assertFeedbackInvitationsAre(new Sent(), 2, $connection);
+        $this->assertCount(2, $transport->sentRequests());
+    }
+
+    public function testWhenInvitationsAreGeneratedAndSentDuringFirstCronRequestThenTheyAreNeitherGeneratedNorSentDuringSecondCronRequest()
+    {
+        $connection = new ApplicationConnection();
+        $transport = new Indifferent();
+        $this->seedBot($this->botId(), $connection);
+        $this->seedMeetingRound($this->meetingRoundId(), $this->botId(), new Now(), $connection);
+        $this->seedParticipant($this->meetingRoundId(), $this->firstParticipantId(), $connection);
+        $this->seedPairFor($this->firstParticipantId(), $this->secondParticipantId(), $connection);
+        $this->seedParticipant($this->meetingRoundId(), $this->secondParticipantId(), $connection);
+        $this->seedPairFor($this->secondParticipantId(), $this->firstParticipantId(), $connection);
+        $this->seedParticipant($this->meetingRoundId(), $this->thirdParticipantId(), $connection);
+
+        $this->assertFeedbackInvitationsAre(new Generated(), 0, $connection);
+        $this->assertFeedbackInvitationsAre(new Sent(), 0, $connection);
+
+        $this->cronRequest($transport, $connection);
+
+        $this->assertFeedbackInvitationsAre(new Sent(), 2, $connection);
+        $this->assertCount(2, $transport->sentRequests());
+        $this->cronRequest($transport, $connection);
+
+        $this->assertFeedbackInvitationsAre(new Sent(), 2, $connection);
+        $this->assertCount(2, $transport->sentRequests());
     }
 
     protected function setUp(): void

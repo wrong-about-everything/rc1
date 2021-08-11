@@ -10,6 +10,8 @@ use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\ById;
 use RC\Domain\FeedbackInvitation\FeedbackInvitationId\Pure\FromString;
 use RC\Domain\FeedbackInvitation\Status\Pure\Generated;
+use RC\Domain\FeedbackInvitation\Status\Pure\Sent as SentStatus;
+use RC\Domain\FeedbackInvitation\WriteModel\WithPause;
 use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromMeetingRound;
 use RC\Domain\MeetingRound\ReadModel\ByClosestFeedbackDateTime;
 use RC\Domain\MeetingRound\ReadModel\MeetingRound;
@@ -62,17 +64,20 @@ class AsksForFeedback extends Existent
 
         array_map(
             function (array $invitationRow) {
-                (new Sent(
-                    new FromString($invitationRow['id']),
-                    new FromInteger($invitationRow['telegram_user_id']),
-                    new ById($this->botId, $this->connection),
-                    $this->transport,
-                    $this->connection,
-                    $this->logs
+                (new WithPause(
+                    new Sent(
+                        new FromString($invitationRow['id']),
+                        new FromInteger($invitationRow['telegram_user_id']),
+                        new ById($this->botId, $this->connection),
+                        $this->transport,
+                        $this->connection,
+                        $this->logs
+                    ),
+                    100000
                 ))
                     ->value();
             },
-            $this->feedbackInvitationsForRound($meetingRoundWithLatestFeedbackDate)
+            $this->notSentFeedbackInvitationsForRound($meetingRoundWithLatestFeedbackDate)
         );
 
         $this->logs->receive(new InformationMessage('Cron asks for feedback scenario finished'));
@@ -93,6 +98,25 @@ where mrp.meeting_round_id = ?
 q
                 ,
                 [(new FromMeetingRound($round))->value()->pure()->raw()],
+                $this->connection
+            ))
+                ->response()->pure()->raw();
+    }
+
+    private function notSentFeedbackInvitationsForRound(MeetingRound $round)
+    {
+        return
+            (new Selecting(
+                <<<q
+select fi.id, tu.telegram_id as telegram_user_id
+from feedback_invitation fi
+    join meeting_round_participant mrp on fi.participant_id = mrp.id
+    join telegram_user tu on tu.id = mrp.user_id
+where mrp.meeting_round_id = ? and fi.status != ?
+limit 50
+q
+                ,
+                [(new FromMeetingRound($round))->value()->pure()->raw(), (new SentStatus())->value()],
                 $this->connection
             ))
                 ->response()->pure()->raw();
