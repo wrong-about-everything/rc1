@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace RC\Activities\User\RegistersInBot\UserStories\Domain\Reply;
 
 use Meringue\Timeline\Point\Now;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\NoMaybeNextTime;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\MeetingRound\ReadModel\MeetingRound;
 use RC\Domain\MeetingRound\StartDateTime;
 use RC\Domain\RoundInvitation\WriteModel\CreatedSent;
@@ -73,8 +73,8 @@ q
                                 'reply_markup' =>
                                     json_encode([
                                         'keyboard' => [
-                                            [['text' => (new Yes())->value()]],
-                                            [['text' => (new No())->value()]],
+                                            [['text' => (new Sure())->value()]],
+                                            [['text' => (new NoMaybeNextTime())->value()]],
                                         ],
                                         'resize_keyboard' => true,
                                         'one_time_keyboard' => true,

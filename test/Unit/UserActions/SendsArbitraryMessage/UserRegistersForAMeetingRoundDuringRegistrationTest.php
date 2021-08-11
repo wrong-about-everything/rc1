@@ -33,7 +33,7 @@ use RC\Domain\User\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Domain\User\UserStatus\Pure\UserStatus;
 use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
 use RC\Domain\UserInterest\InterestId\Pure\Single\SpecificArea;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\User\UserId\FromUuid as UserIdFromUuid;
@@ -91,7 +91,7 @@ q
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
 
-        $this->userReply((new Yes())->value(), $transport, $connection)->response();
+        $this->userReply((new Sure())->value(), $transport, $connection)->response();
         $this->participantExists($this->futureMeetingRoundId(), $this->userId(), $connection, new ParticipantRegistered());
     }
 

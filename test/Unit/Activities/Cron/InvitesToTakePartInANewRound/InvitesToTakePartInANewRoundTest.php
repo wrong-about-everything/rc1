@@ -9,7 +9,7 @@ use Meringue\ISO8601Interval\Floating\NHours;
 use Meringue\Timeline\Point\Future;
 use Meringue\Timeline\Point\Now;
 use PHPUnit\Framework\TestCase;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
@@ -238,7 +238,7 @@ q
     {
         (new SendsArbitraryMessage(
             new Now(),
-            (new UserMessage($telegramUserId, (new Yes())->value()))->value(),
+            (new UserMessage($telegramUserId, (new Sure())->value()))->value(),
             $this->botId()->value(),
             $transport,
             $connection,

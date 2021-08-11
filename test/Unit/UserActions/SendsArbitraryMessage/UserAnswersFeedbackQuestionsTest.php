@@ -23,7 +23,7 @@ use RC\Domain\Participant\ParticipantId\Pure\ParticipantId;
 use RC\Domain\User\UserStatus\Pure\UserStatus;
 use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
 use RC\Domain\UserInterest\InterestId\Pure\Single\SpecificArea;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\User\UserId\FromUuid as UserIdFromUuid;
@@ -67,7 +67,7 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
         $this->createFeedbackQuestion($this->firstFeedbackQuestionId(), $this->meetingRoundId(), 'как дела?', 1, $connection);
         $transport = new Indifferent();
 
-        $firstResponse = $this->userReplies($this->telegramUserId(), (new Yes())->value(), $transport, $connection);
+        $firstResponse = $this->userReplies($this->telegramUserId(), (new Sure())->value(), $transport, $connection);
 
         $this->assertTrue($firstResponse->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -120,7 +120,7 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
         $this->createFeedbackQuestion($this->secondFeedbackQuestionId(), $this->meetingRoundId(), 'как здоровье, азаза?', 2, $connection);
         $transport = new Indifferent();
 
-        $this->userReplies($this->telegramUserId(), (new Yes())->value(), $transport, $connection);
+        $this->userReplies($this->telegramUserId(), (new Sure())->value(), $transport, $connection);
 
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(

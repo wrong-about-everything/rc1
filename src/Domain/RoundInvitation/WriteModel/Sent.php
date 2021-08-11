@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace RC\Domain\RoundInvitation\WriteModel;
 
-use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\NoMaybeNextTime;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\Bot\Bot;
 use RC\Domain\Bot\BotToken\Impure\FromBot as TokenFromBot;
 use RC\Domain\Bot\BotToken\Pure\FromImpure;
@@ -80,8 +80,8 @@ class Sent implements Invitation
                                 'reply_markup' =>
                                     json_encode([
                                         'keyboard' => [
-                                            [['text' => (new Yes())->value()]],
-                                            [['text' => (new No())->value()]],
+                                            [['text' => (new Sure())->value()]],
+                                            [['text' => (new NoMaybeNextTime())->value()]],
                                         ],
                                         'resize_keyboard' => true,
                                         'one_time_keyboard' => true,

@@ -8,7 +8,7 @@ class Yes extends BooleanAnswerName
 {
     public function value(): string
     {
-        return 'Конечно!';
+        return 'Да';
     }
 
     public function exists(): bool

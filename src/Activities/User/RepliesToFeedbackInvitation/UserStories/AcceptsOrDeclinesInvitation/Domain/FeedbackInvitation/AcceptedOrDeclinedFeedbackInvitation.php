@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\FeedbackInvitation;
 
+use RC\Domain\BooleanAnswer\BooleanAnswerId\Pure\FromBooleanAnswerName;
+use RC\Domain\BooleanAnswer\BooleanAnswerId\Pure\No;
+use RC\Domain\BooleanAnswer\BooleanAnswerId\Pure\Yes;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\FromUserMessage;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\NoMaybeNextTime;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\FeedbackInvitation\FeedbackInvitationId\Impure\FeedbackInvitationId;
 use RC\Domain\FeedbackInvitation\FeedbackInvitationId\Impure\FromFeedbackInvitation;
 use RC\Domain\FeedbackInvitation\ReadModel\FeedbackInvitation;
@@ -53,18 +56,17 @@ class AcceptedOrDeclinedFeedbackInvitation implements WriteModelFeedbackInvitati
     {
         $invitationId = new FromFeedbackInvitation($this->feedbackInvitation);
 
-        if ((new FromUserMessage(new FromParsedTelegramMessage($this->message)))->equals(new No())) {
+        if ($this->no()) {
             $declinedInvitationValue = (new Declined($invitationId, $this->connection))->value();
             if (!$declinedInvitationValue->isSuccessful()) {
                 return new FromFeedbackInvitation(new NonSuccessful($declinedInvitationValue));
             }
             return $invitationId;
-        } elseif ((new FromUserMessage(new FromParsedTelegramMessage($this->message)))->equals(new Yes())) {
+        } elseif ($this->yes()) {
             $acceptedInvitationValue = (new Accepted($invitationId, $this->connection))->value();
             if (!$acceptedInvitationValue->isSuccessful()) {
                 return new FromFeedbackInvitation(new NonSuccessful($acceptedInvitationValue));
             }
-
             return $invitationId;
         }
 
@@ -79,5 +81,27 @@ class AcceptedOrDeclinedFeedbackInvitation implements WriteModelFeedbackInvitati
                     )
                 )
             );
+    }
+
+    private function no()
+    {
+        return
+            (new FromBooleanAnswerName(
+                new FromUserMessage(
+                    new FromParsedTelegramMessage($this->message)
+                )
+            ))
+                ->equals(new No());
+    }
+
+    private function yes()
+    {
+        return
+            (new FromBooleanAnswerName(
+                new FromUserMessage(
+                    new FromParsedTelegramMessage($this->message)
+                )
+            ))
+                ->equals(new Yes());
     }
 }

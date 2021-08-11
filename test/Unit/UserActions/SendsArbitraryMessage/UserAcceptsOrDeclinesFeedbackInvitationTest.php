@@ -10,8 +10,8 @@ use Meringue\Timeline\Point\Future;
 use Meringue\Timeline\Point\Now;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\NoMaybeNextTime;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\FeedbackInvitation\FeedbackInvitationId\Impure\FromPure as ImpureFeedbackInvitationIdFromPure;
 use RC\Domain\FeedbackInvitation\FeedbackInvitationId\Pure\FeedbackInvitationId;
 use RC\Domain\FeedbackInvitation\FeedbackInvitationId\Pure\FromString as FeedbackInvitationIdFromString;
@@ -67,7 +67,7 @@ class UserAcceptsOrDeclinesFeedbackInvitationTest extends TestCase
         $this->createFeedbackInvitation($this->feedbackInvitationId(), $this->firstParticipantId(), new Sent(), $connection);
         $transport = new Indifferent();
 
-        $response = $this->userReplies($this->firstTelegramUserId(), (new No())->value(), new Now(), $transport, $connection);
+        $response = $this->userReplies($this->firstTelegramUserId(), (new NoMaybeNextTime())->value(), new Now(), $transport, $connection);
 
         $this->assertTrue($response->isSuccessful());
         $this->assertFeedbackInvitationIsDeclined($this->feedbackInvitationId(), $connection);
@@ -90,7 +90,7 @@ class UserAcceptsOrDeclinesFeedbackInvitationTest extends TestCase
         $this->createFeedbackQuestion($this->meetingRoundId(), $connection);
         $transport = new Indifferent();
 
-        $response = $this->userReplies($this->firstTelegramUserId(), (new Yes())->value(), new Now(), $transport, $connection);
+        $response = $this->userReplies($this->firstTelegramUserId(), (new Sure())->value(), new Now(), $transport, $connection);
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());

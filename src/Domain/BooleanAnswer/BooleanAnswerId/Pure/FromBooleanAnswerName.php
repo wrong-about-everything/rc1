@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace RC\Domain\BooleanAnswer\BooleanAnswerId\Pure;
 
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\No as JustNo;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\BooleanAnswerName;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\NoMaybeNextTime;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes as JustYes;
 
 class FromBooleanAnswerName extends BooleanAnswer
 {
@@ -30,8 +32,11 @@ class FromBooleanAnswerName extends BooleanAnswer
     private function all()
     {
         return [
-            (new No())->value() => new No(),
-            (new Yes())->value() => new Yes(),
+            (new NoMaybeNextTime())->value() => new No(),
+            (new JustNo())->value() => new No(),
+
+            (new Sure())->value() => new Yes(),
+            (new JustYes())->value() => new Yes(),
         ];
     }
 }

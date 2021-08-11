@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace RC\Domain\BooleanAnswer\BooleanAnswerName;
 
-class No extends BooleanAnswerName
+class Sure extends BooleanAnswerName
 {
     public function value(): string
     {
-        return 'Нет';
+        return 'Конечно!';
     }
 
     public function exists(): bool

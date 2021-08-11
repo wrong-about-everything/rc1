@@ -28,6 +28,8 @@ class FromString extends BooleanAnswerName
         return [
             (new No())->value() => new No(),
             (new Yes())->value() => new Yes(),
+            (new NoMaybeNextTime())->value() => new NoMaybeNextTime(),
+            (new Sure())->value() => new Sure(),
         ][$booleanAnswer] ?? new NonExistent();
     }
 }

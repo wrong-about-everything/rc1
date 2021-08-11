@@ -31,7 +31,7 @@ use RC\Domain\UserInterest\InterestName\Pure\FromInterestId;
 use RC\Domain\UserInterest\InterestName\Pure\Networking as NetworkingName;
 use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
 use RC\Domain\UserInterest\InterestId\Pure\Single\SpecificArea;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
@@ -80,7 +80,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new SpecificAreaChoosing(), 2, 'Вопрос про интересы', $connection);
         $transport = new Indifferent();
 
-        $firstResponse = $this->userReplies($this->telegramUserId(), (new Yes())->value(), $transport, $connection);
+        $firstResponse = $this->userReplies($this->telegramUserId(), (new Sure())->value(), $transport, $connection);
 
         $this->assertTrue($firstResponse->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -132,7 +132,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new SpecificAreaChoosing(), 2, 'Вопрос про интересы', $connection);
         $transport = new Indifferent();
 
-        $firstResponse = $this->userReplies($this->telegramUserId(), (new Yes())->value(), $transport, $connection);
+        $firstResponse = $this->userReplies($this->telegramUserId(), (new Sure())->value(), $transport, $connection);
 
         $this->assertTrue($firstResponse->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -184,7 +184,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new SpecificAreaChoosing(), 2, 'Вопрос про интересы', $connection);
         $transport = new Indifferent();
 
-        $firstResponse = $this->userReplies($this->telegramUserId(), (new Yes())->value(), $transport, $connection);
+        $firstResponse = $this->userReplies($this->telegramUserId(), (new Sure())->value(), $transport, $connection);
 
         $this->assertTrue($firstResponse->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -245,7 +245,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new SpecificAreaChoosing(), 2, 'Вопрос про интересы', $connection);
         $transport = new Indifferent();
 
-        $firstResponse = $this->userReplies($this->telegramUserId(), (new Yes())->value(), $transport, $connection);
+        $firstResponse = $this->userReplies($this->telegramUserId(), (new Sure())->value(), $transport, $connection);
 
         $this->assertTrue($firstResponse->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());

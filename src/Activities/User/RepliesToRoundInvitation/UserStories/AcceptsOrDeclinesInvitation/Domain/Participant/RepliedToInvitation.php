@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\Participant;
 
+use RC\Domain\BooleanAnswer\BooleanAnswerId\Pure\FromBooleanAnswerName;
+use RC\Domain\BooleanAnswer\BooleanAnswerId\Pure\No;
+use RC\Domain\BooleanAnswer\BooleanAnswerId\Pure\Yes;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\FromUserMessage;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
 use RC\Domain\Participant\WriteModel\AcceptedInvitation;
 use RC\Domain\Participant\WriteModel\NonExistent;
 use RC\Domain\Participant\WriteModel\NonSuccessful;
@@ -54,14 +55,14 @@ class RepliedToInvitation implements Participant
     {
         $invitationId = new FromInvitation($this->invitation);
 
-        if ((new FromUserMessage(new FromParsedTelegramMessage($this->message)))->equals(new No())) {
+        if ($this->no()) {
             $declinedInvitationValue = (new Declined($invitationId, $this->connection))->value();
             if (!$declinedInvitationValue->isSuccessful()) {
                 return new NonSuccessful($declinedInvitationValue);
             }
 
             return new NonExistent();
-        } elseif ((new FromUserMessage(new FromParsedTelegramMessage($this->message)))->equals(new Yes())) {
+        } elseif ($this->yes()) {
             $acceptedInvitationValue = (new Accepted($invitationId, $this->connection))->value();
             if (!$acceptedInvitationValue->isSuccessful()) {
                 return new NonSuccessful($acceptedInvitationValue);
@@ -84,5 +85,27 @@ class RepliedToInvitation implements Participant
                     )
                 )
             );
+    }
+
+    private function no()
+    {
+        return
+            (new FromBooleanAnswerName(
+                new FromUserMessage(
+                    new FromParsedTelegramMessage($this->message)
+                )
+            ))
+                ->equals(new No());
+    }
+
+    private function yes()
+    {
+        return
+            (new FromBooleanAnswerName(
+                (new FromUserMessage(
+                    new FromParsedTelegramMessage($this->message)
+                ))
+            ))
+                ->equals(new Yes());
     }
 }

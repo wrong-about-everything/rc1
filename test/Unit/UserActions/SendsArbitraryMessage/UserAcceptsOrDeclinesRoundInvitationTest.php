@@ -13,8 +13,8 @@ use Meringue\Timeline\Point\Now;
 use Meringue\Timeline\Point\Past;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\NoMaybeNextTime;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\MeetingRound\MeetingRoundId\Pure\FromString as MeetingRoundIdFromString;
@@ -75,7 +75,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->firstUserId(), new Sent(), $connection);
         $transport = new Indifferent();
 
-        $response = $this->userReplies($this->firstTelegramUserId(), (new No())->value(), new Now(), $transport, $connection);
+        $response = $this->userReplies($this->firstTelegramUserId(), (new NoMaybeNextTime())->value(), new Now(), $transport, $connection);
 
         $this->assertTrue($response->isSuccessful());
         $this->assertInvitationIsDeclined($this->firstTelegramUserId(), $this->botId(), $connection);
@@ -98,7 +98,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new NetworkingOrSomeSpecificArea(), 1, 'how r u?', $connection);
         $transport = new Indifferent();
 
-        $response = $this->userReplies($this->firstTelegramUserId(), (new Yes())->value(), new Now(), $transport, $connection);
+        $response = $this->userReplies($this->firstTelegramUserId(), (new Sure())->value(), new Now(), $transport, $connection);
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -125,7 +125,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         $this->createUserRegistrationProgress($this->registrationQuestionId(), $this->secondUserId(), $connection);
         $transport = new Indifferent();
 
-        $response = $this->userReplies($this->firstTelegramUserId(), (new Yes())->value(), new Now(), $transport, $connection);
+        $response = $this->userReplies($this->firstTelegramUserId(), (new Sure())->value(), new Now(), $transport, $connection);
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -149,7 +149,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         $this->createMeetingRoundInvitation($this->pastMeetingRoundId(), $this->secondUserId(), new Sent(), $connection);
         $transport = new Indifferent();
 
-        $this->userReplies($this->firstTelegramUserId(), (new Yes())->value(), new Past(new Now(), new NHours(2)), $transport, $connection);
+        $this->userReplies($this->firstTelegramUserId(), (new Sure())->value(), new Past(new Now(), new NHours(2)), $transport, $connection);
 
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
@@ -158,7 +158,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         );
         $this->participantExists($this->pastMeetingRoundId(), $this->firstUserId(), $connection, new ParticipantRegistered());
 
-        $this->userReplies($this->secondTelegramUserId(), (new Yes())->value(), new Past(new Now(), new NHours(2)), $transport, $connection);
+        $this->userReplies($this->secondTelegramUserId(), (new Sure())->value(), new Past(new Now(), new NHours(2)), $transport, $connection);
 
         $this->assertCount(2, $transport->sentRequests());
         $this->assertEquals(
@@ -171,7 +171,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->firstUserId(), new Sent(), $connection);
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->secondUserId(), new Sent(), $connection);
 
-        $this->userReplies($this->firstTelegramUserId(), (new Yes())->value(), new Past(new Now(), new NHours(2)), $transport, $connection);
+        $this->userReplies($this->firstTelegramUserId(), (new Sure())->value(), new Past(new Now(), new NHours(2)), $transport, $connection);
 
         $this->assertCount(3, $transport->sentRequests());
         $this->assertEquals(
@@ -180,7 +180,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         );
         $this->participantExists($this->meetingRoundId(), $this->firstUserId(), $connection, new ParticipantRegistered());
 
-        $this->userReplies($this->secondTelegramUserId(), (new Yes())->value(), new Past(new Now(), new NHours(2)), $transport, $connection);
+        $this->userReplies($this->secondTelegramUserId(), (new Sure())->value(), new Past(new Now(), new NHours(2)), $transport, $connection);
 
         $this->assertCount(4, $transport->sentRequests());
         $this->assertEquals(
@@ -200,7 +200,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->firstUserId(), new Sent(), $connection);
         $transport = new Indifferent();
 
-        $response = $this->userReplies($this->firstTelegramUserId(), (new Yes())->value(), new Now(), $transport, $connection);
+        $response = $this->userReplies($this->firstTelegramUserId(), (new Sure())->value(), new Now(), $transport, $connection);
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());
@@ -221,7 +221,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->firstUserId(), new Sent(), $connection);
         $transport = new Indifferent();
 
-        $response = $this->userReplies($this->firstTelegramUserId(), (new Yes())->value(), new Now(), $transport, $connection);
+        $response = $this->userReplies($this->firstTelegramUserId(), (new Sure())->value(), new Now(), $transport, $connection);
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(1, $transport->sentRequests());

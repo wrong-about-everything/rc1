@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace RC\Domain\FeedbackInvitation\WriteModel;
 
 use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\NoMaybeNextTime;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
 use RC\Domain\Bot\Bot;
 use RC\Domain\Bot\BotToken\Impure\FromBot as TokenFromBot;
