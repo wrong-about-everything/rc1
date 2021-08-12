@@ -30,6 +30,19 @@ class FromString extends InterestName
             (new SpecificArea())->value() => new SpecificArea(),
             (new SkySurfing())->value() => new SkySurfing(),
             (new DayDreaming())->value() => new DayDreaming(),
+            (new ImpactAnalysisAndRiskAssessment())->value() => new ImpactAnalysisAndRiskAssessment(),
+            (new InterviewPreparation())->value() => new InterviewPreparation(),
+            (new CareerBuilding())->value() => new CareerBuilding(),
+            (new ProductDiscovery())->value() => new ProductDiscovery(),
+            (new TeamMotivation())->value() => new TeamMotivation(),
+            (new MetricsImprovement())->value() => new MetricsImprovement(),
+            (new ProductCultureBuilding())->value() => new ProductCultureBuilding(),
+            (new Hiring())->value() => new Hiring(),
+            (new CareerLevelUp())->value() => new CareerLevelUp(),
+            (new CasesDiscussion())->value() => new CasesDiscussion(),
+            (new TeamManagement())->value() => new TeamManagement(),
+            (new UnitEconomics())->value() => new UnitEconomics(),
+            (new ClientSegmentationAndMarketAnalysis())->value() => new ClientSegmentationAndMarketAnalysis(),
         ];
     }
 }
