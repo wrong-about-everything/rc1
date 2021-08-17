@@ -23,7 +23,7 @@ use RC\Domain\Participant\ParticipantId\Pure\ParticipantId;
 use RC\Domain\BotUser\UserStatus\Pure\UserStatus;
 use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
 use RC\Domain\UserInterest\InterestId\Pure\Single\SpecificArea;
-use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\Sure;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;

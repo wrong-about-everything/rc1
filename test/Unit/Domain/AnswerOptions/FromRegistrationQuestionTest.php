@@ -6,7 +6,7 @@ namespace RC\Tests\Unit\Domain\AnswerOptions;
 
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use RC\Domain\AnswerOptions\FromRegistrationQuestion;
+use RC\Domain\ReplyToUser\ReplyOptions\FromRegistrationQuestion;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Experience\ExperienceId\Pure\BetweenAYearAndThree;

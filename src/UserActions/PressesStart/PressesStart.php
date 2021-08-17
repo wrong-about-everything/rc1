@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace RC\UserActions\PressesStart;
 
-use RC\Domain\TelegramBot\Reply\Text\FillInYourUserNameAndFirstName;
-use RC\Domain\TelegramBot\Reply\Text\InCaseOfAnyUncertainty;
+use RC\Domain\ReplyToUser\Text\FillInYourUserNameAndFirstName;
+use RC\Domain\ReplyToUser\Text\InCaseOfAnyUncertainty;
 use RC\Domain\BotUser\UserStatus\Impure\FromBotUser;
 use RC\Domain\BotUser\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
 use RC\Domain\BotUser\UserStatus\Impure\UserStatus;
@@ -18,7 +18,7 @@ use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
-use RC\Domain\TelegramBot\Reply\Text\Sorry;
+use RC\Domain\ReplyToUser\Text\Sorry;
 use RC\Domain\BotUser\AddedIfNotYet;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
 use RC\Infrastructure\UserStory\Body\Emptie;

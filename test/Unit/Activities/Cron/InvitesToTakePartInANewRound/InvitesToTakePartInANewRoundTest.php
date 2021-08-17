@@ -9,7 +9,7 @@ use Meringue\ISO8601Interval\Floating\NHours;
 use Meringue\Timeline\Point\Future;
 use Meringue\Timeline\Point\Now;
 use PHPUnit\Framework\TestCase;
-use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\Sure;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;

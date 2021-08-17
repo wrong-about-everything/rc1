@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion;
 
-use RC\Domain\AnswerOptions\AnswerOptions;
-use RC\Domain\AnswerOptions\FromRegistrationQuestion as AnswerOptionsFromRegistrationQuestion;
+use RC\Domain\ReplyToUser\ReplyOptions\ReplyOptions;
+use RC\Domain\ReplyToUser\ReplyOptions\FromRegistrationQuestion as AnswerOptionsFromRegistrationQuestion;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Experience\ExperienceName\FromString;
 use RC\Domain\Position\PositionName\FromString as PositionNameFromString;
 use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
 use RC\Activities\User\RegistersInBot\UserStories\Domain\Reply\NextReplyToUserToUser;
 use RC\Domain\RegistrationQuestion\RegistrationQuestion;
-use RC\Domain\TelegramBot\Reply\Text\ValidationError;
+use RC\Domain\ReplyToUser\Text\ValidationError;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Impure\FromPure;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Impure\FromRegistrationQuestion;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
@@ -23,7 +23,7 @@ use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
-use RC\Domain\TelegramBot\Reply\Text\Sorry;
+use RC\Domain\ReplyToUser\Text\Sorry;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\FromParsedTelegramMessage as UserReply;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\UserMessage;
@@ -95,7 +95,7 @@ class AnswersRegistrationQuestion extends Existent
             );
     }
 
-    private function validationError(AnswerOptions $answerOptions)
+    private function validationError(ReplyOptions $answerOptions)
     {
         return
             new ValidationError(

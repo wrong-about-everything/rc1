@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace RC\Domain\FeedbackInvitation\WriteModel;
 
-use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\No;
-use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\NoMaybeNextTime;
-use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\Sure;
-use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\Yes;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\NoMaybeNextTime;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
 use RC\Domain\Bot\Bot;
 use RC\Domain\Bot\BotToken\Impure\FromBot as TokenFromBot;
 use RC\Domain\Bot\BotToken\Pure\FromImpure;

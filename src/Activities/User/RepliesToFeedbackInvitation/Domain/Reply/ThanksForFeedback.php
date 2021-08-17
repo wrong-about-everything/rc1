@@ -19,10 +19,10 @@ use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
 use RC\Domain\Bot\BotToken\Pure\FromImpure;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
-use RC\Domain\TelegramBot\Reply\Text\ReplyToUser;
+use RC\Domain\ReplyToUser\Text\SentReplyToUser;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class ThanksForFeedback implements ReplyToUser
+class ThanksForFeedback implements SentReplyToUser
 {
     private $telegramUserId;
     private $botId;

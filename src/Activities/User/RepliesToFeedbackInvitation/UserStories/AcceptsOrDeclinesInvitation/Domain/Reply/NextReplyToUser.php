@@ -17,10 +17,10 @@ use RC\Domain\Participant\ParticipantId\Impure\FromFeedbackInvitation as Partici
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
-use RC\Domain\TelegramBot\Reply\Text\ReplyToUser;
+use RC\Domain\ReplyToUser\Text\SentReplyToUser;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class NextReplyToUser implements ReplyToUser
+class NextReplyToUser implements SentReplyToUser
 {
     private $feedbackInvitation;
     private $telegramUserId;

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\Participant;
 
-use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerId\Pure\FromBooleanAnswerName;
-use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerId\Pure\No;
-use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerId\Pure\Yes;
-use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\FromUserMessage;
+use RC\Domain\BooleanAnswer\BooleanAnswerId\Pure\FromBooleanAnswerName;
+use RC\Domain\BooleanAnswer\BooleanAnswerId\Pure\No;
+use RC\Domain\BooleanAnswer\BooleanAnswerId\Pure\Yes;
+use RC\Domain\BooleanAnswer\BooleanAnswerName\FromUserMessage;
 use RC\Domain\Participant\WriteModel\AcceptedInvitation;
 use RC\Domain\Participant\WriteModel\NonExistent;
 use RC\Domain\Participant\WriteModel\NonSuccessful;
