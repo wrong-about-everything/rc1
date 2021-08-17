@@ -8,7 +8,7 @@ use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\BotUser\BotUser;
 use RC\Domain\BotUser\ByTelegramUserId;
 use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
-use RC\Domain\User\UserStatus\Pure\Registered;
+use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;

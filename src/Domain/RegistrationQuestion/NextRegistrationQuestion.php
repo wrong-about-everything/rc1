@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace RC\Domain\RegistrationQuestion;
 
-use RC\Domain\User\ByTelegramId;
-use RC\Domain\User\UserId\FromUser;
+use RC\Domain\TelegramUser\ByTelegramId;
+use RC\Domain\TelegramUser\UserId\FromUser;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;

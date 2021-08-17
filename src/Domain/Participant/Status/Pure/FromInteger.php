@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Domain\Participant\Status\Pure;
 
-use RC\Domain\User\UserStatus\Pure\RegistrationIsInProgress;
+use RC\Domain\BotUser\UserStatus\Pure\RegistrationIsInProgress;
 
 class FromInteger extends Status
 {

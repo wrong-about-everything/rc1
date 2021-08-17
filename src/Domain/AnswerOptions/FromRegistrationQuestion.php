@@ -14,6 +14,7 @@ use RC\Domain\Position\PositionName\FromPosition;
 use RC\Domain\RegistrationQuestion\RegistrationQuestion;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Impure\FromPure;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Impure\FromRegistrationQuestion as RegistrationQuestionType;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\About;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
@@ -55,6 +56,8 @@ class FromRegistrationQuestion implements AnswerOptions
             return new Successful(new Present($this->twoPositionsInARow()));
         } elseif ((new RegistrationQuestionType($this->registrationQuestion))->equals(new FromPure(new Experience()))) {
             return new Successful(new Present($this->twoExperiencesInARow()));
+        } elseif ((new RegistrationQuestionType($this->registrationQuestion))->equals(new FromPure(new About()))) {
+            return new Successful(new Present($this->skip()));
         }
 
         return new Successful(new Present([]));
@@ -94,5 +97,10 @@ class FromRegistrationQuestion implements AnswerOptions
                 },
                 []
             );
+    }
+
+    private function skip()
+    {
+        return [['text' => 'Пропустить']];
     }
 }

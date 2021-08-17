@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace RC\Domain\RoundInvitation\WriteModel;
 
-use RC\Domain\BooleanAnswer\BooleanAnswerName\NoMaybeNextTime;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
+use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\NoMaybeNextTime;
+use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\Sure;
 use RC\Domain\Bot\Bot;
 use RC\Domain\Bot\BotToken\Impure\FromBot as TokenFromBot;
 use RC\Domain\Bot\BotToken\Pure\FromImpure;

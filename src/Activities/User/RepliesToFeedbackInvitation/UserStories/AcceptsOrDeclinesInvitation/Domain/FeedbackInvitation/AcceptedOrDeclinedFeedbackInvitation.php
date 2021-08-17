@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\FeedbackInvitation;
 
-use RC\Domain\BooleanAnswer\BooleanAnswerId\Pure\FromBooleanAnswerName;
-use RC\Domain\BooleanAnswer\BooleanAnswerId\Pure\No;
-use RC\Domain\BooleanAnswer\BooleanAnswerId\Pure\Yes;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\FromUserMessage;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\NoMaybeNextTime;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
+use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerId\Pure\FromBooleanAnswerName;
+use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerId\Pure\No;
+use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerId\Pure\Yes;
+use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\FromUserMessage;
+use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\NoMaybeNextTime;
+use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\Sure;
 use RC\Domain\FeedbackInvitation\FeedbackInvitationId\Impure\FeedbackInvitationId;
 use RC\Domain\FeedbackInvitation\FeedbackInvitationId\Impure\FromFeedbackInvitation;
 use RC\Domain\FeedbackInvitation\ReadModel\FeedbackInvitation;

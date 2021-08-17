@@ -8,7 +8,7 @@ use Exception;
 use Ramsey\Uuid\Uuid;
 use RC\Domain\Experience\ExperienceId\Pure\LessThanAYear;
 use RC\Domain\Position\PositionId\Pure\ProductManager;
-use RC\Domain\User\UserStatus\Pure\Registered;
+use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutatingQueryWithMultipleValueSets;
 

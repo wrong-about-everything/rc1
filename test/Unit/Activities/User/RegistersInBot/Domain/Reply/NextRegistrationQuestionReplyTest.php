@@ -17,12 +17,12 @@ use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\Position\PositionId\Pure\SystemOrBusinessAnalyst;
 use RC\Domain\Position\PositionId\Pure\ProductDesigner;
 use RC\Domain\Position\PositionId\Pure\ProductManager;
-use RC\Activities\User\RegistersInBot\Domain\Reply\NextRegistrationQuestionReply;
+use RC\Activities\User\RegistersInBot\Domain\Reply\NextRegistrationQuestionReplyToUser;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
-use RC\Domain\User\UserId\FromUuid as UserIdFromUuid;
-use RC\Domain\User\UserId\UserId;
-use RC\Domain\User\UserStatus\Pure\RegistrationIsInProgress;
+use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
+use RC\Domain\TelegramUser\UserId\UserId;
+use RC\Domain\BotUser\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
 use RC\Infrastructure\Http\Transport\Indifferent;
@@ -47,7 +47,7 @@ class NextRegistrationQuestionReplyTest extends TestCase
         $this->seedBotUser($this->botId(), $this->telegramUserId(), $connection);
         $this->seedPositionQuestion($this->botId(), $connection);
 
-        (new NextRegistrationQuestionReply(
+        (new NextRegistrationQuestionReplyToUser(
             $this->telegramUserId(),
             $this->botId(),
             $connection,
@@ -82,7 +82,7 @@ class NextRegistrationQuestionReplyTest extends TestCase
         $this->seedBotUser($this->botId(), $this->telegramUserId(), $connection);
         $this->seedExperienceQuestion($this->botId(), $connection);
 
-        (new NextRegistrationQuestionReply(
+        (new NextRegistrationQuestionReplyToUser(
             $this->telegramUserId(),
             $this->botId(),
             $connection,

@@ -6,7 +6,7 @@ namespace RC\Domain\BotUser;
 
 use Ramsey\Uuid\Uuid;
 use RC\Domain\Bot\BotId\BotId;
-use RC\Domain\User\UserStatus\Pure\RegistrationIsInProgress;
+use RC\Domain\BotUser\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;

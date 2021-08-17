@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQuestion;
 
 use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQuestion\Domain\Participant\AnsweredFeedbackQuestion;
-use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQuestion\Domain\Reply\NextReply;
+use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQuestion\Domain\Reply\NextReplyToUser;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\FeedbackInvitation\ReadModel\FeedbackInvitation;
@@ -20,7 +20,7 @@ use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
-use RC\Domain\TelegramBot\Reply\Sorry;
+use RC\Domain\TelegramBot\Reply\Text\Sorry;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\FromParsedTelegramMessage as UserReply;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\UserMessage;
@@ -108,7 +108,7 @@ class AnswersFeedbackQuestion extends Existent
     private function nextReplyToUser(FeedbackInvitation $feedbackInvitation)
     {
         return
-            new NextReply(
+            new NextReplyToUser(
                 $feedbackInvitation,
                 new FromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),

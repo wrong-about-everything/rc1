@@ -10,9 +10,9 @@ use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Experience\ExperienceName\FromString;
 use RC\Domain\Position\PositionName\FromString as PositionNameFromString;
 use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
-use RC\Activities\User\RegistersInBot\UserStories\Domain\Reply\NextReplyToUser;
+use RC\Activities\User\RegistersInBot\UserStories\Domain\Reply\NextReplyToUserToUser;
 use RC\Domain\RegistrationQuestion\RegistrationQuestion;
-use RC\Domain\TelegramBot\Reply\ValidationError;
+use RC\Domain\TelegramBot\Reply\Text\ValidationError;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Impure\FromPure;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Impure\FromRegistrationQuestion;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
@@ -23,7 +23,7 @@ use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
-use RC\Domain\TelegramBot\Reply\Sorry;
+use RC\Domain\TelegramBot\Reply\Text\Sorry;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\FromParsedTelegramMessage as UserReply;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\UserMessage;
@@ -153,7 +153,7 @@ class AnswersRegistrationQuestion extends Existent
     private function nextReplyToUser()
     {
         return
-            new NextReplyToUser(
+            new NextReplyToUserToUser(
                 new FromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),
                 $this->httpTransport,

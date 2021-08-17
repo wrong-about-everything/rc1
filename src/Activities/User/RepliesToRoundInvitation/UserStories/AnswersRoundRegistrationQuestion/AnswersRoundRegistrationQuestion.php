@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion;
 
-use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply\NextReply;
+use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply\NextReplyToUser;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Participant\ParticipantAnsweredRoundRegistrationQuestion;
 use RC\Domain\AnswerOptions\AnswerOptions;
 use RC\Domain\AnswerOptions\FromRoundRegistrationQuestion as AnswerOptionsFromRoundRegistrationQuestion;
@@ -17,7 +17,7 @@ use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestion;
 use RC\Domain\RoundRegistrationQuestion\Type\Impure\FromPure;
 use RC\Domain\RoundRegistrationQuestion\Type\Impure\FromRoundRegistrationQuestion;
 use RC\Domain\RoundRegistrationQuestion\Type\Pure\NetworkingOrSomeSpecificArea;
-use RC\Domain\TelegramBot\Reply\ValidationError;
+use RC\Domain\TelegramBot\Reply\Text\ValidationError;
 use RC\Domain\UserInterest\InterestName\Pure\FromString;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
@@ -25,7 +25,7 @@ use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
-use RC\Domain\TelegramBot\Reply\Sorry;
+use RC\Domain\TelegramBot\Reply\Text\Sorry;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\FromParsedTelegramMessage as UserReply;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\UserMessage;
@@ -145,7 +145,7 @@ class AnswersRoundRegistrationQuestion extends Existent
     private function nextReplyToUser(InvitationId $invitationId)
     {
         return
-            new NextReply(
+            new NextReplyToUser(
                 $invitationId,
                 new FromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),

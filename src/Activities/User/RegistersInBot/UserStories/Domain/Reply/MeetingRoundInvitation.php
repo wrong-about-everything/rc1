@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace RC\Activities\User\RegistersInBot\UserStories\Domain\Reply;
 
 use Meringue\Timeline\Point\Now;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\NoMaybeNextTime;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
+use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\NoMaybeNextTime;
+use RC\Domain\TelegramBot\Reply\Buttons\Boolean\BooleanAnswerName\Sure;
 use RC\Domain\MeetingRound\ReadModel\MeetingRound;
 use RC\Domain\MeetingRound\StartDateTime;
 use RC\Domain\RoundInvitation\WriteModel\CreatedSent;
@@ -24,10 +24,10 @@ use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
 use RC\Domain\Bot\BotToken\Pure\FromImpure;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
-use RC\Domain\TelegramBot\Reply\Reply;
+use RC\Domain\TelegramBot\Reply\Text\ReplyToUser;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class MeetingRoundInvitation implements Reply
+class MeetingRoundInvitation implements ReplyToUser
 {
     private $meetingRound;
     private $telegramUserId;

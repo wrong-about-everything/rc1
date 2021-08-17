@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RC\Domain\RoundInvitation\ReadModel;
 
 use RC\Domain\MeetingRound\MeetingRoundId\Pure\MeetingRoundId;
-use RC\Domain\User\UserId\UserId;
+use RC\Domain\TelegramUser\UserId\UserId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;

@@ -15,12 +15,12 @@ use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
-use RC\Domain\TelegramBot\Reply\Reply;
+use RC\Domain\TelegramBot\Reply\Text\ReplyToUser;
 use RC\Infrastructure\TelegramBot\BotApiUrl;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class InvitationDeclinedAndSeeYouNextTime implements Reply
+class InvitationDeclinedAndSeeYouNextTime implements ReplyToUser
 {
     private $telegramUserId;
     private $botToken;
