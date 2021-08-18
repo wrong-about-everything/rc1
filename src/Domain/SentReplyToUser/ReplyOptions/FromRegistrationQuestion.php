@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\ReplyToUser\ReplyOptions;
+namespace RC\Domain\SentReplyToUser\ReplyOptions;
 
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Experience\AvailableExperiences\ByBotId as AvailableExperiences;
@@ -21,6 +21,7 @@ use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
+use RC\Domain\TelegramBot\UserMessage\Pure\Skipped;
 
 class FromRegistrationQuestion implements ReplyOptions
 {
@@ -101,6 +102,6 @@ class FromRegistrationQuestion implements ReplyOptions
 
     private function skip()
     {
-        return [['text' => 'Пропустить']];
+        return [[['text' => (new Skipped())->value()]]];
     }
 }

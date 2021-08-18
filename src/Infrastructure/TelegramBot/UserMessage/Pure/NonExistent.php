@@ -6,7 +6,7 @@ namespace RC\Infrastructure\TelegramBot\UserMessage\Pure;
 
 use Exception;
 
-class NonExistent implements UserMessage
+class NonExistent extends UserMessage
 {
     public function value(): string
     {

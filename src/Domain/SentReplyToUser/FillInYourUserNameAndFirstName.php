@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\Reply;
+namespace RC\Domain\SentReplyToUser;
 
-use RC\Domain\Bot\BotToken\Impure\BotToken;
-use RC\Domain\Bot\BotToken\Pure\FromImpure;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -15,12 +13,13 @@ use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
-use RC\Domain\SentReplyToUser\SentReplyToUser;
 use RC\Infrastructure\TelegramBot\BotApiUrl;
+use RC\Domain\Bot\BotToken\Pure\FromImpure;
+use RC\Domain\Bot\BotToken\Impure\BotToken;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class FeedbackInvitationDeclinedAndSeeYouNextTime implements SentReplyToUser
+class FillInYourUserNameAndFirstName implements SentReplyToUser
 {
     private $telegramUserId;
     private $botToken;
@@ -59,8 +58,18 @@ class FeedbackInvitationDeclinedAndSeeYouNextTime implements SentReplyToUser
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Тогда до следующего раза! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
-                                'reply_markup' => json_encode(['remove_keyboard' => true])
+                                'text' =>
+                                    sprintf(
+                                        <<<t
+Не хотелось бы начинать знакомство с минорной ноты, но у меня нет другого выбора. Для того, чтобы мы смогли передать ваши контакты будущим собеседникам, нам нужно знать ваш ник, а он у вас не указан. Если не знаете, где именно всё это надо указать, вот пошаговая инструкция: https://aboutmessengers.ru/kak-pomenyat-imya-v-telegramme/. 
+
+Если не знаете, какой ник выбрать, попробуйте просто набор цифр. Например, такой — %s. Обещать не могу, но, думаю, он свободен.
+
+Как будет готово, снова нажмите /start. 
+t
+                                        ,
+                                        time()
+                                    )
                             ]),
                             new FromImpure($this->botToken)
                         ),

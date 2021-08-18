@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\ReplyToUser\Text;
+namespace RC\Domain\SentReplyToUser;
 
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
@@ -19,7 +19,7 @@ use RC\Domain\Bot\BotToken\Impure\BotToken;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class FillInYourUserNameAndFirstName implements SentReplyToUser
+class Sorry implements SentReplyToUser
 {
     private $telegramUserId;
     private $botToken;
@@ -58,18 +58,7 @@ class FillInYourUserNameAndFirstName implements SentReplyToUser
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' =>
-                                    sprintf(
-                                        <<<t
-Не хотелось бы начинать знакомство с минорной ноты, но у меня нет другого выбора. Для того, чтобы мы смогли передать ваши контакты будущим собеседникам, нам нужно знать ваш ник, а он у вас не указан. Если не знаете, где именно всё это надо указать, вот пошаговая инструкция: https://aboutmessengers.ru/kak-pomenyat-imya-v-telegramme/. 
-
-Если не знаете, какой ник выбрать, попробуйте просто набор цифр. Например, такой — %s. Обещать не могу, но, думаю, он свободен.
-
-Как будет готово, снова нажмите /start. 
-t
-                                        ,
-                                        time()
-                                    )
+                                'text' => 'Простите, у нас что-то сломалось. Попробуйте ещё пару раз, и если не заработает — напишите, пожалуйста, в @gorgonzola_support_bot',
                             ]),
                             new FromImpure($this->botToken)
                         ),

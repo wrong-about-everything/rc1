@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RC\Activities\Cron\SendsMatchesToParticipants;
 
 use Meringue\Timeline\Point\Now;
+use RC\Domain\About\Pure\FromMatchingPairArray;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
 use RC\Domain\Matches\PositionExperienceParticipantsInterestsMatrix\FromRound;
@@ -81,7 +82,7 @@ class SendsMatchesToParticipants extends Existent
                             $matchingPair['match_telegram_handle'],
                             json_decode($matchingPair['participant_interested_in'] ?? json_encode([])),
                             json_decode($matchingPair['match_interested_in'] ?? json_encode([])),
-                            $matchingPair['about_match'],
+                            new FromMatchingPairArray($matchingPair)
                         ))
                             ->value(),
                         new ByBotId($this->botId, $this->connection),

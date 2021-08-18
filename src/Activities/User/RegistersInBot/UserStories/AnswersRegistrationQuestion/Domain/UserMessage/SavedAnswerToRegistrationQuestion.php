@@ -23,10 +23,13 @@ use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
+use RC\Infrastructure\SqlDatabase\Agnostic\Query;
+use RC\Infrastructure\SqlDatabase\Agnostic\Query\EmptyQuery;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\TransactionalQueryFromMultipleQueries;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 use RC\Infrastructure\TelegramBot\UserMessage\Impure\UserMessage;
+use RC\Domain\TelegramBot\UserMessage\Pure\Skipped;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\UserMessage as PureUserMessage;
 
 class SavedAnswerToRegistrationQuestion implements UserMessage
@@ -87,7 +90,7 @@ q
                 ->response();
     }
 
-    private function updateBotUserQuery()
+    private function updateBotUserQuery(): Query
     {
         if ((new ProfileRecordType($this->question))->equals(new FromPure(new Position()))) {
             return
@@ -116,6 +119,10 @@ q
                     $this->connection
                 );
         } elseif ((new ProfileRecordType($this->question))->equals(new FromPure(new About()))) {
+            if ($this->userMessage->equals(new Skipped())) {
+                return new EmptyQuery();
+            }
+
             return
                 new SingleMutating(
                     <<<q
@@ -124,7 +131,7 @@ set about = ?
 from "telegram_user"
 where "telegram_user".id = bot_user.user_id and "telegram_user".telegram_id = ? and bot_user.bot_id = ?
 q
-                                    ,
+                    ,
                     [$this->userMessage->value(), $this->telegramUserId->value(), $this->botId->value()],
                     $this->connection
                 );

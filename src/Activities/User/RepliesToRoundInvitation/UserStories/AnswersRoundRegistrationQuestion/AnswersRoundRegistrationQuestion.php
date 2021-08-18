@@ -6,8 +6,8 @@ namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRe
 
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply\NextReplyToUser;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Participant\ParticipantAnsweredRoundRegistrationQuestion;
-use RC\Domain\ReplyToUser\ReplyOptions\ReplyOptions;
-use RC\Domain\ReplyToUser\ReplyOptions\FromRoundRegistrationQuestion as AnswerOptionsFromRoundRegistrationQuestion;
+use RC\Domain\SentReplyToUser\ReplyOptions\ReplyOptions;
+use RC\Domain\SentReplyToUser\ReplyOptions\FromRoundRegistrationQuestion as AnswerOptionsFromRoundRegistrationQuestion;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
@@ -17,7 +17,7 @@ use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestion;
 use RC\Domain\RoundRegistrationQuestion\Type\Impure\FromPure;
 use RC\Domain\RoundRegistrationQuestion\Type\Impure\FromRoundRegistrationQuestion;
 use RC\Domain\RoundRegistrationQuestion\Type\Pure\NetworkingOrSomeSpecificArea;
-use RC\Domain\ReplyToUser\Text\ValidationError;
+use RC\Domain\SentReplyToUser\ValidationError;
 use RC\Domain\UserInterest\InterestName\Pure\FromString;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
@@ -25,7 +25,7 @@ use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
-use RC\Domain\ReplyToUser\Text\Sorry;
+use RC\Domain\SentReplyToUser\Sorry;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\FromParsedTelegramMessage as UserReply;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\UserMessage;

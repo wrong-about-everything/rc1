@@ -15,7 +15,7 @@ use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
-use RC\Domain\ReplyToUser\Text\SentReplyToUser;
+use RC\Domain\SentReplyToUser\SentReplyToUser;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 use RC\Activities\User\RegistersInBot\Domain\Reply\NextRegistrationQuestionReplyToUser;
 

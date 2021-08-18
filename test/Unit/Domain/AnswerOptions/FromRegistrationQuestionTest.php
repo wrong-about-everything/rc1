@@ -6,7 +6,8 @@ namespace RC\Tests\Unit\Domain\AnswerOptions;
 
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use RC\Domain\ReplyToUser\ReplyOptions\FromRegistrationQuestion;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\About;
+use RC\Domain\SentReplyToUser\ReplyOptions\FromRegistrationQuestion;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Experience\ExperienceId\Pure\BetweenAYearAndThree;
@@ -75,6 +76,20 @@ class FromRegistrationQuestionTest extends TestCase
         );
     }
 
+    public function testAboutMeQuestionCanBeSkipped()
+    {
+        $connection = new ApplicationConnection();
+        $this->seedBot($this->botId(), [], $connection);
+        $registrationQuestion = $this->newAboutMeRegistrationQuestion($this->botId(), $connection);
+
+        $this->assertEquals(
+            [
+                [['text' => 'Пропустить']],
+            ],
+            (new FromRegistrationQuestion($registrationQuestion, $this->botId(), $connection))->value()->pure()->raw()
+        );
+    }
+
     protected function setUp(): void
     {
         (new Reset(new RootConnection()))->run();
@@ -97,6 +112,17 @@ class FromRegistrationQuestionTest extends TestCase
         (new RegistrationQuestion($connection))
             ->insert([
                 ['id' => $id, 'bot_id' => $botId->value(), 'profile_record_type' => (new Experience())->value()]
+            ]);
+
+        return new ById(new RegistrationQuestionIdFromString($id), $connection);
+    }
+
+    private function newAboutMeRegistrationQuestion(BotId $botId, OpenConnection $connection): DomainRegistrationQuestion
+    {
+        $id = Uuid::uuid4()->toString();
+        (new RegistrationQuestion($connection))
+            ->insert([
+                ['id' => $id, 'bot_id' => $botId->value(), 'profile_record_type' => (new About())->value()]
             ]);
 
         return new ById(new RegistrationQuestionIdFromString($id), $connection);

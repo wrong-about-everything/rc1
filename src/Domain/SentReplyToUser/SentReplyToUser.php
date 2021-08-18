@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\ReplyToUser\Text;
+namespace RC\Domain\SentReplyToUser;
 
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 

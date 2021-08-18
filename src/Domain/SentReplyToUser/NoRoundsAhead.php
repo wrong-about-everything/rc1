@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\ReplyToUser\Text;
+namespace RC\Domain\SentReplyToUser;
 
-use RC\Domain\ReplyToUser\ReplyOptions\ReplyOptions;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -20,17 +19,15 @@ use RC\Domain\Bot\BotToken\Impure\BotToken;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
-class ValidationError implements SentReplyToUser
+class NoRoundsAhead implements SentReplyToUser
 {
-    private $answerOptions;
     private $telegramUserId;
     private $botToken;
     private $httpTransport;
     private $cached;
 
-    public function __construct(ReplyOptions $answerOptions, TelegramUserId $telegramUserId, BotToken $botToken, HttpTransport $httpTransport)
+    public function __construct(TelegramUserId $telegramUserId, BotToken $botToken, HttpTransport $httpTransport)
     {
-        $this->answerOptions = $answerOptions;
         $this->telegramUserId = $telegramUserId;
         $this->botToken = $botToken;
         $this->httpTransport = $httpTransport;
@@ -59,25 +56,10 @@ class ValidationError implements SentReplyToUser
                         new Post(),
                         new BotApiUrl(
                             new SendMessage(),
-                            new FromArray(
-                                array_merge(
-                                    [
-                                        'chat_id' => $this->telegramUserId->value(),
-                                        'text' => 'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит — напишите в @gorgonzola_support_bot',
-                                    ],
-                                    empty($this->answerOptions->value())
-                                        ? []
-                                        :
-                                            [
-                                                'reply_markup' =>
-                                                    json_encode([
-                                                        'keyboard' => $this->answerOptions->value()->pure()->raw(),
-                                                        'resize_keyboard' => true,
-                                                        'one_time_keyboard' => true,
-                                                    ])
-                                            ]
-                                )
-                            ),
+                            new FromArray([
+                                'chat_id' => $this->telegramUserId->value(),
+                                'text' => 'Раунд встреч уже идёт или уже прошёл. Мы пришлём вам приглашение на новый раунд, как только о нём станет известно. Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
+                            ]),
                             new FromImpure($this->botToken)
                         ),
                         [],

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RepliesToRoundInvitation\Domain\Reply;
 
-use RC\Domain\ReplyToUser\ReplyOptions\FromRoundRegistrationQuestion as AnswerOptionsFromRoundRegistrationQuestion;
+use RC\Domain\SentReplyToUser\ReplyOptions\FromRoundRegistrationQuestion as AnswerOptionsFromRoundRegistrationQuestion;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
 use RC\Domain\RoundRegistrationQuestion\NextRoundRegistrationQuestion;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestion;
@@ -24,7 +24,7 @@ use RC\Domain\Bot\BotToken\Impure\ByBotId;
 use RC\Domain\Bot\BotToken\Pure\FromImpure;
 use RC\Domain\Bot\BotToken\Impure\BotToken;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
-use RC\Domain\ReplyToUser\Text\SentReplyToUser;
+use RC\Domain\SentReplyToUser\SentReplyToUser;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
 class NextRoundRegistrationQuestionReplyToUser implements SentReplyToUser

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\ReplyToUser\ReplyOptions;
+namespace RC\Domain\SentReplyToUser\ReplyOptions;
 
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestion;

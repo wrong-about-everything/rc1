@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\TelegramBot\UserMessage\Pure;
 
-interface UserMessage
+abstract class UserMessage
 {
     /**
      * A message that user sent.
      */
-    public function value(): string;
+    abstract public function value(): string;
 
-    public function exists(): bool;
+    abstract public function exists(): bool;
+
+    final public function equals(UserMessage $userMessage): bool
+    {
+        return $this->value() === $userMessage->value();
+    }
 }

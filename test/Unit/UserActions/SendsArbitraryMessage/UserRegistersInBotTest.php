@@ -12,6 +12,7 @@ use Meringue\Timeline\Point\Now;
 use Meringue\Timeline\Point\Past;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+use RC\Domain\About\Impure\FromBotUser as AboutBotUser;
 use RC\Domain\BotUser\ByTelegramUserId;
 use RC\Domain\Experience\ExperienceId\Impure\FromBotUser as ExperienceFromBotUser;
 use RC\Domain\Experience\ExperienceId\Impure\FromPure as ImpureExperienceFromPure;
@@ -22,16 +23,16 @@ use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnecti
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\Position\PositionId\Impure\FromBotUser;
 use RC\Domain\Position\PositionId\Impure\FromPure;
-use RC\Domain\Position\PositionId\Pure\FromInteger as PositionFromInteger;
 use RC\Domain\Position\PositionId\Pure\Position as UserPosition;
 use RC\Domain\Position\PositionId\Pure\ProductDesigner;
 use RC\Domain\Position\PositionId\Pure\ProductManager;
-use RC\Domain\Position\PositionName\FromPosition;
 use RC\Domain\Position\PositionName\ProductDesignerName;
 use RC\Domain\Position\PositionName\ProductManagerName;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionId\Impure\FromString as RegistrationQuestionIdFromString;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionId\Impure\RegistrationQuestionId;
+use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\About;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\RegistrationQuestionType;
+use RC\Domain\TelegramBot\UserMessage\Pure\Skipped;
 use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
 use RC\Domain\TelegramUser\UserId\UserId;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
@@ -107,7 +108,7 @@ class UserRegistersInBotTest extends TestCase
             'К сожалению, мы пока не можем принять ответ в виде текста. Поэтому выберите, пожалуйста, один из вариантов ответа. Если ни один не подходит — напишите в @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
         );
-        $this->assertReplyButtons($this->availablePositionIds(), $transport->sentRequests()[0]);
+        $this->assertReplyButtons($transport->sentRequests()[0]);
 
         $secondResponse = $this->userReply((new ProductManagerName())->value(), $transport, $connection)->response();
 
@@ -155,9 +156,56 @@ class UserRegistersInBotTest extends TestCase
         $response = $this->userReply((new LessThanAYearName())->value(), $transport, $connection)->response();
 
         $this->assertTrue($response->isSuccessful());
-        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionId(), $connection);
-        $this->assertPositionIs($this->telegramUserId(), $this->botId(), new ProductManager(), $connection);
+        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->secondRegistrationQuestionId(), $connection);
         $this->assertExperienceIs($this->telegramUserId(), $this->botId(), new LessThanAYear(), $connection);
+        $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
+        $this->assertCount(1, $transport->sentRequests());
+        $this->assertEquals(
+            'Поздравляю, вы зарегистрировались! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
+            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+        );
+    }
+
+    public function testWhenExistingButNotYetRegisteredUserSkipsTheLastAboutMeQuestionThenHeBecomesRegisteredAndSeesCongratulations()
+    {
+        $connection = new ApplicationConnection();
+        $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
+        $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
+        $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new About(), $this->botId(), 2, 'Расскажите плз о себе, если хотите', $connection);
+        $this->createRegistrationProgress($this->firstRegistrationQuestionId(), $this->userId(), $connection);
+        $transport = new Indifferent();
+
+        $response = $this->userReply((new Skipped())->value(), $transport, $connection)->response();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->secondRegistrationQuestionId(), $connection);
+        $this->assertAboutMeIsEmpty($this->telegramUserId(), $this->botId(), $connection);
+        $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
+        $this->assertCount(1, $transport->sentRequests());
+        $this->assertEquals(
+            'Поздравляю, вы зарегистрировались! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
+            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+        );
+    }
+
+    public function testWhenExistingButNotYetRegisteredUserAnswersTheLastAboutMeQuestionThenHeBecomesRegisteredAndSeesCongratulations()
+    {
+        $connection = new ApplicationConnection();
+        $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
+        $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
+        $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new About(), $this->botId(), 2, 'Расскажите плз о себе, если хотите', $connection);
+        $this->createRegistrationProgress($this->firstRegistrationQuestionId(), $this->userId(), $connection);
+        $transport = new Indifferent();
+
+        $response = $this->userReply('охохооо, как же много я могу о себе рассказать!', $transport, $connection)->response();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->secondRegistrationQuestionId(), $connection);
+        $this->assertAboutMeIs($this->telegramUserId(), $this->botId(), 'охохооо, как же много я могу о себе рассказать!', $connection);
         $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
@@ -201,7 +249,6 @@ class UserRegistersInBotTest extends TestCase
 
         $this->assertTrue($response->isSuccessful());
         $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionId(), $connection);
-        $this->assertPositionIs($this->telegramUserId(), $this->botId(), new ProductManager(), $connection);
         $this->assertExperienceIs($this->telegramUserId(), $this->botId(), new LessThanAYear(), $connection);
         $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
         $this->assertCount(1, $transport->sentRequests());
@@ -276,7 +323,14 @@ q
     {
         (new BotUser($connection))
             ->insert([
-                ['bot_id' => $botId->value(), 'user_id' => $userId->value(), 'status' => $status->value()]
+                [
+                    'bot_id' => $botId->value(),
+                    'user_id' => $userId->value(),
+                    'status' => $status->value(),
+                    'position' => null,
+                    'experience' => null,
+                    'about' => null,
+                ]
             ]);
     }
 
@@ -358,6 +412,27 @@ q
         );
     }
 
+    private function assertAboutMeIsEmpty(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
+    {
+        $this->assertTrue(
+            (new AboutBotUser(
+                new ByTelegramUserId($telegramUserId, $botId, $connection)
+            ))
+                ->empty()->pure()->raw()
+        );
+    }
+
+    private function assertAboutMeIs(TelegramUserId $telegramUserId, BotId $botId, string $about, OpenConnection $connection)
+    {
+        $this->assertEquals(
+            $about,
+            (new AboutBotUser(
+                new ByTelegramUserId($telegramUserId, $botId, $connection)
+            ))
+                ->value()->pure()->raw()
+        );
+    }
+
     private function assertUserIs(TelegramUserId $telegramUserId, BotId $botId, UserStatus $userStatus, OpenConnection $connection)
     {
         $this->assertTrue(
@@ -370,7 +445,7 @@ q
         );
     }
 
-    private function assertReplyButtons(array $availablePositionIds, Request $request)
+    private function assertReplyButtons(Request $request)
     {
         $this->assertEquals(
             [

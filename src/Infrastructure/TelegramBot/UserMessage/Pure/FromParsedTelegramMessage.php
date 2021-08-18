@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\TelegramBot\UserMessage\Pure;
 
-class FromParsedTelegramMessage implements UserMessage
+class FromParsedTelegramMessage extends UserMessage
 {
     private $concrete;
 

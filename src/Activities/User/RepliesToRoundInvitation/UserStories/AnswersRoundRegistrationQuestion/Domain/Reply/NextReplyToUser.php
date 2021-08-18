@@ -20,7 +20,7 @@ use RC\Domain\RoundInvitation\ReadModel\ByImpureId;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
-use RC\Domain\ReplyToUser\Text\SentReplyToUser;
+use RC\Domain\SentReplyToUser\SentReplyToUser;
 use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
 
 class NextReplyToUser implements SentReplyToUser

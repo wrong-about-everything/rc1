@@ -6,6 +6,8 @@ namespace RC\Tests\Unit\Activities\Cron\SendsMatchesToParticipants;
 
 use PHPUnit\Framework\TestCase;
 use RC\Activities\Cron\SendsMatchesToParticipants\Text;
+use RC\Domain\About\Pure\Emptie;
+use RC\Domain\About\Pure\FromString;
 use RC\Domain\UserInterest\InterestId\Pure\Single\DayDreaming;
 use RC\Domain\UserInterest\InterestId\Pure\Single\Networking;
 use RC\Domain\UserInterest\InterestId\Pure\Single\SkySurfing;
@@ -32,7 +34,7 @@ t
                 'polzzza',
                 [(new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value()],
-                'Моя жизнь в огне!'
+                new FromString('Моя жизнь в огне!')
             ))
                 ->value()
         );
@@ -58,7 +60,7 @@ t
                 'polzzza',
                 [(new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value(), (new DayDreaming())->value()],
-                'Моя жизнь в огне!'
+                new FromString('Моя жизнь в огне!')
             ))
                 ->value()
         );
@@ -84,7 +86,30 @@ t
                 'polzzza',
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
-                'Моя жизнь в огне!'
+                new FromString('Моя жизнь в огне!')
+            ))
+                ->value()
+        );
+    }
+
+    public function testMultipleInterestInCommonAndAboutMeIsEmpty()
+    {
+        $this->assertEquals(
+            <<<t
+Привет, Василий\!
+
+Ваша пара на этой неделе — Полина \(@polzzza\)\. У вас совпали такие интересы\: Нетворкинг без определенной темы, Sky surfing и Daydreaming\.
+
+Приятного общения\!
+t
+            ,
+            (new Text(
+                'Василий',
+                'Полина',
+                'polzzza',
+                [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
+                [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
+                new Emptie()
             ))
                 ->value()
         );
