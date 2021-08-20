@@ -21,7 +21,7 @@ use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\TelegramBot\BotApiUrl;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
 class NotifiedParticipant implements Participant
 {
@@ -32,7 +32,7 @@ class NotifiedParticipant implements Participant
     private $httpTransport;
     private $connection;
 
-    public function __construct(ParticipantId $participantId, TelegramUserId $participantTelegramId, string $text, BotToken $botToken, HttpTransport $httpTransport, OpenConnection $connection)
+    public function __construct(ParticipantId $participantId, InternalTelegramUserId $participantTelegramId, string $text, BotToken $botToken, HttpTransport $httpTransport, OpenConnection $connection)
     {
         $this->participantId = $participantId;
         $this->participantTelegramId = $participantTelegramId;

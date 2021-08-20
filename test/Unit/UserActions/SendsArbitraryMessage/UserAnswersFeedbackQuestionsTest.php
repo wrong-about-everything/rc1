@@ -27,7 +27,7 @@ use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
-use RC\Domain\TelegramUser\UserId\UserId;
+use RC\Domain\TelegramUser\UserId\TelegramUserId;
 use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
@@ -39,7 +39,7 @@ use RC\Domain\Bot\BotId\FromUuid;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 use RC\Infrastructure\Uuid\Fixed;
 use RC\Infrastructure\Uuid\FromString;
 use RC\Tests\Infrastructure\Environment\Reset;
@@ -173,7 +173,7 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
         (new Reset(new RootConnection()))->run();
     }
 
-    private function telegramUserId(): TelegramUserId
+    private function telegramUserId(): InternalTelegramUserId
     {
         return new FromInteger(654987);
     }
@@ -213,12 +213,12 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
         return [(new Networking())->value(), (new SpecificArea())->value()];
     }
 
-    private function userId(): UserId
+    private function userId(): TelegramUserId
     {
         return new UserIdFromUuid(new FromString('103729d6-330c-4123-b856-d5196812d509'));
     }
 
-    private function userReplies(TelegramUserId $telegramUserId, string $answer, HttpTransport $transport, OpenConnection $connection)
+    private function userReplies(InternalTelegramUserId $telegramUserId, string $answer, HttpTransport $transport, OpenConnection $connection)
     {
         return
             (new SendsArbitraryMessage(
@@ -240,7 +240,7 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
             ]);
     }
 
-    private function createTelegramUser(UserId $userId, TelegramUserId $telegramUserId, $connection)
+    private function createTelegramUser(TelegramUserId $userId, InternalTelegramUserId $telegramUserId, $connection)
     {
         (new TelegramUser($connection))
             ->insert([
@@ -248,7 +248,7 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
             ]);
     }
 
-    private function createBotUser(BotId $botId, UserId $userId, UserStatus $status, $connection)
+    private function createBotUser(BotId $botId, TelegramUserId $userId, UserStatus $status, $connection)
     {
         (new BotUser($connection))
             ->insert([
@@ -270,7 +270,7 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
             ]);
     }
 
-    private function createParticipant(MeetingRoundId $meetingRoundId, ParticipantId $participantId, UserId $userId, OpenConnection $connection)
+    private function createParticipant(MeetingRoundId $meetingRoundId, ParticipantId $participantId, TelegramUserId $userId, OpenConnection $connection)
     {
         (new MeetingRoundParticipant($connection))
             ->insert([

@@ -28,7 +28,7 @@ use RC\Domain\Participant\ParticipantId\Pure\FromString as ParticipantIdFromStri
 use RC\Domain\Participant\ParticipantId\Pure\ParticipantId;
 use RC\Domain\FeedbackInvitation\Status\Pure\Status;
 use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
-use RC\Domain\TelegramUser\UserId\UserId;
+use RC\Domain\TelegramUser\UserId\TelegramUserId;
 use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Domain\BotUser\UserStatus\Pure\UserStatus;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
@@ -40,7 +40,7 @@ use RC\Domain\Bot\BotId\FromUuid;
 use RC\Infrastructure\Logging\Logs\DevNull;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 use RC\Infrastructure\Uuid\Fixed;
 use RC\Infrastructure\Uuid\FromString;
 use RC\Tests\Infrastructure\Environment\Reset;
@@ -105,7 +105,7 @@ class UserAcceptsOrDeclinesFeedbackInvitationTest extends TestCase
         (new Reset(new RootConnection()))->run();
     }
 
-    private function userReplies(TelegramUserId $who, string $what, ISO8601DateTime $when, HttpTransport $transport, OpenConnection $connection)
+    private function userReplies(InternalTelegramUserId $who, string $what, ISO8601DateTime $when, HttpTransport $transport, OpenConnection $connection)
     {
         return
             (new SendsArbitraryMessage(
@@ -127,7 +127,7 @@ class UserAcceptsOrDeclinesFeedbackInvitationTest extends TestCase
             ]);
     }
 
-    private function createTelegramUser(UserId $userId, TelegramUserId $telegramUserId, $connection)
+    private function createTelegramUser(TelegramUserId $userId, InternalTelegramUserId $telegramUserId, $connection)
     {
         (new TelegramUser($connection))
             ->insert([
@@ -135,7 +135,7 @@ class UserAcceptsOrDeclinesFeedbackInvitationTest extends TestCase
             ]);
     }
 
-    private function createBotUser(BotId $botId, UserId $userId, UserStatus $status, $connection)
+    private function createBotUser(BotId $botId, TelegramUserId $userId, UserStatus $status, $connection)
     {
         (new BotUser($connection))
             ->insert([
@@ -151,7 +151,7 @@ class UserAcceptsOrDeclinesFeedbackInvitationTest extends TestCase
             ]);
     }
 
-    private function createParticipant(MeetingRoundId $meetingRoundId, ParticipantId $participantId, UserId $userId, OpenConnection $connection)
+    private function createParticipant(MeetingRoundId $meetingRoundId, ParticipantId $participantId, TelegramUserId $userId, OpenConnection $connection)
     {
         (new MeetingRoundParticipant($connection))
             ->insert([
@@ -175,7 +175,7 @@ class UserAcceptsOrDeclinesFeedbackInvitationTest extends TestCase
             ]);
     }
 
-    private function firstTelegramUserId(): TelegramUserId
+    private function firstTelegramUserId(): InternalTelegramUserId
     {
         return new FromInteger(654987);
     }
@@ -200,7 +200,7 @@ class UserAcceptsOrDeclinesFeedbackInvitationTest extends TestCase
         return new FeedbackInvitationIdFromString('111729d6-330c-4123-b856-d5196812dfff');
     }
 
-    private function firstUserId(): UserId
+    private function firstUserId(): TelegramUserId
     {
         return new UserIdFromUuid(new FromString('103729d6-330c-4123-b856-d5196812d509'));
     }

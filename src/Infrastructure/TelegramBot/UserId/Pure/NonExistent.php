@@ -6,7 +6,7 @@ namespace RC\Infrastructure\TelegramBot\UserId\Pure;
 
 use Exception;
 
-class NonExistent extends TelegramUserId
+class NonExistent extends InternalTelegramUserId
 {
     public function value(): int
     {

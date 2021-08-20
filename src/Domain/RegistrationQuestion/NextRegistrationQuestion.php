@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RC\Domain\RegistrationQuestion;
 
 use RC\Domain\TelegramUser\ByTelegramId;
-use RC\Domain\TelegramUser\UserId\FromUser;
+use RC\Domain\TelegramUser\UserId\FromTelegramUser;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
@@ -13,7 +13,7 @@ use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Domain\Bot\BotId\BotId;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
 class NextRegistrationQuestion implements RegistrationQuestion
 {
@@ -22,7 +22,7 @@ class NextRegistrationQuestion implements RegistrationQuestion
 
     private $cached;
 
-    public function __construct(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
+    public function __construct(InternalTelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
     {
         $this->telegramUserId = $telegramUserId;
         $this->botId = $botId;
@@ -53,7 +53,7 @@ class NextRegistrationQuestion implements RegistrationQuestion
         limit 1
         q
                 ,
-                [(new FromUser(new ByTelegramId($this->telegramUserId, $this->connection)))->value()],
+                [(new FromTelegramUser(new ByTelegramId($this->telegramUserId, $this->connection)))->value()],
                 $this->connection
             ))
                 ->response();

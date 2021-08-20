@@ -17,7 +17,7 @@ use RC\Infrastructure\TelegramBot\BotApiUrl;
 use RC\Domain\Bot\BotToken\Pure\FromImpure;
 use RC\Domain\Bot\BotToken\Impure\BotToken;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
 class FillInYourUserNameAndFirstName implements SentReplyToUser
 {
@@ -26,7 +26,7 @@ class FillInYourUserNameAndFirstName implements SentReplyToUser
     private $httpTransport;
     private $cached;
 
-    public function __construct(TelegramUserId $telegramUserId, BotToken $botToken, HttpTransport $httpTransport)
+    public function __construct(InternalTelegramUserId $telegramUserId, BotToken $botToken, HttpTransport $httpTransport)
     {
         $this->telegramUserId = $telegramUserId;
         $this->botToken = $botToken;

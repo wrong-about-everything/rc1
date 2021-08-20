@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace RC\Domain\FeedbackInvitation\WriteModel;
 
 use RC\Domain\BooleanAnswer\BooleanAnswerName\No;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\NoMaybeNextTime;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\Yes;
 use RC\Domain\Bot\Bot;
 use RC\Domain\Bot\BotToken\Impure\FromBot as TokenFromBot;
@@ -32,7 +30,7 @@ use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\TelegramBot\BotApiUrl;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
 class Sent implements FeedbackInvitation
 {
@@ -44,7 +42,7 @@ class Sent implements FeedbackInvitation
     private $logs;
     private $cached;
 
-    public function __construct(FeedbackInvitationId $feedbackInvitationId, TelegramUserId $telegramUserId, Bot $bot, HttpTransport $httpTransport, OpenConnection $connection, Logs $logs)
+    public function __construct(FeedbackInvitationId $feedbackInvitationId, InternalTelegramUserId $telegramUserId, Bot $bot, HttpTransport $httpTransport, OpenConnection $connection, Logs $logs)
     {
         $this->feedbackInvitationId = $feedbackInvitationId;
         $this->telegramUserId = $telegramUserId;

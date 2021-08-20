@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RC\Domain\Participant\ReadModel;
 
 use RC\Domain\MeetingRound\MeetingRoundId\Pure\MeetingRoundId;
-use RC\Domain\TelegramUser\UserId\UserId;
+use RC\Domain\TelegramUser\UserId\TelegramUserId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
@@ -17,7 +17,7 @@ class ByMeetingRoundAndUser implements Participant
     private $connection;
     private $cached;
 
-    public function __construct(MeetingRoundId $meetingRoundId, UserId $userId, OpenConnection $connection)
+    public function __construct(MeetingRoundId $meetingRoundId, TelegramUserId $userId, OpenConnection $connection)
     {
         $this->meetingRoundId = $meetingRoundId;
         $this->userId = $userId;

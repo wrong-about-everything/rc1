@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace RC\Tests\Unit\Activities\User\RegistersInBot\Domain\Reply;
 
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Uuid;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Experience\ExperienceId\Pure\BetweenAYearAndThree;
@@ -21,14 +20,14 @@ use RC\Activities\User\RegistersInBot\Domain\Reply\NextRegistrationQuestionReply
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
-use RC\Domain\TelegramUser\UserId\UserId;
+use RC\Domain\TelegramUser\UserId\TelegramUserId;
 use RC\Domain\BotUser\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
 use RC\Infrastructure\Http\Transport\Indifferent;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 use RC\Infrastructure\Uuid\Fixed;
 use RC\Infrastructure\Uuid\FromString;
 use RC\Tests\Infrastructure\Environment\Reset;
@@ -114,7 +113,7 @@ class NextRegistrationQuestionReplyTest extends TestCase
         (new Reset(new RootConnection()))->run();
     }
 
-    private function telegramUserId(): TelegramUserId
+    private function telegramUserId(): InternalTelegramUserId
     {
         return new FromInteger(987654);
     }
@@ -124,12 +123,12 @@ class NextRegistrationQuestionReplyTest extends TestCase
         return new FromUuid(new Fixed());
     }
 
-    private function userId(): UserId
+    private function userId(): TelegramUserId
     {
         return new UserIdFromUuid(new FromString('103729d6-330c-4123-b856-d5196812d509'));
     }
 
-    private function seedBotUser(BotId $botId, TelegramUserId $telegramUserId, OpenConnection $connection)
+    private function seedBotUser(BotId $botId, InternalTelegramUserId $telegramUserId, OpenConnection $connection)
     {
         (new TelegramUser($connection))
             ->insert([

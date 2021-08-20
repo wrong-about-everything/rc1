@@ -9,6 +9,7 @@ use Ramsey\Uuid\Uuid;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\ById;
 use RC\Domain\FeedbackInvitation\FeedbackInvitationId\Pure\FromString;
+use RC\Domain\FeedbackInvitation\Status\Pure\ErrorDuringSending;
 use RC\Domain\FeedbackInvitation\Status\Pure\Generated;
 use RC\Domain\FeedbackInvitation\Status\Pure\Sent as SentStatus;
 use RC\Domain\FeedbackInvitation\WriteModel\WithPause;
@@ -112,11 +113,11 @@ select fi.id, tu.telegram_id as telegram_user_id
 from feedback_invitation fi
     join meeting_round_participant mrp on fi.participant_id = mrp.id
     join telegram_user tu on tu.id = mrp.user_id
-where mrp.meeting_round_id = ? and fi.status != ?
+where mrp.meeting_round_id = ? and fi.status in (?)
 limit 50
 q
                 ,
-                [(new FromMeetingRound($round))->value()->pure()->raw(), (new SentStatus())->value()],
+                [(new FromMeetingRound($round))->value()->pure()->raw(), [(new Generated())->value(), (new ErrorDuringSending())->value()]],
                 $this->connection
             ))
                 ->response()->pure()->raw();

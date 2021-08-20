@@ -34,7 +34,7 @@ use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\About;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\RegistrationQuestionType;
 use RC\Domain\TelegramBot\UserMessage\Pure\Skipped;
 use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
-use RC\Domain\TelegramUser\UserId\UserId;
+use RC\Domain\TelegramUser\UserId\TelegramUserId;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Domain\BotUser\UserStatus\Impure\FromBotUser as UserStatusFromBotUser;
@@ -53,7 +53,7 @@ use RC\Domain\Bot\BotId\FromUuid;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 use RC\Infrastructure\Uuid\Fixed;
 use RC\Infrastructure\Uuid\FromString;
 use RC\Tests\Infrastructure\Environment\Reset;
@@ -273,7 +273,7 @@ q
         return [(new ProductManager())->value(), (new ProductDesigner())->value()];
     }
 
-    private function telegramUserId(): TelegramUserId
+    private function telegramUserId(): InternalTelegramUserId
     {
         return new FromInteger(654987);
     }
@@ -283,7 +283,7 @@ q
         return new FromUuid(new Fixed());
     }
 
-    private function userId(): UserId
+    private function userId(): TelegramUserId
     {
         return new UserIdFromUuid(new FromString('103729d6-330c-4123-b856-d5196812d509'));
     }
@@ -311,7 +311,7 @@ q
             ]);
     }
 
-    private function createTelegramUser(UserId $userId, TelegramUserId $telegramUserId, $connection)
+    private function createTelegramUser(TelegramUserId $userId, InternalTelegramUserId $telegramUserId, $connection)
     {
         (new TelegramUser($connection))
             ->insert([
@@ -319,7 +319,7 @@ q
             ]);
     }
 
-    private function createBotUser(BotId $botId, UserId $userId, UserStatus $status, $connection)
+    private function createBotUser(BotId $botId, TelegramUserId $userId, UserStatus $status, $connection)
     {
         (new BotUser($connection))
             ->insert([
@@ -342,7 +342,7 @@ q
             ]);
     }
 
-    private function createRegistrationProgress(RegistrationQuestionId $registrationQuestionId, UserId $userId, OpenConnection $connection)
+    private function createRegistrationProgress(RegistrationQuestionId $registrationQuestionId, TelegramUserId $userId, OpenConnection $connection)
     {
         (new UserRegistrationProgress($connection))
             ->insert([
@@ -371,7 +371,7 @@ q
             );
     }
 
-    private function assertUserRegistrationProgressUpdated(UserId $userId, RegistrationQuestionId $registrationQuestionId, OpenConnection $connection)
+    private function assertUserRegistrationProgressUpdated(TelegramUserId $userId, RegistrationQuestionId $registrationQuestionId, OpenConnection $connection)
     {
         $this->assertNotEmpty(
             (new Selecting(
@@ -388,7 +388,7 @@ q
         );
     }
 
-    private function assertPositionIs(TelegramUserId $telegramUserId, BotId $botId, UserPosition $position, OpenConnection $connection)
+    private function assertPositionIs(InternalTelegramUserId $telegramUserId, BotId $botId, UserPosition $position, OpenConnection $connection)
     {
         $this->assertTrue(
             (new FromBotUser(
@@ -400,7 +400,7 @@ q
         );
     }
 
-    private function assertExperienceIs(TelegramUserId $telegramUserId, BotId $botId, UserExperience $experience, OpenConnection $connection)
+    private function assertExperienceIs(InternalTelegramUserId $telegramUserId, BotId $botId, UserExperience $experience, OpenConnection $connection)
     {
         $this->assertTrue(
             (new ExperienceFromBotUser(
@@ -412,7 +412,7 @@ q
         );
     }
 
-    private function assertAboutMeIsEmpty(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
+    private function assertAboutMeIsEmpty(InternalTelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
     {
         $this->assertTrue(
             (new AboutBotUser(
@@ -422,7 +422,7 @@ q
         );
     }
 
-    private function assertAboutMeIs(TelegramUserId $telegramUserId, BotId $botId, string $about, OpenConnection $connection)
+    private function assertAboutMeIs(InternalTelegramUserId $telegramUserId, BotId $botId, string $about, OpenConnection $connection)
     {
         $this->assertEquals(
             $about,
@@ -433,7 +433,7 @@ q
         );
     }
 
-    private function assertUserIs(TelegramUserId $telegramUserId, BotId $botId, UserStatus $userStatus, OpenConnection $connection)
+    private function assertUserIs(InternalTelegramUserId $telegramUserId, BotId $botId, UserStatus $userStatus, OpenConnection $connection)
     {
         $this->assertTrue(
             (new UserStatusFromBotUser(

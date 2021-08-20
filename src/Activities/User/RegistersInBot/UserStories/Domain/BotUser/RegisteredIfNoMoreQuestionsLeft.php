@@ -12,7 +12,7 @@ use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId as PureTelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId as PureTelegramUserId;
 
 class RegisteredIfNoMoreQuestionsLeft implements BotUser
 {

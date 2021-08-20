@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace RC\Tests\Infrastructure\Stub\TelegramMessage;
 
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
 class StartCommandMessageWithEmptyUsername
 {
     private $userId;
 
-    public function __construct(TelegramUserId $userId)
+    public function __construct(InternalTelegramUserId $userId)
     {
         $this->userId = $userId;
     }

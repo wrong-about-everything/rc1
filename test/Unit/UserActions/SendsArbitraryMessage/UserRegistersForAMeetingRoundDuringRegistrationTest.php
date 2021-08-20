@@ -37,7 +37,7 @@ use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
-use RC\Domain\TelegramUser\UserId\UserId;
+use RC\Domain\TelegramUser\UserId\TelegramUserId;
 use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
@@ -48,7 +48,7 @@ use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 use RC\Infrastructure\Uuid\Fixed;
 use RC\Infrastructure\Uuid\FromString;
 use RC\Tests\Infrastructure\Environment\Reset;
@@ -108,7 +108,7 @@ q
             ]);
     }
 
-    private function createRegistrationProgress(RegistrationQuestionId $registrationQuestionId, UserId $userId, OpenConnection $connection)
+    private function createRegistrationProgress(RegistrationQuestionId $registrationQuestionId, TelegramUserId $userId, OpenConnection $connection)
     {
         (new UserRegistrationProgress($connection))
             ->insert([
@@ -136,7 +136,7 @@ q
         return [(new ProductManager())->value(), (new ProductDesigner())->value()];
     }
 
-    private function telegramUserId(): TelegramUserId
+    private function telegramUserId(): InternalTelegramUserId
     {
         return new FromInteger(654987);
     }
@@ -159,7 +159,7 @@ q
             );
     }
 
-    private function participantExists(string $meetingRoundId, UserId $userId, OpenConnection $connection, Status $status)
+    private function participantExists(string $meetingRoundId, TelegramUserId $userId, OpenConnection $connection, Status $status)
     {
         $participant =
             new ByMeetingRoundAndUser(
@@ -176,7 +176,7 @@ q
         );
     }
 
-    private function assertUserIs(TelegramUserId $telegramUserId, BotId $botId, UserStatus $userStatus, OpenConnection $connection)
+    private function assertUserIs(InternalTelegramUserId $telegramUserId, BotId $botId, UserStatus $userStatus, OpenConnection $connection)
     {
         $this->assertTrue(
             (new UserStatusFromBotUser(
@@ -194,7 +194,7 @@ q
     }
 
 
-    private function userId(): UserId
+    private function userId(): TelegramUserId
     {
         return new UserIdFromUuid(new FromString('103729d6-330c-4123-b856-d5196812d509'));
     }
@@ -207,7 +207,7 @@ q
             ]);
     }
 
-    private function createTelegramUser(UserId $userId, TelegramUserId $telegramUserId, $connection)
+    private function createTelegramUser(TelegramUserId $userId, InternalTelegramUserId $telegramUserId, $connection)
     {
         (new TelegramUser($connection))
             ->insert([
@@ -215,7 +215,7 @@ q
             ]);
     }
 
-    private function createBotUser(BotId $botId, UserId $userId, UserStatus $status, $connection)
+    private function createBotUser(BotId $botId, TelegramUserId $userId, UserStatus $status, $connection)
     {
         (new BotUser($connection))
             ->insert([

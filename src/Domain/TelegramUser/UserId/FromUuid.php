@@ -6,7 +6,7 @@ namespace RC\Domain\TelegramUser\UserId;
 
 use RC\Infrastructure\Uuid\UUID;
 
-class FromUuid extends UserId
+class FromUuid extends TelegramUserId
 {
     private $userId;
 

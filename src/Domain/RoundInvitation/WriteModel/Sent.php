@@ -31,7 +31,7 @@ use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\TelegramBot\BotApiUrl;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
 class Sent implements Invitation
 {
@@ -43,7 +43,7 @@ class Sent implements Invitation
     private $logs;
     private $cached;
 
-    public function __construct(InvitationId $roundInvitationId, TelegramUserId $telegramUserId, Bot $bot, HttpTransport $httpTransport, OpenConnection $connection, Logs $logs)
+    public function __construct(InvitationId $roundInvitationId, InternalTelegramUserId $telegramUserId, Bot $bot, HttpTransport $httpTransport, OpenConnection $connection, Logs $logs)
     {
         $this->roundInvitationId = $roundInvitationId;
         $this->telegramUserId = $telegramUserId;

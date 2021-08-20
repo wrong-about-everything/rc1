@@ -11,7 +11,7 @@ use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
 class LatestByFeedbackDate implements FeedbackInvitation
 {
@@ -20,7 +20,7 @@ class LatestByFeedbackDate implements FeedbackInvitation
     private $connection;
     private $cached;
 
-    public function __construct(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
+    public function __construct(InternalTelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
     {
         $this->telegramUserId = $telegramUserId;
         $this->botId = $botId;

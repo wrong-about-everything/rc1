@@ -9,14 +9,12 @@ use Ramsey\Uuid\Uuid;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\BotUser\ByTelegramUserId;
-use RC\Domain\Position\PositionId\Pure\ProductManager;
-use RC\Domain\Position\PositionName\ProductManagerName;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Domain\TelegramUser\ByTelegramId;
 use RC\Domain\TelegramUser\RegisteredInBot;
 use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
-use RC\Domain\TelegramUser\UserId\UserId;
+use RC\Domain\TelegramUser\UserId\TelegramUserId;
 use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Domain\BotUser\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
@@ -27,7 +25,7 @@ use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 use RC\Infrastructure\Uuid\Fixed;
 use RC\Infrastructure\Uuid\FromString;
 use RC\Tests\Infrastructure\Environment\Reset;
@@ -62,7 +60,7 @@ class PressesStartTest extends TestCase
                 ->response();
 
         $this->assertTrue($response->isSuccessful());
-        $this->assertUserDoesNotExist($this->telegramUserId(), $this->botId(), $connection);
+        $this->assertUserDoesNotExist($this->telegramUserId(), $connection);
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
             <<<t
@@ -340,7 +338,7 @@ t
         (new Reset(new RootConnection()))->run();
     }
 
-    private function telegramUserId(): TelegramUserId
+    private function telegramUserId(): InternalTelegramUserId
     {
         return new FromInteger(654987);
     }
@@ -360,12 +358,12 @@ t
         return 'ddd7969c-02a3-447e-ab34-42cbea41a5d3';
     }
 
-    private function userId(): UserId
+    private function userId(): TelegramUserId
     {
         return new UserIdFromUuid(new FromString('103729d6-330c-4123-b856-d5196812d509'));
     }
 
-    private function assertUserExists(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
+    private function assertUserExists(InternalTelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
     {
         $user = (new RegisteredInBot($telegramUserId, $botId, $connection))->value();
         $this->assertTrue($user->pure()->isPresent());
@@ -376,7 +374,7 @@ t
         $this->assertTrue($profile->pure()->isPresent());
     }
 
-    private function assertUserDoesNotExist(TelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
+    private function assertUserDoesNotExist(InternalTelegramUserId $telegramUserId, OpenConnection $connection)
     {
         $this->assertFalse(
             (new ByTelegramId($telegramUserId, $connection))->value()->pure()->isPresent()

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace RC\Tests\Infrastructure\Stub\TelegramMessage;
 
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
 class UserMessage
 {
     private $telegramUserId;
     private $text;
 
-    public function __construct(TelegramUserId $telegramUserId, string $text)
+    public function __construct(InternalTelegramUserId $telegramUserId, string $text)
     {
         $this->telegramUserId = $telegramUserId;
         $this->text = $text;

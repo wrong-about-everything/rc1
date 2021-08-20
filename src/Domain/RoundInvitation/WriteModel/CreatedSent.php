@@ -10,13 +10,13 @@ use RC\Domain\RoundInvitation\InvitationId\Pure\Generated;
 use RC\Domain\RoundInvitation\InvitationId\Pure\InvitationId;
 use RC\Domain\RoundInvitation\Status\Pure\Sent as SentStatus;
 use RC\Domain\TelegramUser\ByTelegramId;
-use RC\Domain\TelegramUser\UserId\FromUser;
+use RC\Domain\TelegramUser\UserId\FromTelegramUser;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
 class CreatedSent implements Invitation
 {
@@ -25,7 +25,7 @@ class CreatedSent implements Invitation
     private $connection;
     private $cached;
 
-    public function __construct(TelegramUserId $telegramUserId, MeetingRound $meetingRound, OpenConnection $connection)
+    public function __construct(InternalTelegramUserId $telegramUserId, MeetingRound $meetingRound, OpenConnection $connection)
     {
         $this->telegramUserId = $telegramUserId;
         $this->meetingRound = $meetingRound;
@@ -65,7 +65,7 @@ q
                 [
                     $invitationId->value(),
                     (new FromMeetingRound($this->meetingRound))->value()->pure()->raw(),
-                    (new FromUser(
+                    (new FromTelegramUser(
                         new ByTelegramId($this->telegramUserId, $this->connection)
                     ))
                         ->value(),

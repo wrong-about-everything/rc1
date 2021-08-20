@@ -36,7 +36,7 @@ use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnecti
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
 use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
-use RC\Domain\TelegramUser\UserId\UserId;
+use RC\Domain\TelegramUser\UserId\TelegramUserId;
 use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Domain\UserInterest\InterestName\Pure\SpecificArea as SpecificAreaInterestName;
 use RC\Infrastructure\Http\Request\Outbound\Request;
@@ -49,7 +49,7 @@ use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 use RC\Infrastructure\Uuid\Fixed;
 use RC\Infrastructure\Uuid\FromString;
 use RC\Infrastructure\Uuid\RandomUUID;
@@ -310,7 +310,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         (new Reset(new RootConnection()))->run();
     }
 
-    private function telegramUserId(): TelegramUserId
+    private function telegramUserId(): InternalTelegramUserId
     {
         return new FromInteger(654987);
     }
@@ -346,12 +346,12 @@ class UserRegistersForAMeetingRoundTest extends TestCase
             );
     }
 
-    private function userId(): UserId
+    private function userId(): TelegramUserId
     {
         return new UserIdFromUuid(new FromString('103729d6-330c-4123-b856-d5196812d509'));
     }
 
-    private function userReplies(TelegramUserId $telegramUserId, string $answer, HttpTransport $transport, OpenConnection $connection)
+    private function userReplies(InternalTelegramUserId $telegramUserId, string $answer, HttpTransport $transport, OpenConnection $connection)
     {
         return
             (new SendsArbitraryMessage(
@@ -373,7 +373,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
             ]);
     }
 
-    private function createTelegramUser(UserId $userId, TelegramUserId $telegramUserId, $connection)
+    private function createTelegramUser(TelegramUserId $userId, InternalTelegramUserId $telegramUserId, $connection)
     {
         (new TelegramUser($connection))
             ->insert([
@@ -381,7 +381,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
             ]);
     }
 
-    private function createBotUser(BotId $botId, UserId $userId, UserStatus $status, $connection)
+    private function createBotUser(BotId $botId, TelegramUserId $userId, UserStatus $status, $connection)
     {
         (new BotUser($connection))
             ->insert([
@@ -403,7 +403,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
             ]);
     }
 
-    private function createMeetingRoundInvitation(string $meetingRoundId, UserId $userId, InvitationStatus $status, OpenConnection $connection)
+    private function createMeetingRoundInvitation(string $meetingRoundId, TelegramUserId $userId, InvitationStatus $status, OpenConnection $connection)
     {
         (new MeetingRoundInvitation($connection))
             ->insert([
@@ -419,7 +419,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
             ]);
     }
 
-    private function assertParticipantWithNetworkingInterestExists(string $meetingRoundId, UserId $userId, OpenConnection $connection)
+    private function assertParticipantWithNetworkingInterestExists(string $meetingRoundId, TelegramUserId $userId, OpenConnection $connection)
     {
         $participant = $this->participant($meetingRoundId, $userId, $connection);
         $this->assertTrue($participant->value()->pure()->isPresent());
@@ -437,7 +437,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         );
     }
 
-    private function assertParticipantIsRegisteredWithSpecificInterest(string $meetingRoundId, UserId $userId, OpenConnection $connection)
+    private function assertParticipantIsRegisteredWithSpecificInterest(string $meetingRoundId, TelegramUserId $userId, OpenConnection $connection)
     {
         $participant = $this->participant($meetingRoundId, $userId, $connection);
         $this->assertTrue($participant->value()->pure()->isPresent());
@@ -453,7 +453,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         );
     }
 
-    private function participant(string $meetingRoundId, UserId $userId, OpenConnection $connection): Participant
+    private function participant(string $meetingRoundId, TelegramUserId $userId, OpenConnection $connection): Participant
     {
         return
             new ByMeetingRoundAndUser(

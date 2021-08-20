@@ -24,7 +24,7 @@ use RC\Domain\Bot\BotToken\Impure\ByBotId;
 use RC\Domain\Bot\BotToken\Pure\FromImpure;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Domain\SentReplyToUser\SentReplyToUser;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
 class RoundRegistrationCongratulations implements SentReplyToUser
 {
@@ -34,7 +34,7 @@ class RoundRegistrationCongratulations implements SentReplyToUser
     private $connection;
     private $httpTransport;
 
-    public function __construct(TelegramUserId $telegramUserId, BotId $botId, MeetingRound $meetingRound, OpenConnection $connection, HttpTransport $httpTransport)
+    public function __construct(InternalTelegramUserId $telegramUserId, BotId $botId, MeetingRound $meetingRound, OpenConnection $connection, HttpTransport $httpTransport)
     {
         $this->telegramUserId = $telegramUserId;
         $this->botId = $botId;

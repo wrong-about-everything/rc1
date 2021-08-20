@@ -21,7 +21,7 @@ use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Domain\SentReplyToUser\SentReplyToUser;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
 class NextReplyToUser implements SentReplyToUser
 {
@@ -31,7 +31,7 @@ class NextReplyToUser implements SentReplyToUser
     private $httpTransport;
     private $connection;
 
-    public function __construct(InvitationId $invitationId, TelegramUserId $telegramUserId, BotId $botId, HttpTransport $httpTransport, OpenConnection $connection)
+    public function __construct(InvitationId $invitationId, InternalTelegramUserId $telegramUserId, BotId $botId, HttpTransport $httpTransport, OpenConnection $connection)
     {
         $this->invitationId = $invitationId;
         $this->telegramUserId = $telegramUserId;

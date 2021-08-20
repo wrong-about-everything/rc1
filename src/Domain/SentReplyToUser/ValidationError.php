@@ -18,7 +18,7 @@ use RC\Infrastructure\TelegramBot\BotApiUrl;
 use RC\Domain\Bot\BotToken\Pure\FromImpure;
 use RC\Domain\Bot\BotToken\Impure\BotToken;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
 class ValidationError implements SentReplyToUser
 {
@@ -28,7 +28,7 @@ class ValidationError implements SentReplyToUser
     private $httpTransport;
     private $cached;
 
-    public function __construct(ReplyOptions $answerOptions, TelegramUserId $telegramUserId, BotToken $botToken, HttpTransport $httpTransport)
+    public function __construct(ReplyOptions $answerOptions, InternalTelegramUserId $telegramUserId, BotToken $botToken, HttpTransport $httpTransport)
     {
         $this->answerOptions = $answerOptions;
         $this->telegramUserId = $telegramUserId;

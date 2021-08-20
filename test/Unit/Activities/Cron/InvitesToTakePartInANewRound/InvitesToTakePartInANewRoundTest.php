@@ -29,9 +29,9 @@ use RC\Domain\RoundInvitation\Status\Pure\FromInteger;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
 use RC\Domain\RoundInvitation\Status\Pure\Status;
 use RC\Domain\TelegramUser\ByTelegramId;
-use RC\Domain\TelegramUser\UserId\FromUser;
+use RC\Domain\TelegramUser\UserId\FromTelegramUser;
 use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
-use RC\Domain\TelegramUser\UserId\UserId;
+use RC\Domain\TelegramUser\UserId\TelegramUserId;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
 use RC\Infrastructure\Http\Transport\HttpTransport;
@@ -41,7 +41,7 @@ use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Infrastructure\TelegramBot\UserCommand\Start;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromInteger as TelegramUserIdFromInteger;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 use RC\Infrastructure\Uuid\Fixed;
 use RC\Infrastructure\Uuid\FromString;
 use RC\Tests\Infrastructure\Environment\Reset;
@@ -188,7 +188,7 @@ class InvitesToTakePartInANewRoundTest extends TestCase
         $this->seedMeetingRound($this->meetingRoundId(), $this->botId(), new Now(), $connection);
         $this->seedInvitation($this->meetingRoundId(), $this->firstUserId(), new _New(), $connection);
         $this->newUserRegistersInBotAndForANewRound($this->secondTelegramUserId(), $connection);
-        $this->assertUserIsARoundParticipantWithAcceptedInvitation($this->meetingRoundId(), new FromUser(new ByTelegramId($this->secondTelegramUserId(), $connection)), $connection);
+        $this->assertUserIsARoundParticipantWithAcceptedInvitation($this->meetingRoundId(), new FromTelegramUser(new ByTelegramId($this->secondTelegramUserId(), $connection)), $connection);
 
         $transport = new Indifferent();
         (new InvitesToTakePartInANewRound($this->botId(), $transport, $connection, new DevNull()))->response();
@@ -201,7 +201,7 @@ class InvitesToTakePartInANewRoundTest extends TestCase
         (new Reset(new RootConnection()))->run();
     }
 
-    private function newUserRegistersInBotAndForANewRound(TelegramUserId $telegramUserId, OpenConnection $connection)
+    private function newUserRegistersInBotAndForANewRound(InternalTelegramUserId $telegramUserId, OpenConnection $connection)
     {
         $transport = new Indifferent();
         $this->newUserRegistersInBot($telegramUserId, $transport, $connection);
@@ -222,7 +222,7 @@ q
         );
     }
 
-    private function newUserRegistersInBot(TelegramUserId $telegramUserId, HttpTransport $transport, OpenConnection $connection)
+    private function newUserRegistersInBot(InternalTelegramUserId $telegramUserId, HttpTransport $transport, OpenConnection $connection)
     {
         (new PressesStart(
             (new UserMessage($telegramUserId, (new Start())->value()))->value(),
@@ -234,7 +234,7 @@ q
             ->response();
     }
 
-    private function newUserAcceptsAnInvitationForARoundWithoutRegistrationQuestionAndGetsRegisteredRightAway(TelegramUserId $telegramUserId, HttpTransport $transport, OpenConnection $connection)
+    private function newUserAcceptsAnInvitationForARoundWithoutRegistrationQuestionAndGetsRegisteredRightAway(InternalTelegramUserId $telegramUserId, HttpTransport $transport, OpenConnection $connection)
     {
         (new SendsArbitraryMessage(
             new Now(),
@@ -247,12 +247,12 @@ q
             ->response();
     }
 
-    private function secondTelegramUserId(): TelegramUserId
+    private function secondTelegramUserId(): InternalTelegramUserId
     {
         return new TelegramUserIdFromInteger(231654987);
     }
 
-    private function seedUser(UserId $userId, OpenConnection $connection)
+    private function seedUser(TelegramUserId $userId, OpenConnection $connection)
     {
         (new TelegramUser($connection))
             ->insert([
@@ -294,7 +294,7 @@ q
             ]);
     }
 
-    private function seedInvitation(MeetingRoundId $meetingRoundId, UserId $userId, Status $status, OpenConnection $connection)
+    private function seedInvitation(MeetingRoundId $meetingRoundId, TelegramUserId $userId, Status $status, OpenConnection $connection)
     {
         (new MeetingRoundInvitation($connection))
             ->insert([
@@ -322,12 +322,12 @@ q
         return new RoundId('b5d926cc-6956-457e-a44d-bae206426d98');
     }
 
-    private function firstUserId(): UserId
+    private function firstUserId(): TelegramUserId
     {
         return new UserIdFromUuid(new FromString('5fe926cc-6956-457e-a44d-bae206426d1f'));
     }
 
-    private function secondUserId(): UserId
+    private function secondUserId(): TelegramUserId
     {
         return new UserIdFromUuid(new FromString('bfd294ba-18f6-4dc0-ab35-8dc90ac4475b'));
     }
@@ -374,7 +374,7 @@ q
         );
     }
 
-    private function assertUserIsARoundParticipantWithAcceptedInvitation(MeetingRoundId $meetingRoundId, UserId $userId, OpenConnection $connection)
+    private function assertUserIsARoundParticipantWithAcceptedInvitation(MeetingRoundId $meetingRoundId, TelegramUserId $userId, OpenConnection $connection)
     {
         $participant =
             new ByMeetingRoundAndUser(
@@ -397,7 +397,7 @@ q
         );
     }
 
-    private function assertInvitationIsSent(MeetingRoundId $meetingRoundId, UserId $userId, OpenConnection $connection)
+    private function assertInvitationIsSent(MeetingRoundId $meetingRoundId, TelegramUserId $userId, OpenConnection $connection)
     {
         $this->assertTrue(
             (new FromInvitation(

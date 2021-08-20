@@ -27,7 +27,7 @@ use RC\Infrastructure\SqlDatabase\Agnostic\Query;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\EmptyQuery;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\TransactionalQueryFromMultipleQueries;
-use RC\Infrastructure\TelegramBot\UserId\Pure\TelegramUserId;
+use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 use RC\Infrastructure\TelegramBot\UserMessage\Impure\UserMessage;
 use RC\Domain\TelegramBot\UserMessage\Pure\Skipped;
 use RC\Infrastructure\TelegramBot\UserMessage\Pure\UserMessage as PureUserMessage;
@@ -40,7 +40,7 @@ class SavedAnswerToRegistrationQuestion implements UserMessage
     private $question;
     private $connection;
 
-    public function __construct(TelegramUserId $telegramUserId, BotId $botId, PureUserMessage $userMessage, RegistrationQuestion $question, OpenConnection $connection)
+    public function __construct(InternalTelegramUserId $telegramUserId, BotId $botId, PureUserMessage $userMessage, RegistrationQuestion $question, OpenConnection $connection)
     {
         $this->telegramUserId = $telegramUserId;
         $this->botId = $botId;

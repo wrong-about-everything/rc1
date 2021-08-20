@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Infrastructure\TelegramBot\UserId\Pure;
 
-class FromParsedTelegramMessage extends TelegramUserId
+class FromParsedTelegramMessage extends InternalTelegramUserId
 {
     private $concrete;
 
