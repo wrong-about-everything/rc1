@@ -13,6 +13,7 @@ set_error_handler(
 
 use Dotenv\Dotenv as OneAndOnly;
 use Ramsey\Uuid\Uuid;
+use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\RoundInvitation\Status\Pure\_New;
 use RC\Domain\RoundRegistrationQuestion\Type\Pure\NetworkingOrSomeSpecificArea;
@@ -43,8 +44,8 @@ $connection = new ApplicationConnection();
 
 $botUsers =
     (new Selecting(
-        'select user_id from bot_user where bot_id = ?',
-        [$options['bot_id']],
+        'select user_id from bot_user where bot_id = ? and status = ?',
+        [$options['bot_id'], (new Registered())->value()],
         $connection
     ))
         ->response();
