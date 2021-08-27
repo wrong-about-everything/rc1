@@ -14,7 +14,7 @@ update registration_question
 set text = 'Напишите пару слов о себе для вашего собеседника.
 
 Например: Сергей, 27, работаю в "Рога и копыта", выстраиваю процесс доставки еды. Развожу хомячков.'
-where profile_record_type = %s and bot_id = %s and ordinal_number = %s
+where profile_record_type = %s and bot_id = '%s' and ordinal_number = %s
 q
                 ,
                 (new About())->value(),

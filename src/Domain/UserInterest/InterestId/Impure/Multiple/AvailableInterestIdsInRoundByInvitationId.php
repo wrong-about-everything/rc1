@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace RC\Domain\UserInterest\InterestId\Impure\Multiple;
 
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
-use RC\Domain\UserInterest\InterestId\Impure\Multiple\UserInterestIds;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;

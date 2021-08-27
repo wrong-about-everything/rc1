@@ -17,6 +17,7 @@ use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnecti
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\Credentials\ApplicationCredentials;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\Credentials\RootCredentials;
 use RC\Infrastructure\Filesystem\DirPath\ExistentFromAbsolutePathString as DirPath;
+use RC\Infrastructure\Filesystem\DirPath\FromAbsolutePathString;
 use RC\Infrastructure\Filesystem\FilePath\ExistentFromAbsolutePathString as FilePath;
 use RC\Infrastructure\Setup\Database\Recreate;
 use RC\Infrastructure\SqlDatabase\Agnostic\Connection\Port\FromString;
@@ -59,13 +60,11 @@ if (!$r2->isSuccessful()) {
     die('222');
 }
 
-die('OK, I stop here for now, fix this if you wan to use migration');
-
 exec(
     sprintf(
         '%s/vendor/bin/phinx migrate -c %s/migrations/%s.php 2>&1',
-        (new FromString(dirname(dirname(__DIR__))))->value(),
-        (new FromString(dirname(dirname(__DIR__))))->value(),
+        (new FromAbsolutePathString(dirname(dirname(__DIR__))))->value()->pure()->raw(),
+        (new FromAbsolutePathString(dirname(dirname(__DIR__))))->value()->pure()->raw(),
         'rc'
     ),
     $output,
@@ -75,6 +74,8 @@ if ($status !== 0) {
     var_dump($output);
     die();
 }
+
+die('OK, I stop here for now, fix this if you wan to use migration');
 
 (new DevFixtures(
     new FromString(dirname(dirname(__DIR__))),
