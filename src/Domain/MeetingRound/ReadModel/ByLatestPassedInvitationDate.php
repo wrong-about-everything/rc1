@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\RoundInvitation\ReadModel;
+namespace RC\Domain\MeetingRound\ReadModel;
 
+use Meringue\ISO8601DateTime;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
@@ -11,19 +12,18 @@ use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
-use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
-class LatestInvitation implements Invitation
+class ByLatestPassedInvitationDate implements MeetingRound
 {
-    private $telegramUserId;
     private $botId;
+    private $now;
     private $connection;
     private $cached;
 
-    public function __construct(InternalTelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
+    public function __construct(BotId $botId, ISO8601DateTime $now, OpenConnection $connection)
     {
-        $this->telegramUserId = $telegramUserId;
         $this->botId = $botId;
+        $this->now = $now;
         $this->connection = $connection;
         $this->cached = null;
     }
@@ -39,29 +39,20 @@ class LatestInvitation implements Invitation
 
     private function doValue(): ImpureValue
     {
-        $response =
+        $meetingRound =
             (new Selecting(
-                <<<q
-select mri.*
-from meeting_round_invitation mri
-    join meeting_round mr on mri.meeting_round_id = mr.id
-    join "telegram_user" u on mri.user_id = u.id
-where u.telegram_id = ? and mr.bot_id = ?
-order by mr.invitation_date desc, mr.start_date desc
-limit 1
-q
-                ,
-                [$this->telegramUserId->value(), $this->botId->value()],
+                'select * from meeting_round where bot_id = ? and invitation_date <= ? order by invitation_date desc limit 1',
+                [$this->botId->value(), $this->now->value()],
                 $this->connection
             ))
                 ->response();
-        if (!$response->isSuccessful()) {
-            return $response;
+        if (!$meetingRound->isSuccessful()) {
+            return $meetingRound;
         }
-        if (!isset($response->pure()->raw()[0])) {
+        if (!isset($meetingRound->pure()->raw()[0])) {
             return new Successful(new Emptie());
         }
 
-        return new Successful(new Present($response->pure()->raw()[0]));
+        return new Successful(new Present($meetingRound->pure()->raw()[0]));
     }
 }

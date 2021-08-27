@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace RC\Activities\Cron\InvitesToTakePartInANewRound;
 
+use Meringue\Timeline\Point\Now;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\ById;
+use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromMeetingRound;
+use RC\Domain\MeetingRound\ReadModel\ByLatestPassedInvitationDate;
 use RC\Domain\RoundInvitation\InvitationId\Pure\FromUuid;
 use RC\Domain\RoundInvitation\Status\Pure\_New;
 use RC\Domain\RoundInvitation\Status\Pure\ErrorDuringSending;
@@ -60,17 +63,21 @@ class InvitesToTakePartInANewRound extends Existent
             },
             (new Selecting(
                 <<<q
-select mri.id, u.telegram_id, b.token, b.name
+select mri.id, tu.telegram_id
 from meeting_round_invitation mri
     join meeting_round mr on mri.meeting_round_id = mr.id
-    join "telegram_user" u on mri.user_id = u.id
-    join bot b on b.id = mr.bot_id
-    left join meeting_round_participant mrp on mrp.user_id = u.id and mrp.meeting_round_id = mr.id
-where mr.bot_id = ? and mri.status in (?) and mr.invitation_date <= now() + interval '1 minute' and mrp.id is null
+    join telegram_user tu on mri.user_id = tu.id
+where mr.id = ? and mri.status in (?)
 limit 100
 q
                 ,
-                [$this->botId->value(), [(new _New())->value(), (new ErrorDuringSending())->value()]],
+                [
+                    (new FromMeetingRound(
+                        new ByLatestPassedInvitationDate($this->botId, new Now(), $this->connection)
+                    ))
+                        ->value()->pure()->raw(),
+                    [(new _New())->value(), (new ErrorDuringSending())->value()]
+                ],
                 $this->connection
             ))
                 ->response()->pure()->raw()

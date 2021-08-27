@@ -11,7 +11,7 @@ use RC\Domain\SentReplyToUser\ReplyOptions\FromRoundRegistrationQuestion as Answ
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
-use RC\Domain\RoundInvitation\ReadModel\LatestInvitation;
+use RC\Domain\RoundInvitation\ReadModel\InvitationForMeetingRoundWithLatestPassedInvitationDate;
 use RC\Domain\RoundRegistrationQuestion\NextRoundRegistrationQuestion;
 use RC\Domain\RoundRegistrationQuestion\RoundRegistrationQuestion;
 use RC\Domain\RoundRegistrationQuestion\Type\Impure\FromPure;
@@ -110,7 +110,7 @@ class AnswersRoundRegistrationQuestion extends Existent
     {
         return
             new FromInvitation(
-                new LatestInvitation(
+                new InvitationForMeetingRoundWithLatestPassedInvitationDate(
                     new FromParsedTelegramMessage($this->message),
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->connection

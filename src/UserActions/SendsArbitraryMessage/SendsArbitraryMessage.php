@@ -27,7 +27,7 @@ use RC\Domain\Participant\Status\Impure\FromReadModelParticipant;
 use RC\Domain\Participant\Status\Pure\RegistrationInProgress;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation as InvitationId;
 use RC\Domain\RoundInvitation\ReadModel\Invitation;
-use RC\Domain\RoundInvitation\ReadModel\LatestInvitation;
+use RC\Domain\RoundInvitation\ReadModel\InvitationForMeetingRoundWithLatestPassedInvitationDate;
 use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromPure;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
@@ -274,7 +274,7 @@ class SendsArbitraryMessage extends Existent
     private function latestRoundInvitation(): Invitation
     {
         return
-            new LatestInvitation(
+            new InvitationForMeetingRoundWithLatestPassedInvitationDate(
                 new FromParsedTelegramMessage($this->message),
                 $this->botId(),
                 $this->connection

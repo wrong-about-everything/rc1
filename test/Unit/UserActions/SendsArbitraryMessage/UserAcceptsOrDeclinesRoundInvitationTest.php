@@ -24,7 +24,7 @@ use RC\Domain\Participant\Status\Impure\FromPure;
 use RC\Domain\Participant\Status\Pure\Registered as ParticipantRegistered;
 use RC\Domain\Participant\Status\Pure\RegistrationInProgress;
 use RC\Domain\Participant\Status\Pure\Status;
-use RC\Domain\RoundInvitation\ReadModel\LatestInvitation;
+use RC\Domain\RoundInvitation\ReadModel\InvitationForMeetingRoundWithLatestPassedInvitationDate;
 use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromPure as ImpureStatusFromPure;
 use RC\Domain\RoundInvitation\Status\Pure\Accepted;
@@ -352,7 +352,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
     {
         $this->assertTrue(
             (new FromInvitation(
-                new LatestInvitation($telegramUserId, $botId, $connection)
+                new InvitationForMeetingRoundWithLatestPassedInvitationDate($telegramUserId, $botId, $connection)
             ))
                 ->equals(
                     new ImpureStatusFromPure(new Declined())

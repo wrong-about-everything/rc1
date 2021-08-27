@@ -11,7 +11,7 @@ use RC\Domain\Participant\WriteModel\Participant;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation as InvitationIdFromInvitation;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
 use RC\Domain\RoundInvitation\ReadModel\Invitation;
-use RC\Domain\RoundInvitation\ReadModel\LatestInvitation;
+use RC\Domain\RoundInvitation\ReadModel\InvitationForMeetingRoundWithLatestPassedInvitationDate;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
@@ -77,7 +77,7 @@ class AcceptsOrDeclinesInvitation extends Existent
     private function invitation(): Invitation
     {
         return
-            new LatestInvitation(
+            new InvitationForMeetingRoundWithLatestPassedInvitationDate(
                 new UserIdFromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),
                 $this->connection

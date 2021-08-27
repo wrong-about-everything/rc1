@@ -8,6 +8,7 @@ use Meringue\ISO8601DateTime;
 use Meringue\ISO8601Interval\Floating\NHours;
 use Meringue\Timeline\Point\Future;
 use Meringue\Timeline\Point\Now;
+use Meringue\Timeline\Point\Past;
 use PHPUnit\Framework\TestCase;
 use RC\Domain\BooleanAnswer\BooleanAnswerName\Sure;
 use RC\Domain\Bot\BotId\BotId;
@@ -50,6 +51,7 @@ use RC\Tests\Infrastructure\Environment\Reset;
 use RC\Tests\Infrastructure\Stub\Table\Bot;
 use RC\Tests\Infrastructure\Stub\Table\MeetingRound;
 use RC\Tests\Infrastructure\Stub\Table\MeetingRoundInvitation;
+use RC\Tests\Infrastructure\Stub\Table\MeetingRoundParticipant;
 use RC\Tests\Infrastructure\Stub\Table\TelegramUser;
 use RC\Activities\Cron\InvitesToTakePartInANewRound\InvitesToTakePartInANewRound;
 use RC\Tests\Infrastructure\Stub\TelegramMessage\UserMessage;
@@ -148,6 +150,37 @@ class InvitesToTakePartInANewRoundTest extends TestCase
         $this->assertCount(2, $transport->sentRequests());
         $this->assertAllInvitationsAreSent($this->meetingRoundId(), $connection);
         $this->assertAllInvitationsAreNew($this->someOtherMeetingRoundId(), $connection);
+    }
+
+    public function testGivenOneRoundHasPassedAndTheOtherIsNewWhenNoneOfInvitationsAreSentThenTheFirst100InvitationsAreSentForTheMeetingWithMatchingInvitationDate()
+    {
+        $connection = new ApplicationConnection();
+        $this->seedUser($this->firstUserId(), $connection);
+        $this->seedUser($this->secondUserId(), $connection);
+        // first meeting
+        $this->seedBot($this->botId(), $connection);
+        $this->seedMeetingRound($this->meetingRoundId(), $this->botId(), new Now(), $connection);
+        $this->seedNewMeetingRoundInvitations($this->meetingRoundId(), $connection);
+        // second meeting
+        $this->seedMeetingRound($this->someOtherMeetingRoundId(), $this->botId(), new Past(new Now(), new NHours(1)), $connection);
+        $this->seedAcceptedMeetingRoundInvitations($this->someOtherMeetingRoundId(), $connection);
+        $this->seedMeetingRoundParticipants($this->someOtherMeetingRoundId(), $connection);
+
+        $transport = new Indifferent();
+
+        $response =
+            (new InvitesToTakePartInANewRound(
+                $this->botId(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertCount(2, $transport->sentRequests());
+        $this->assertAllInvitationsAreSent($this->meetingRoundId(), $connection);
+        $this->assertAllInvitationsAreAccepted($this->someOtherMeetingRoundId(), $connection);
     }
 
     public function testOnlyNewAndErroneousInvitationsAreSent()
@@ -302,6 +335,24 @@ q
             ]);
     }
 
+    private function seedAcceptedMeetingRoundInvitations(MeetingRoundId $meetingRoundId, OpenConnection $connection)
+    {
+        (new MeetingRoundInvitation($connection))
+            ->insert([
+                ['meeting_round_id' => $meetingRoundId->value(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Accepted())->value()],
+                ['meeting_round_id' => $meetingRoundId->value(), 'user_id' => $this->secondUserId()->value(), 'status' => (new Accepted())->value()],
+            ]);
+    }
+
+    private function seedMeetingRoundParticipants(MeetingRoundId $meetingRoundId, OpenConnection $connection)
+    {
+        (new MeetingRoundParticipant($connection))
+            ->insert([
+                ['meeting_round_id' => $meetingRoundId->value(), 'user_id' => $this->firstUserId()->value(), 'status' => (new Registered())->value()],
+                ['meeting_round_id' => $meetingRoundId->value(), 'user_id' => $this->secondUserId()->value(), 'status' => (new Registered())->value()],
+            ]);
+    }
+
     private function seedInvitation(MeetingRoundId $meetingRoundId, TelegramUserId $userId, Status $status, OpenConnection $connection)
     {
         (new MeetingRoundInvitation($connection))
@@ -360,6 +411,32 @@ q
         array_map(
             function (array $record) {
                 $this->assertTrue((new FromInteger($record['status']))->equals(new Sent()));
+            },
+            array_filter(
+                (new Selecting(
+                    <<<q
+select mri.status
+from meeting_round_invitation mri
+    join meeting_round mr on mri.meeting_round_id = mr.id
+where mr.id = ?
+q
+                    ,
+                    [$meetingRoundId->value()],
+                    $connection
+                ))
+                    ->response()->pure()->raw(),
+                function (array $record) {
+                    return !(new FromInteger($record['status']))->isFinal();
+                }
+            )
+        );
+    }
+
+    private function assertAllInvitationsAreAccepted(MeetingRoundId $meetingRoundId, OpenConnection $connection)
+    {
+        array_map(
+            function (array $record) {
+                $this->assertTrue((new FromInteger($record['status']))->equals(new Accepted()));
             },
             array_filter(
                 (new Selecting(
