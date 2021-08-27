@@ -58,7 +58,7 @@ class FromRegistrationQuestion implements ReplyOptions
         } elseif ((new RegistrationQuestionType($this->registrationQuestion))->equals(new FromPure(new Experience()))) {
             return new Successful(new Present($this->twoExperiencesInARow()));
         } elseif ((new RegistrationQuestionType($this->registrationQuestion))->equals(new FromPure(new About()))) {
-            return new Successful(new Present($this->skip()));
+            return new Successful(new Present([]));
         }
 
         return new Successful(new Present([]));
@@ -98,10 +98,5 @@ class FromRegistrationQuestion implements ReplyOptions
                 },
                 []
             );
-    }
-
-    private function skip()
-    {
-        return [[['text' => (new Skipped())->value()]]];
     }
 }

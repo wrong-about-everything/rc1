@@ -7,9 +7,10 @@ namespace RC\Activities\Cron\InvitesToTakePartInANewRound;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\ById;
 use RC\Domain\RoundInvitation\InvitationId\Pure\FromUuid;
+use RC\Domain\RoundInvitation\Status\Pure\_New;
+use RC\Domain\RoundInvitation\Status\Pure\ErrorDuringSending;
 use RC\Infrastructure\Uuid\FromString as Uuid;
 use RC\Domain\RoundInvitation\WriteModel\Sent;
-use RC\Domain\RoundInvitation\Status\Pure\Sent as SentStatus;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
@@ -65,11 +66,11 @@ from meeting_round_invitation mri
     join "telegram_user" u on mri.user_id = u.id
     join bot b on b.id = mr.bot_id
     left join meeting_round_participant mrp on mrp.user_id = u.id and mrp.meeting_round_id = mr.id
-where mr.bot_id = ? and mri.status != ? and mr.invitation_date <= now() + interval '1 minute' and mrp.id is null
+where mr.bot_id = ? and mri.status in (?) and mr.invitation_date <= now() + interval '1 minute' and mrp.id is null
 limit 100
 q
                 ,
-                [$this->botId->value(), (new SentStatus())->value()],
+                [$this->botId->value(), [(new _New())->value(), (new ErrorDuringSending())->value()]],
                 $this->connection
             ))
                 ->response()->pure()->raw()

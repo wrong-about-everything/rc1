@@ -13,6 +13,11 @@ class NonExistent extends Status
         return false;
     }
 
+    public function isFinal(): bool
+    {
+        return true;
+    }
+
     public function value(): int
     {
         throw new Exception('Invitation status does not exist');

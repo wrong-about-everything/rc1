@@ -8,6 +8,8 @@ abstract class Status
 {
     abstract public function value(): int;
 
+    abstract public function isFinal(): bool;
+
     abstract public function exists(): bool;
 
     final public function equals(Status $status): bool

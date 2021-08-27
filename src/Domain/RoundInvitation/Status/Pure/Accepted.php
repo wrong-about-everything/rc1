@@ -11,6 +11,11 @@ class Accepted extends Status
         return true;
     }
 
+    public function isFinal(): bool
+    {
+        return true;
+    }
+
     public function value(): int
     {
         return 3;

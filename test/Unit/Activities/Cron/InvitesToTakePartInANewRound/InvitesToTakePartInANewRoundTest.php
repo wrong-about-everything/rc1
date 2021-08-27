@@ -25,6 +25,8 @@ use RC\Domain\RoundInvitation\Status\Impure\FromInvitation;
 use RC\Domain\RoundInvitation\Status\Impure\FromPure as ImpureInvitationStatusFromPure;
 use RC\Domain\RoundInvitation\Status\Pure\_New;
 use RC\Domain\RoundInvitation\Status\Pure\Accepted;
+use RC\Domain\RoundInvitation\Status\Pure\Declined;
+use RC\Domain\RoundInvitation\Status\Pure\ErrorDuringSending;
 use RC\Domain\RoundInvitation\Status\Pure\FromInteger;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
 use RC\Domain\RoundInvitation\Status\Pure\Status;
@@ -148,16 +150,22 @@ class InvitesToTakePartInANewRoundTest extends TestCase
         $this->assertAllInvitationsAreNew($this->someOtherMeetingRoundId(), $connection);
     }
 
-    public function testWhenSomeOfMeetingInvitationsAreSentThenTheRestOfInvitationsAreSent()
+    public function testOnlyNewAndErroneousInvitationsAreSent()
     {
         $connection = new ApplicationConnection();
         $this->seedUser($this->firstUserId(), $connection);
         $this->seedUser($this->secondUserId(), $connection);
+        $this->seedUser($this->thirdUserId(), $connection);
+        $this->seedUser($this->fourthUserId(), $connection);
+        $this->seedUser($this->fifthUserId(), $connection);
         // first meeting
         $this->seedBot($this->botId(), $connection);
         $this->seedMeetingRound($this->meetingRoundId(), $this->botId(), new Now(), $connection);
         $this->seedInvitation($this->meetingRoundId(), $this->firstUserId(), new Sent(), $connection);
         $this->seedInvitation($this->meetingRoundId(), $this->secondUserId(), new _New(), $connection);
+        $this->seedInvitation($this->meetingRoundId(), $this->thirdUserId(), new ErrorDuringSending(), $connection);
+        $this->seedInvitation($this->meetingRoundId(), $this->fourthUserId(), new Accepted(), $connection);
+        $this->seedInvitation($this->meetingRoundId(), $this->fifthUserId(), new Declined(), $connection);
         // second meeting
         $this->seedBot($this->someOtherBotId(), $connection);
         $this->seedMeetingRound($this->someOtherMeetingRoundId(), $this->someOtherBotId(), new Now(), $connection);
@@ -175,7 +183,7 @@ class InvitesToTakePartInANewRoundTest extends TestCase
                 ->response();
 
         $this->assertTrue($response->isSuccessful());
-        $this->assertCount(1, $transport->sentRequests());
+        $this->assertCount(2, $transport->sentRequests());
         $this->assertAllInvitationsAreSent($this->meetingRoundId(), $connection);
         $this->assertAllInvitationsAreNew($this->someOtherMeetingRoundId(), $connection);
     }
@@ -332,24 +340,44 @@ q
         return new UserIdFromUuid(new FromString('bfd294ba-18f6-4dc0-ab35-8dc90ac4475b'));
     }
 
+    private function thirdUserId(): TelegramUserId
+    {
+        return new UserIdFromUuid(new FromString('111294ba-18f6-4dc0-ab35-8dc90ac44111'));
+    }
+
+    private function fourthUserId(): TelegramUserId
+    {
+        return new UserIdFromUuid(new FromString('222294ba-18f6-4dc0-ab35-8dc90ac44222'));
+    }
+
+    private function fifthUserId(): TelegramUserId
+    {
+        return new UserIdFromUuid(new FromString('333294ba-18f6-4dc0-ab35-8dc90ac44333'));
+    }
+
     private function assertAllInvitationsAreSent(MeetingRoundId $meetingRoundId, OpenConnection $connection)
     {
         array_map(
             function (array $record) {
                 $this->assertTrue((new FromInteger($record['status']))->equals(new Sent()));
             },
-            (new Selecting(
-                <<<q
+            array_filter(
+                (new Selecting(
+                    <<<q
 select mri.status
 from meeting_round_invitation mri
     join meeting_round mr on mri.meeting_round_id = mr.id
 where mr.id = ?
 q
-                ,
-                [$meetingRoundId->value()],
-                $connection
-            ))
-                ->response()->pure()->raw()
+                    ,
+                    [$meetingRoundId->value()],
+                    $connection
+                ))
+                    ->response()->pure()->raw(),
+                function (array $record) {
+                    return !(new FromInteger($record['status']))->isFinal();
+                }
+            )
         );
     }
 

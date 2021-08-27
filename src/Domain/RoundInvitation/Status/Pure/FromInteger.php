@@ -18,6 +18,11 @@ class FromInteger extends Status
         return $this->concrete->exists();
     }
 
+    public function isFinal(): bool
+    {
+        return $this->concrete->isFinal();
+    }
+
     public function value(): int
     {
         return $this->concrete->value();
@@ -29,8 +34,8 @@ class FromInteger extends Status
             (new _New())->value() => new _New(),
             (new Sent())->value() => new Sent(),
             (new ErrorDuringSending())->value() => new ErrorDuringSending(),
-            (new Declined())->value() => new Declined(),
             (new Accepted())->value() => new Accepted(),
+            (new Declined())->value() => new Declined(),
         ];
     }
 }

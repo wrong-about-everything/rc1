@@ -76,16 +76,14 @@ class FromRegistrationQuestionTest extends TestCase
         );
     }
 
-    public function testAboutMeQuestionCanBeSkipped()
+    public function testAboutMeQuestionCanNotBeSkipped()
     {
         $connection = new ApplicationConnection();
         $this->seedBot($this->botId(), [], $connection);
         $registrationQuestion = $this->newAboutMeRegistrationQuestion($this->botId(), $connection);
 
         $this->assertEquals(
-            [
-                [['text' => 'Пропустить']],
-            ],
+            [],
             (new FromRegistrationQuestion($registrationQuestion, $this->botId(), $connection))->value()->pure()->raw()
         );
     }
