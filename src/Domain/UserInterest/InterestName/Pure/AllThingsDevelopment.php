@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace RC\Domain\UserInterest\InterestName\Pure;
 
-class TeamMotivation extends InterestName
+class AllThingsDevelopment extends InterestName
 {
     public function value(): string
     {
-        return 'Мотивация команды';
+        return 'Разработка и её процессы: ускорение, управление, планирование';
     }
 
     public function exists(): bool

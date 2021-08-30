@@ -8,7 +8,7 @@ class MetricsImprovement extends InterestName
 {
     public function value(): string
     {
-        return 'Улучшение метрик';
+        return 'Подсчёт и улучшение метрик';
     }
 
     public function exists(): bool

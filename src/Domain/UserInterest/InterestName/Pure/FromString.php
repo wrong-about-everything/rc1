@@ -43,6 +43,10 @@ class FromString extends InterestName
             (new TeamManagement())->value() => new TeamManagement(),
             (new UnitEconomics())->value() => new UnitEconomics(),
             (new ClientSegmentationAndMarketAnalysis())->value() => new ClientSegmentationAndMarketAnalysis(),
+            (new Strategy())->value() => new Strategy(),
+            (new TaskPrioritization())->value() => new TaskPrioritization(),
+            (new MVPBuilding())->value() => new MVPBuilding(),
+            (new AllThingsDevelopment())->value() => new AllThingsDevelopment(),
         ];
     }
 }

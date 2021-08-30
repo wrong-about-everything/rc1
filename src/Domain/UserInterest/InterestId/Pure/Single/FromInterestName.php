@@ -22,6 +22,10 @@ use RC\Domain\UserInterest\InterestName\Pure\CasesDiscussion as CasesDiscussionN
 use RC\Domain\UserInterest\InterestName\Pure\TeamManagement as TeamManagementName;
 use RC\Domain\UserInterest\InterestName\Pure\UnitEconomics as UnitEconomicsName;
 use RC\Domain\UserInterest\InterestName\Pure\ClientSegmentationAndMarketAnalysis as ClientSegmentationAndMarketAnalysisName;
+use RC\Domain\UserInterest\InterestName\Pure\Strategy as StrategyName;
+use RC\Domain\UserInterest\InterestName\Pure\TaskPrioritization as TaskPrioritizationName;
+use RC\Domain\UserInterest\InterestName\Pure\MVPBuilding as MVPBuildingName;
+use RC\Domain\UserInterest\InterestName\Pure\AllThingsDevelopment as AllThingsDevelopmentName;
 
 class FromInterestName extends InterestId
 {
@@ -62,6 +66,10 @@ class FromInterestName extends InterestId
             (new TeamManagementName())->value() => new TeamManagement(),
             (new UnitEconomicsName())->value() => new UnitEconomics(),
             (new ClientSegmentationAndMarketAnalysisName())->value() => new ClientSegmentationAndMarketAnalysis(),
+            (new StrategyName())->value() => new Strategy(),
+            (new TaskPrioritizationName())->value() => new TaskPrioritization(),
+            (new MVPBuildingName())->value() => new MVPBuilding(),
+            (new AllThingsDevelopmentName())->value() => new AllThingsDevelopment(),
         ];
     }
 }
