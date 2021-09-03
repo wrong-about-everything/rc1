@@ -77,7 +77,7 @@ q
                                             [['text' => (new NoMaybeNextTime())->value()]],
                                         ],
                                         'resize_keyboard' => true,
-                                        'one_time_keyboard' => true,
+                                        'one_time_keyboard' => false,
                                     ])
                             ]),
                             new FromImpure($botToken)

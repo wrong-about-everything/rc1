@@ -100,7 +100,7 @@ class NextRegistrationQuestionReplyToUser implements SentReplyToUser
                 json_encode([
                     'keyboard' => $answerOptions->value()->pure()->raw(),
                     'resize_keyboard' => true,
-                    'one_time_keyboard' => true,
+                    'one_time_keyboard' => false,
                 ])
         ];
     }

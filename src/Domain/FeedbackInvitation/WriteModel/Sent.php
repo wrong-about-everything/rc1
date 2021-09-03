@@ -81,7 +81,7 @@ class Sent implements FeedbackInvitation
                                             [['text' => (new No())->value()]],
                                         ],
                                         'resize_keyboard' => true,
-                                        'one_time_keyboard' => true,
+                                        'one_time_keyboard' => false,
                                     ])
                             ]),
                             new FromImpure(new TokenFromBot($this->bot))
