@@ -82,7 +82,8 @@ class SendsMatchesToParticipants extends Existent
                             $matchingPair['match_telegram_handle'],
                             json_decode($matchingPair['participant_interested_in'] ?? json_encode([])),
                             json_decode($matchingPair['match_interested_in'] ?? json_encode([])),
-                            new FromMatchingPairArray($matchingPair)
+                            new FromMatchingPairArray($matchingPair),
+                            $matchingPair['is_initiator']
                         ))
                             ->value(),
                         new ByBotId($this->botId, $this->connection),
@@ -132,7 +133,8 @@ select
     participant_to.interested_in participant_interested_in,
     match_participant.interested_in match_interested_in,
     bu.about about_match,
-    pair.match_participant_contacts_sent
+    pair.match_participant_contacts_sent,
+    pair.is_initiator
 from meeting_round_pair pair
     join meeting_round_participant participant_to on pair.participant_id = participant_to.id
     join meeting_round_participant match_participant on pair.match_participant_id = match_participant.id

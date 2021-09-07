@@ -17,8 +17,17 @@ class Text
     private $participantInterestedIn;
     private $matchInterestedIn;
     private $aboutMatch;
+    private $isInitiator;
 
-    public function __construct(string $participantFirstName, string $matchFirstName, string $matchTelegramHandle, array $participantInterestedIn, array $matchInterestedIn, About $aboutMatch)
+    public function __construct(
+        string $participantFirstName,
+        string $matchFirstName,
+        string $matchTelegramHandle,
+        array $participantInterestedIn,
+        array $matchInterestedIn,
+        About $aboutMatch,
+        bool $isInitiator
+    )
     {
         $this->participantFirstName = $participantFirstName;
         $this->matchFirstName = $matchFirstName;
@@ -26,6 +35,7 @@ class Text
         $this->participantInterestedIn = $participantInterestedIn;
         $this->matchInterestedIn = $matchInterestedIn;
         $this->aboutMatch = $aboutMatch;
+        $this->isInitiator = $isInitiator;
     }
 
     public function value(): string
@@ -39,6 +49,8 @@ class Text
                     .
                 $this->hereIsWhatYouMatchToldAboutHerself()
                     .
+                $this->textForInitiators()
+                    .
                 $this->haveAGoodTime();
         } elseif (count($interestsInCommon) === 1) {
             return
@@ -47,6 +59,8 @@ class Text
                 $this->hereIsYourMatchWithOneInterestInCommon((int) $interestsInCommon[0])
                 .
                 $this->hereIsWhatYouMatchToldAboutHerself()
+                .
+                $this->textForInitiators()
                 .
                 $this->haveAGoodTime();
         }
@@ -57,6 +71,8 @@ class Text
             $this->hereIsYourMatch() . ' ' . $this->youHaveMultipleInterestInCommon($interestsInCommon)
             .
             $this->hereIsWhatYouMatchToldAboutHerself()
+            .
+            $this->textForInitiators()
             .
             $this->haveAGoodTime();
     }
@@ -167,8 +183,28 @@ _«%s»_'
             ;
     }
 
+    private function textForInitiators()
+    {
+        if ($this->isInitiator) {
+            return
+                (new MarkdownV2(
+                    sprintf(
+                        'Каждый раз мы рандомно выбираем одного человека из пары, кто должен написать собеседнику и договориться о встрече, онлайн или оффлайн. В этот раз ответственный — вы. Советуем не откладывать и написать @%s прямо сейчас — так больше шансов не забыть про встречу.',
+                        $this->matchTelegramHandle
+                    )
+                ))
+                    ->value()
+                . $this->newLine() . $this->newLine();
+        }
+
+        return '';
+    }
+
     private function haveAGoodTime()
     {
-        return 'Приятного общения\!';
+        return
+            'Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.'
+                . $this->newLine() . $this->newLine() .
+            'Приятного общения\!';
     }
 }

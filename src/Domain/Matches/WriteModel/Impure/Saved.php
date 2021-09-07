@@ -43,12 +43,12 @@ class Saved implements Matches
             (new TransactionalQueryFromMultipleQueries(
                 [
                     new SingleMutatingQueryWithMultipleValueSets(
-                        'insert into meeting_round_pair values (?, ?, ?)',
+                        'insert into meeting_round_pair (id, participant_id, match_participant_id, is_initiator) values (?, ?, ?, ?)',
                         array_reduce(
                             $this->matches->value()->pure()->raw()['matches'],
                             function (array $carry, array $pair) {
-                                $carry[] = [Uuid::uuid4()->toString(), $pair[0], $pair[1]];
-                                $carry[] = [Uuid::uuid4()->toString(), $pair[1], $pair[0]];
+                                $carry[] = [Uuid::uuid4()->toString(), $pair[0], $pair[1], 1];
+                                $carry[] = [Uuid::uuid4()->toString(), $pair[1], $pair[0], 0];
                                 return $carry;
                             },
                             []

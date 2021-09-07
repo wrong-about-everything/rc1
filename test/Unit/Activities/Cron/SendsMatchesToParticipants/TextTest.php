@@ -14,7 +14,7 @@ use RC\Domain\UserInterest\InterestId\Pure\Single\SkySurfing;
 
 class TextTest extends TestCase
 {
-    public function testNoInterestsInCommon()
+    public function testNonInitiatorHasNoInterestsInCommon()
     {
         $this->assertEquals(
             <<<t
@@ -25,6 +25,8 @@ class TextTest extends TestCase
 
 _«Моя жизнь в огне\!»_
 
+Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.
+
 Приятного общения\!
 t
             ,
@@ -34,13 +36,45 @@ t
                 'polzzza',
                 [(new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value()],
-                new FromString('Моя жизнь в огне!')
+                new FromString('Моя жизнь в огне!'),
+                false
             ))
                 ->value()
         );
     }
 
-    public function testSingleInterestInCommon()
+    public function testInitiatorHasNoInterestsInCommon()
+    {
+        $this->assertEquals(
+            <<<t
+Привет, Василий\!
+
+Ваша пара на этой неделе — Полина \(@polzzza\)\.
+Вот что ваш собеседник написал о себе\:
+
+_«Моя жизнь в огне\!»_
+
+Каждый раз мы рандомно выбираем одного человека из пары, кто должен написать собеседнику и договориться о встрече, онлайн или оффлайн\. В этот раз ответственный — вы\. Советуем не откладывать и написать @polzzza прямо сейчас — так больше шансов не забыть про встречу\.
+
+Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.
+
+Приятного общения\!
+t
+            ,
+            (new Text(
+                'Василий',
+                'Полина',
+                'polzzza',
+                [(new SkySurfing())->value(), (new DayDreaming())->value()],
+                [(new Networking())->value()],
+                new FromString('Моя жизнь в огне!'),
+                true
+            ))
+                ->value()
+        );
+    }
+
+    public function testNonInitiatorHasSingleInterestInCommon()
     {
         $this->assertEquals(
             <<<t
@@ -51,6 +85,8 @@ t
 
 _«Моя жизнь в огне\!»_
 
+Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.
+
 Приятного общения\!
 t
             ,
@@ -60,13 +96,45 @@ t
                 'polzzza',
                 [(new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value(), (new DayDreaming())->value()],
-                new FromString('Моя жизнь в огне!')
+                new FromString('Моя жизнь в огне!'),
+                false
             ))
                 ->value()
         );
     }
 
-    public function testMultipleInterestInCommon()
+    public function testInitiatorHasSingleInterestInCommon()
+    {
+        $this->assertEquals(
+            <<<t
+Привет, Василий\!
+
+Ваша пара на этой неделе — Полина \(@polzzza\)\. Среди ваших общих интересов — Daydreaming\.
+Вот что ваш собеседник написал о себе\:
+
+_«Моя жизнь в огне\!»_
+
+Каждый раз мы рандомно выбираем одного человека из пары, кто должен написать собеседнику и договориться о встрече, онлайн или оффлайн\. В этот раз ответственный — вы\. Советуем не откладывать и написать @polzzza прямо сейчас — так больше шансов не забыть про встречу\.
+
+Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.
+
+Приятного общения\!
+t
+            ,
+            (new Text(
+                'Василий',
+                'Полина',
+                'polzzza',
+                [(new SkySurfing())->value(), (new DayDreaming())->value()],
+                [(new Networking())->value(), (new DayDreaming())->value()],
+                new FromString('Моя жизнь в огне!'),
+                true
+            ))
+                ->value()
+        );
+    }
+
+    public function testNonInitiatorHasMultipleInterestInCommon()
     {
         $this->assertEquals(
             <<<t
@@ -77,6 +145,8 @@ t
 
 _«Моя жизнь в огне\!»_
 
+Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.
+
 Приятного общения\!
 t
             ,
@@ -86,13 +156,45 @@ t
                 'polzzza',
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
-                new FromString('Моя жизнь в огне!')
+                new FromString('Моя жизнь в огне!'),
+                false
             ))
                 ->value()
         );
     }
 
-    public function testMultipleInterestInCommonAndAboutMeIsEmpty()
+    public function testInitiatorHasMultipleInterestInCommon()
+    {
+        $this->assertEquals(
+            <<<t
+Привет, Василий\!
+
+Ваша пара на этой неделе — Полина \(@polzzza\)\. У вас совпали такие интересы\: Нетворкинг без определенной темы, Sky surfing и Daydreaming\.
+Вот что ваш собеседник написал о себе\:
+
+_«Моя жизнь в огне\!»_
+
+Каждый раз мы рандомно выбираем одного человека из пары, кто должен написать собеседнику и договориться о встрече, онлайн или оффлайн\. В этот раз ответственный — вы\. Советуем не откладывать и написать @polzzza прямо сейчас — так больше шансов не забыть про встречу\.
+
+Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.
+
+Приятного общения\!
+t
+            ,
+            (new Text(
+                'Василий',
+                'Полина',
+                'polzzza',
+                [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
+                [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
+                new FromString('Моя жизнь в огне!'),
+                true
+            ))
+                ->value()
+        );
+    }
+
+    public function testNonInitiatorHasMultipleInterestInCommonAndAboutMeIsEmpty()
     {
         $this->assertEquals(
             <<<t
@@ -100,6 +202,8 @@ t
 
 Ваша пара на этой неделе — Полина \(@polzzza\)\. У вас совпали такие интересы\: Нетворкинг без определенной темы, Sky surfing и Daydreaming\.
 
+Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.
+
 Приятного общения\!
 t
             ,
@@ -109,7 +213,36 @@ t
                 'polzzza',
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
-                new Emptie()
+                new Emptie(),
+                false
+            ))
+                ->value()
+        );
+    }
+
+    public function testInitiatorHasMultipleInterestInCommonAndAboutMeIsEmpty()
+    {
+        $this->assertEquals(
+            <<<t
+Привет, Василий\!
+
+Ваша пара на этой неделе — Полина \(@polzzza\)\. У вас совпали такие интересы\: Нетворкинг без определенной темы, Sky surfing и Daydreaming\.
+
+Каждый раз мы рандомно выбираем одного человека из пары, кто должен написать собеседнику и договориться о встрече, онлайн или оффлайн\. В этот раз ответственный — вы\. Советуем не откладывать и написать @polzzza прямо сейчас — так больше шансов не забыть про встречу\.
+
+Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.
+
+Приятного общения\!
+t
+            ,
+            (new Text(
+                'Василий',
+                'Полина',
+                'polzzza',
+                [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
+                [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
+                new Emptie(),
+                true
             ))
                 ->value()
         );
