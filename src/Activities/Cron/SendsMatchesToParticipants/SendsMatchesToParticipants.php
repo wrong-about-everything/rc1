@@ -143,7 +143,7 @@ from meeting_round_pair pair
     join meeting_round mr on mr.id = participant_to.meeting_round_id
     join bot_user bu on bu.user_id = match_user.id and bu.bot_id = mr.bot_id
 where participant_to.meeting_round_id = ? and match_participant.meeting_round_id = ? and pair.match_participant_contacts_sent = false
-limit 10
+limit 100
 q
                 ,
                 [(new FromMeetingRound($currentRound))->value()->pure()->raw(), (new FromMeetingRound($currentRound))->value()->pure()->raw()],
