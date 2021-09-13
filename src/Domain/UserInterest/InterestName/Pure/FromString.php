@@ -47,6 +47,8 @@ class FromString extends InterestName
             (new TaskPrioritization())->value() => new TaskPrioritization(),
             (new MVPBuilding())->value() => new MVPBuilding(),
             (new AllThingsDevelopment())->value() => new AllThingsDevelopment(),
+            (new UX())->value() => new UX(),
+            (new UserAcquisition())->value() => new UserAcquisition(),
         ];
     }
 }

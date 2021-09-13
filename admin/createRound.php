@@ -12,6 +12,7 @@ set_error_handler(
 );
 
 use Dotenv\Dotenv as OneAndOnly;
+use Meringue\Timeline\Point\Now;
 use Ramsey\Uuid\Uuid;
 use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
@@ -44,7 +45,13 @@ $connection = new ApplicationConnection();
 
 $botUsers =
     (new Selecting(
-        'select user_id from bot_user where bot_id = ? and status = ?',
+        <<<query
+select bu.user_id
+from bot_user bu
+    join telegram_user tu on bu.user_id = tu.id
+where bu.bot_id = ? and bu.status = ? and tu.telegram_id not in (263786736, 338554207, 128741182, 1388768, 168429011, 255666104, 277530845, 185578188)
+query
+        ,
         [$options['bot_id'], (new Registered())->value()],
         $connection
     ))
@@ -60,10 +67,10 @@ $response =
             new SingleMutating(
                 <<<q
     insert into meeting_round (id, bot_id, name, start_date, invitation_date, feedback_date, timezone, available_interests)
-    values (?, ?, 'Новый раунд', ?, ?, ?, 'Europe/Moscow', '[0, 1]')
+    values (?, ?, ?, ?, ?, ?, 'Europe/Moscow', '[0, 1]')
 q
                 ,
-                [$meetingRoundId, $options['bot_id'], $options['start_date_time'], $options['invitation_date_time'], $options['feedback_date_time']],
+                [$meetingRoundId, $options['bot_id'], sprintf('Раунд %s', (new Now())->value()), $options['start_date_time'], $options['invitation_date_time'], $options['feedback_date_time']],
                 $connection
             ),
             new SingleMutatingQueryWithMultipleValueSets(

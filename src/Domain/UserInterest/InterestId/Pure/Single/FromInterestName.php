@@ -26,6 +26,8 @@ use RC\Domain\UserInterest\InterestName\Pure\Strategy as StrategyName;
 use RC\Domain\UserInterest\InterestName\Pure\TaskPrioritization as TaskPrioritizationName;
 use RC\Domain\UserInterest\InterestName\Pure\MVPBuilding as MVPBuildingName;
 use RC\Domain\UserInterest\InterestName\Pure\AllThingsDevelopment as AllThingsDevelopmentName;
+use RC\Domain\UserInterest\InterestName\Pure\UX as UXName;
+use RC\Domain\UserInterest\InterestName\Pure\UserAcquisition as UserAcquisitionName;
 
 class FromInterestName extends InterestId
 {
@@ -70,6 +72,8 @@ class FromInterestName extends InterestId
             (new TaskPrioritizationName())->value() => new TaskPrioritization(),
             (new MVPBuildingName())->value() => new MVPBuilding(),
             (new AllThingsDevelopmentName())->value() => new AllThingsDevelopment(),
+            (new UXName())->value() => new UX(),
+            (new UserAcquisitionName())->value() => new UserAcquisition(),
         ];
     }
 }
