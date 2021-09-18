@@ -24,7 +24,8 @@ class GeneratedMatchesForAllParticipantsTest extends TestCase
         $this->assertEquals(
             $matches,
             (new GeneratedMatchesForAllParticipants(
-                new FromArray($matrix)
+                new FromArray($matrix),
+                []
             ))
                 ->value()->pure()->raw()
         );

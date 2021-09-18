@@ -15,11 +15,13 @@ use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 class GeneratedMatchesForAllParticipants implements Matches
 {
     private $positionsExperiencesParticipantsInterestsMatrix;
+    private $participants2PastPairs;
     private $cached;
 
-    public function __construct(PositionsExperiencesParticipantsInterestsMatrix $positionsExperiencesParticipantsInterestsMatrix)
+    public function __construct(PositionsExperiencesParticipantsInterestsMatrix $positionsExperiencesParticipantsInterestsMatrix, array $participants2PastPairs)
     {
         $this->positionsExperiencesParticipantsInterestsMatrix = $positionsExperiencesParticipantsInterestsMatrix;
+        $this->participants2PastPairs = $participants2PastPairs;
         $this->cached = null;
     }
 
@@ -45,7 +47,7 @@ class GeneratedMatchesForAllParticipants implements Matches
         $dropouts = [];
         foreach ($this->positionsExperiencesParticipantsInterestsMatrix->value()->pure()->raw() as $positionId => $positionSlice) {
             foreach ($positionSlice as $experienceId => $positionAndExperienceSlice) {
-                $segmentMatches = (new WithMatchedDropoutsWithinTheSameSegment(new GeneratedMatchesForSegment($positionAndExperienceSlice)))->value();
+                $segmentMatches = $this->segmentMatches($positionAndExperienceSlice);
                 $allMatches = array_merge($allMatches, $segmentMatches['matches']);
                 if (!empty($segmentMatches['dropouts'])) {
                     $dropouts[$positionId][$experienceId] = $segmentMatches['dropouts'][0];
@@ -64,5 +66,14 @@ class GeneratedMatchesForAllParticipants implements Matches
         }
 
         return new Successful(new Present(['matches' => $allMatches, 'dropouts' => []]));
+    }
+
+    private function segmentMatches(array $positionAndExperienceSlice)
+    {
+        return
+            (new WithMatchedDropoutsWithinTheSameSegment(
+                new GeneratedMatchesForSegment($positionAndExperienceSlice, $this->participants2PastPairs))
+            )
+                ->value();
     }
 }
