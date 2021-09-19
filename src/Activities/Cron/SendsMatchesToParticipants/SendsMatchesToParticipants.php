@@ -8,6 +8,7 @@ use Meringue\Timeline\Point\Now;
 use RC\Domain\About\Pure\FromMatchingPairArray;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
+use RC\Domain\Matches\ParticipantId2ParticipantsThatHeHasAlreadyMetWith;
 use RC\Domain\Matches\PositionExperienceParticipantsInterestsMatrix\FromRound;
 use RC\Domain\Matches\ReadModel\Impure\GeneratedMatchesForAllParticipants;
 use RC\Domain\Matches\WriteModel\Impure\Saved;
@@ -114,7 +115,7 @@ class SendsMatchesToParticipants extends Existent
             new Saved(
                 new GeneratedMatchesForAllParticipants(
                     new FromRound($currentRound, $this->connection),
-                    []
+                    (new ParticipantId2ParticipantsThatHeHasAlreadyMetWith($currentRound, $this->connection))->value()->pure()->raw()
                 ),
                 $this->connection
             );

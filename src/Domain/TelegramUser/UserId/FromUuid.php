@@ -10,9 +10,9 @@ class FromUuid extends TelegramUserId
 {
     private $userId;
 
-    public function __construct(UUID $botId)
+    public function __construct(UUID $telegramUserId)
     {
-        $this->userId = $botId;
+        $this->userId = $telegramUserId;
     }
 
     public function value(): string

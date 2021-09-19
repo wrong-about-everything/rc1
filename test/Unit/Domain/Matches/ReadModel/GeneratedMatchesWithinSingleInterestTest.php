@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Tests\Unit\Domain\Matches;
+namespace RC\Tests\Unit\Domain\Matches\ReadModel;
 
 use PHPUnit\Framework\TestCase;
 use RC\Domain\Matches\ReadModel\Pure\GeneratedMatchesWithinSingleInterest;
