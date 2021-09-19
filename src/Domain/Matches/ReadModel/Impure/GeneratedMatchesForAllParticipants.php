@@ -50,12 +50,12 @@ class GeneratedMatchesForAllParticipants implements Matches
                 $segmentMatches = $this->segmentMatches($positionAndExperienceSlice);
                 $allMatches = array_merge($allMatches, $segmentMatches['matches']);
                 if (!empty($segmentMatches['dropouts'])) {
-                    $dropouts[$positionId][$experienceId] = $segmentMatches['dropouts'][0];
+                    $dropouts[$positionId][$experienceId] = $segmentMatches['dropouts'];
                 }
             }
         }
         if (!empty($dropouts)) {
-            $matchesWithExperiencesThatTouchEachOther = (new WithExperiencesThatTouchEachOther($dropouts))->value();
+            $matchesWithExperiencesThatTouchEachOther = (new WithExperiencesThatTouchEachOther($dropouts, $this->participants2PastPairs))->value();
             return
                 new Successful(
                     new Present([
@@ -72,8 +72,9 @@ class GeneratedMatchesForAllParticipants implements Matches
     {
         return
             (new WithMatchedDropoutsWithinTheSameSegment(
-                new GeneratedMatchesForSegment($positionAndExperienceSlice, $this->participants2PastPairs))
-            )
+                new GeneratedMatchesForSegment($positionAndExperienceSlice, $this->participants2PastPairs),
+                $this->participants2PastPairs
+            ))
                 ->value();
     }
 }
