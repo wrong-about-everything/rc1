@@ -13,7 +13,19 @@ class GeneratedMatchesForSegment implements Matches
     public function __construct(array $participants2Interests, array $participants2PastPairs)
     {
         $this->participants2Interests = $participants2Interests;
-        $this->participants2PastPairs = $participants2PastPairs;
+        $this->participants2PastPairs =
+            array_combine(
+                array_keys($participants2PastPairs),
+                array_reduce(
+                    array_values($participants2PastPairs),
+                    function (array $pastPairsWithKeys, array $pastPairs) {
+                        $pastPairsWithKeys[] = array_combine($pastPairs, $pastPairs);
+                        return $pastPairsWithKeys;
+                    },
+                    []
+                )
+            );
+
         $this->cached = null;
     }
 
@@ -41,22 +53,20 @@ class GeneratedMatchesForSegment implements Matches
         $currentMatches = $currentMatchesAndNonMatchedParticipants['matches'];
         $currentDropouts = [];
 
-        if (!empty($currentMatchesAndNonMatchedParticipants['non_matched_participants'])) {
-            foreach ($currentMatchesAndNonMatchedParticipants['non_matched_participants'] as $nonMatchedParticipant) {
-                // if non-matched participant has a single interest, he is a dropout
-                if (count($participants2Interests[$nonMatchedParticipant]) === 1) {
-                    unset($participants2Interests[$nonMatchedParticipant]);
-                    $currentDropouts[] = $nonMatchedParticipant;
-                } else {
-                    // non-matched participant has other interests. So I remove this unlucky interest and try to find a match based on other interests.
-                    $participants2Interests[$nonMatchedParticipant] =
-                        array_filter(
-                            $participants2Interests[$nonMatchedParticipant],
-                            function ($interestId) use ($theMostIntenseInterestId) {
-                                return $interestId !== $theMostIntenseInterestId;
-                            }
-                        );
-                }
+        foreach ($currentMatchesAndNonMatchedParticipants['non_matched_participants'] as $nonMatchedParticipant) {
+            // if non-matched participant has a single interest, he is a dropout
+            if (count($participants2Interests[$nonMatchedParticipant]) === 1) {
+                unset($participants2Interests[$nonMatchedParticipant]);
+                $currentDropouts[] = $nonMatchedParticipant;
+            } else {
+                // non-matched participant has other interests. So I remove this unlucky interest and try to find a match based on other interests.
+                $participants2Interests[$nonMatchedParticipant] =
+                    array_filter(
+                        $participants2Interests[$nonMatchedParticipant],
+                        function ($interestId) use ($theMostIntenseInterestId) {
+                            return $interestId !== $theMostIntenseInterestId;
+                        }
+                    );
             }
         }
 
@@ -164,7 +174,7 @@ class GeneratedMatchesForSegment implements Matches
 
     private function participantsWhoMarkedNInterestsIncludingThePassedOne(int $nInterests, $includingThisInterestId, array $participants2Interests)
     {
-        return
+        $participants =
             array_keys(
                 array_filter(
                     $participants2Interests,
@@ -173,6 +183,8 @@ class GeneratedMatchesForSegment implements Matches
                     }
                 )
             );
+
+        return array_combine($participants, $participants);
     }
 
     private function uniqueInterests(array $participants2Interests)
@@ -202,12 +214,13 @@ class GeneratedMatchesForSegment implements Matches
                 array_slice(
                     $participantsWithTheMostNarrowInterest,
                     0,
-                    count($participantsWithTheMostNarrowInterest) - 1
+                    count($participantsWithTheMostNarrowInterest) - 1,
+                    true
                 )
             );
 
         $pairToLastParticipant = null;
-        foreach (array_slice($intensityDistributionForCurrentInterestId, 1) as $participants) {
+        foreach (array_slice($intensityDistributionForCurrentInterestId, 1, null, true) as $participants) {
             $pairToLastParticipant = $this->pairToCurrentParticipantId($participants, $lastParticipant, []);
             if (!is_null($pairToLastParticipant)) {
                 break;
@@ -229,7 +242,7 @@ class GeneratedMatchesForSegment implements Matches
 
     private function matchesAndNonMatchedParticipants(array $participants)
     {
-        return $this->matchesAndNonMatchedParticipantsIteration([], [], array_values($participants));
+        return $this->matchesAndNonMatchedParticipantsIteration([], [], $participants);
     }
 
     private function matchesAndNonMatchedParticipantsIteration(array $matches, array $nonMatchedParticipants, array $participants)
@@ -238,49 +251,36 @@ class GeneratedMatchesForSegment implements Matches
             return ['matches' => $matches, 'non_matched_participants' => $nonMatchedParticipants];
         }
 
-        $currentParticipantId = array_shift($participants);
-        $pairToCurrentParticipantId = $this->pairToCurrentParticipantId($participants, $currentParticipantId, $matches);
+        $currentParticipantId = array_values(array_slice($participants, 0, 1))[0];
+        $allTheRest = array_slice($participants, 1, null, true);
+        $pairToCurrentParticipantId = $this->pairToCurrentParticipantId($allTheRest, $currentParticipantId);
 
         if ($pairToCurrentParticipantId !== null) {
-            unset($participants[array_search($pairToCurrentParticipantId, $participants)]);
+            unset($allTheRest[$pairToCurrentParticipantId]);
             return
                 $this->matchesAndNonMatchedParticipantsIteration(
                     array_merge($matches, [[$currentParticipantId, $pairToCurrentParticipantId]]),
                     $nonMatchedParticipants,
-                    $participants
+                    $allTheRest
                 );
         } else {
             return
                 $this->matchesAndNonMatchedParticipantsIteration(
                     $matches,
                     array_merge($nonMatchedParticipants, [$currentParticipantId]),
-                    $participants
+                    $allTheRest
                 );
         }
     }
 
-    private function pairToCurrentParticipantId(array $participants, $currentParticipantId, array $matches)
+    private function pairToCurrentParticipantId(array $participants, $currentParticipantId)
     {
-        return
-            array_values(
-                array_filter(
-                    $participants,
-                    function (int $participantId) use ($currentParticipantId, $matches) {
-                        return
-                            !in_array($participantId, $this->participants2PastPairs[$currentParticipantId] ?? [])
-                            &&
-                            !in_array(
-                                $participantId,
-                                array_reduce(
-                                    $matches,
-                                    function (array $allCurrentlyMatchedParticipants, array $pair) {
-                                        return array_merge($allCurrentlyMatchedParticipants, $pair);
-                                    },
-                                    []
-                                )
-                            );
-                    }
-                )
-            )[0] ?? null;
+        foreach ($participants as $participantId) {
+            if (!isset(($this->participants2PastPairs[$currentParticipantId] ?? [])[$participantId])) {
+                return $participantId;
+            }
+        }
+
+        return null;
     }
 }

@@ -62,7 +62,8 @@ class SeesMatches extends Existent
                 new FromRound(
                     new LatestNotYetStarted($this->botId, new Now(), $this->connection),
                     $this->connection
-                )
+                ),
+                []
             );
     }
 }

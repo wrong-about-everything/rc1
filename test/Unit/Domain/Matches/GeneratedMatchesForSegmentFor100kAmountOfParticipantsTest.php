@@ -12,6 +12,7 @@ class GeneratedMatchesForSegmentFor100kAmountOfParticipantsTest extends TestCase
     public function test1()
     {
         $this->markTestSkipped('Skipped because it takes too long');
+        ini_set('memory_limit', '9192M');
         $result =
             (new GeneratedMatchesForSegment(
                 [

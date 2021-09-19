@@ -113,7 +113,8 @@ class SendsMatchesToParticipants extends Existent
         return
             new Saved(
                 new GeneratedMatchesForAllParticipants(
-                    new FromRound($currentRound, $this->connection)
+                    new FromRound($currentRound, $this->connection),
+                    []
                 ),
                 $this->connection
             );

@@ -11,6 +11,7 @@ class GeneratedMatchesForSegmentFor10kAmountOfParticipantsTest extends TestCase
 {
     public function test1()
     {
+        ini_set('memory_limit', '512M');
         $result =
             (new GeneratedMatchesForSegment(
                 [
