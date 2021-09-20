@@ -35,7 +35,7 @@ with already_met_users (user_id, match_user_id) as (
         join meeting_round_participant p on pair.participant_id = p.id
         join meeting_round_participant match on pair.match_participant_id = match.id
         join meeting_round mr on p.meeting_round_id = mr.id
-    where mr.start_date < ?
+    where mr.start_date <= ?
     order by mr.start_date desc
 )
 
