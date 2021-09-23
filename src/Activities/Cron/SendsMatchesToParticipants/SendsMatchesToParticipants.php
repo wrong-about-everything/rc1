@@ -74,7 +74,7 @@ class SendsMatchesToParticipants extends Existent
         array_map(
             function (array $matchingPair) {
                 $participantValue =
-                    (new NotifiedParticipant(
+                    (new ParticipantNotifiedAboutHerMatch(
                         new FromString($matchingPair['participant_id']),
                         new FromInteger($matchingPair['participant_telegram_id']),
                         (new Text(

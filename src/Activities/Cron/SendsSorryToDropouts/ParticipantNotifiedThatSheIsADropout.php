@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\Cron\SendsMatchesToParticipants;
+namespace RC\Activities\Cron\SendsSorryToDropouts;
 
 use RC\Domain\Bot\BotToken\Impure\BotToken;
 use RC\Domain\Bot\BotToken\Pure\FromImpure;
@@ -17,44 +17,45 @@ use RC\Infrastructure\ImpureInteractions\Error\SilentDeclineWithDefaultUserMessa
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Failed;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
-use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\TelegramBot\BotApiUrl;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
-class NotifiedParticipant implements Participant
+class ParticipantNotifiedThatSheIsADropout implements Participant
 {
     private $participantId;
-    private $participantTelegramId;
-    private $text;
+    private $dropoutTelegramId;
     private $botToken;
-    private $httpTransport;
+    private $transport;
     private $connection;
 
-    public function __construct(ParticipantId $participantId, InternalTelegramUserId $participantTelegramId, string $text, BotToken $botToken, HttpTransport $httpTransport, OpenConnection $connection)
+    public function __construct(ParticipantId $participantId, InternalTelegramUserId $dropoutTelegramId, BotToken $botToken, HttpTransport $transport, OpenConnection $connection)
     {
         $this->participantId = $participantId;
-        $this->participantTelegramId = $participantTelegramId;
-        $this->text = $text;
+        $this->dropoutTelegramId = $dropoutTelegramId;
         $this->botToken = $botToken;
-        $this->httpTransport = $httpTransport;
+        $this->transport = $transport;
         $this->connection = $connection;
     }
 
     public function value(): ImpureValue
     {
         $response =
-            $this->httpTransport
+            $this->transport
                 ->response(
                     new OutboundRequest(
                         new Post(),
                         new BotApiUrl(
                             new SendMessage(),
                             new FromArray([
-                                'chat_id' => $this->participantTelegramId->value(),
-                                'text' => $this->text,
-                                'parse_mode' => 'MarkdownV2'
+                                'chat_id' => $this->dropoutTelegramId->value(),
+                                'text' =>
+                                    <<<text
+К сожалению, в этот раз у нас нечетное количество участников и вам не повезло получить собеседника. 
+
+Бот пришлет вам приглашение на следующий раунд встреч — участвуйте дальше, и мы обязательно подберем вам пару для разговора.
+text
                             ]),
                             new FromImpure($this->botToken)
                         ),
@@ -68,10 +69,11 @@ class NotifiedParticipant implements Participant
 
         return
             (new SingleMutating(
-                'update meeting_round_pair set match_participant_contacts_sent = true where participant_id = ?',
+                'update meeting_round_dropout set sorry_is_sent = true where dropout_participant_id = ?',
                 [$this->participantId->value()],
                 $this->connection
             ))
                 ->response();
+
     }
 }

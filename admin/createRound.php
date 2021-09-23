@@ -70,7 +70,14 @@ $response =
     values (?, ?, ?, ?, ?, ?, 'Europe/Moscow', '[0, 1]')
 q
                 ,
-                [$meetingRoundId, $options['bot_id'], sprintf('Раунд %s', (new Now())->value()), $options['start_date_time'], $options['invitation_date_time'], $options['feedback_date_time']],
+                [
+                    $meetingRoundId,
+                    $options['bot_id'],
+                    sprintf('Раунд %s', (new Now())->value()),
+                    $options['start_date_time'],
+                    $options['invitation_date_time'],
+                    $options['feedback_date_time']
+                ],
                 $connection
             ),
             new SingleMutatingQueryWithMultipleValueSets(

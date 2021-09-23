@@ -61,7 +61,7 @@ class SendsMatchesToParticipantsTest extends TestCase
         $this->assertCount(4, $transport->sentRequests());
     }
 
-    public function testWhenThereAreTwoPairsInOneRoundAndOtherRoundsAndParticipantsArePresentEitherThenStillFourFormerRoundParticipantsReceiveTheirMatch()
+    public function testWhenThereAreFourDropoutsInLastRoundAndThereIsOneEarlierRoundWithDropoutsEitherThenStillFourLastRoundDropoutsReceiveSorry()
     {
         $transport = new Indifferent();
         $connection = new ApplicationConnection();
