@@ -10,6 +10,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use RC\Activities\Admin\SeesMatches;
 use RC\Activities\Cron\AsksForFeedback\AsksForFeedback;
 use RC\Activities\Cron\SendsMatchesToParticipants\SendsMatchesToParticipants;
+use RC\Activities\Cron\SendsSorryToDropouts\SendsSorryToDropouts;
 use RC\Domain\Bot\BotId\FromQuery;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\UserStory\Authorized;
@@ -119,6 +120,15 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                             ),
                             function (Query $query) use ($transport, $logs) {
                                 return new SendsMatchesToParticipants(new FromQuery($query), $transport, new ApplicationConnection(), $logs);
+                            }
+                        ],
+                        [
+                            new RouteByMethodAndPathPatternWithQuery(
+                                new Post(),
+                                '/cron/sends_sorry_to_dropouts'
+                            ),
+                            function (Query $query) use ($transport, $logs) {
+                                return new SendsSorryToDropouts(new FromQuery($query), $transport, new ApplicationConnection(), $logs);
                             }
                         ],
                         [
