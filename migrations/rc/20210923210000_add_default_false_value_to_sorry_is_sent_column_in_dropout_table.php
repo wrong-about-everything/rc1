@@ -9,7 +9,7 @@ class AddDefaultFalseValueToSorryIsSentColumnInDropoutTable extends AbstractMigr
         $this->execute(
             <<<q
 alter table meeting_round_dropout
-    add column sorry_is_sent set default false;
+    alter column sorry_is_sent set default false;
 q
         );
     }
