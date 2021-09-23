@@ -74,14 +74,3 @@ if ($status !== 0) {
     var_dump($output);
     die();
 }
-
-die('OK, I stop here for now, fix this if you wan to use migration');
-
-(new DevFixtures(
-    new FromString(dirname(dirname(__DIR__))),
-    new Host(getenv('DB_HOST')),
-    new FromString((int) getenv('DB_PORT')),
-    new SpecifiedDatabaseName(getenv('DB_NAME')),
-    new DefaultCredentials(getenv('DB_ROOT_USER'), getenv('DB_ROOT_PASS'))
-))
-    ->run();
