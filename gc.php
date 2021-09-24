@@ -9,6 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RC\Activities\Admin\SeesMatches;
 use RC\Activities\Cron\AsksForFeedback\AsksForFeedback;
+use RC\Activities\Cron\PromptsToFillAboutMeSection\PromptsToFillAboutMeSection;
 use RC\Activities\Cron\SendsMatchesToParticipants\SendsMatchesToParticipants;
 use RC\Activities\Cron\SendsSorryToDropouts\SendsSorryToDropouts;
 use RC\Domain\Bot\BotId\FromQuery;
@@ -138,6 +139,15 @@ function entryPoint(ServerRequestInterface $request): ResponseInterface
                             ),
                             function (Query $query) use ($transport, $logs) {
                                 return new AsksForFeedback(new FromQuery($query), $transport, new ApplicationConnection(), $logs);
+                            }
+                        ],
+                        [
+                            new RouteByMethodAndPathPatternWithQuery(
+                                new Post(),
+                                '/cron/prompts_to_fill_about_me_section'
+                            ),
+                            function (Query $query) use ($transport, $logs) {
+                                return new PromptsToFillAboutMeSection(new FromQuery($query), $transport, new ApplicationConnection(), $logs);
                             }
                         ],
                         [

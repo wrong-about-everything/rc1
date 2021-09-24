@@ -26,7 +26,6 @@ use RC\Infrastructure\UserStory\Existent;
 use RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Response\Successful;
 
-// @todo: добавить в крон
 class PromptsToFillAboutMeSection extends Existent
 {
     private $botId;
