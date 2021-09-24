@@ -76,6 +76,7 @@ class PromptsToFillAboutMeSection extends Existent
 select tu.telegram_id    
 from telegram_user tu join bot_user bu on tu.id = bu.user_id
 where bu.status = ? and bu.position is not null and bu.experience is not null and bu.about is null
+order by tu.telegram_id
 q
                 ,
                 [(new RegistrationIsInProgress())->value()],

@@ -15,6 +15,8 @@ use RC\Domain\Experience\ExperienceId\Pure\LessThanAYear;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
 use RC\Domain\Position\PositionId\Pure\ProductManager;
+use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
+use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
 use RC\Infrastructure\Http\Transport\Indifferent;
 use RC\Infrastructure\Logging\Logs\DevNull;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
@@ -49,6 +51,26 @@ class PromptsToFillAboutMeSectionTest extends TestCase
 
         $this->assertTrue($response->isSuccessful());
         $this->assertCount(2, $transport->sentRequests());
+        $this->assertEquals($this->firstInternalTelegramUserId()->value(), (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['chat_id']);
+        $this->assertEquals(
+            <<<text
+Привет! Чтобы закончить регистрацию и участвовать в нетворкинге, напишите, пожалуйста, пару слов о себе для вашего собеседника.
+
+Например: Сергей, 27, работаю в "Рога и копыта", выстраиваю процесс доставки еды. Развожу хомячков.
+text
+            ,
+            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+        );
+        $this->assertEquals($this->fourthInternalTelegramUserId()->value(), (new FromQuery(new FromUrl($transport->sentRequests()[1]->url())))->value()['chat_id']);
+        $this->assertEquals(
+            <<<text
+Привет! Чтобы закончить регистрацию и участвовать в нетворкинге, напишите, пожалуйста, пару слов о себе для вашего собеседника.
+
+Например: Сергей, 27, работаю в "Рога и копыта", выстраиваю процесс доставки еды. Развожу хомячков.
+text
+            ,
+            (new FromQuery(new FromUrl($transport->sentRequests()[1]->url())))->value()['text']
+        );
     }
 
     protected function setUp(): void
