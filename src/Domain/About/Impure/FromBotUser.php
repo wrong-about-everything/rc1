@@ -7,7 +7,7 @@ namespace RC\Domain\About\Impure;
 use RC\Domain\About\Pure\Emptie;
 use RC\Domain\About\Pure\FromString;
 use RC\Domain\About\Pure\NonExistent;
-use RC\Domain\BotUser\BotUser;
+use RC\Domain\BotUser\ReadModel\BotUser;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 
 class FromBotUser implements About

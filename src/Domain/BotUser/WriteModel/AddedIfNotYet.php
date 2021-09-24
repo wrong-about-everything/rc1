@@ -2,12 +2,16 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\BotUser;
+namespace RC\Domain\BotUser\WriteModel;
 
 use Ramsey\Uuid\Uuid;
 use RC\Domain\Bot\BotId\BotId;
+use RC\Domain\BotUser\Id\Impure\FromReadModelBotUser;
+use RC\Domain\BotUser\ReadModel\ByInternalTelegramUserIdAndBotId;
 use RC\Domain\BotUser\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
+use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
+use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\SingleMutating;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\TransactionalQueryFromMultipleQueries;
@@ -47,12 +51,16 @@ class AddedIfNotYet implements BotUser
 
     private function doValue(): ImpureValue
     {
-        $botUserFromDb = new ByTelegramUserId($this->telegramUserId, $this->botId, $this->connection);
-        if (!$botUserFromDb->value()->isSuccessful() || $botUserFromDb->value()->pure()->isPresent()) {
+        $botUserFromDb = new ByInternalTelegramUserIdAndBotId($this->telegramUserId, $this->botId, $this->connection);
+        if (!$botUserFromDb->value()->isSuccessful()) {
             return $botUserFromDb->value();
         }
+        if ($botUserFromDb->value()->pure()->isPresent()) {
+            return (new FromReadModelBotUser($botUserFromDb))->value();
+        }
 
-        $generatedId = Uuid::uuid4()->toString();
+        $generatedTelegramUserId = Uuid::uuid4()->toString();
+        $generatedBotUserId = Uuid::uuid4()->toString();
 
         $registerUserResponse =
             (new TransactionalQueryFromMultipleQueries(
@@ -65,7 +73,7 @@ values (?, ?, ?, ?, ?)
 on conflict(telegram_id) do nothing
 q
                         ,
-                        [$generatedId, $this->firstName, $this->lastName, $this->telegramUserId->value(), $this->telegramHandle],
+                        [$generatedTelegramUserId, $this->firstName, $this->lastName, $this->telegramUserId->value(), $this->telegramHandle],
                         $this->connection
                     ),
                     new SingleMutating(
@@ -74,7 +82,7 @@ insert into bot_user (id, user_id, bot_id, status)
 values (?, ?, ?, ?)
 q
                         ,
-                        [Uuid::uuid4()->toString(), $generatedId, $this->botId->value(), (new RegistrationIsInProgress())->value()],
+                        [$generatedBotUserId, $generatedTelegramUserId, $this->botId->value(), (new RegistrationIsInProgress())->value()],
                         $this->connection
                     )
                 ],
@@ -85,6 +93,6 @@ q
             return $registerUserResponse;
         }
 
-        return (new ByTelegramUserId($this->telegramUserId, $this->botId, $this->connection))->value();
+        return new Successful(new Present($generatedBotUserId));
     }
 }

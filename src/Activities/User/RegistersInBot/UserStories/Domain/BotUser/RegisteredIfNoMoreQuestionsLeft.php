@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace RC\Activities\User\RegistersInBot\UserStories\Domain\BotUser;
 
 use RC\Domain\Bot\BotId\BotId;
-use RC\Domain\BotUser\BotUser;
-use RC\Domain\BotUser\ByTelegramUserId;
+use RC\Domain\BotUser\ReadModel\BotUser;
+use RC\Domain\BotUser\ReadModel\ByInternalTelegramUserIdAndBotId;
 use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
 use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
@@ -62,6 +62,6 @@ class RegisteredIfNoMoreQuestionsLeft implements BotUser
             }
         }
 
-        return (new ByTelegramUserId($this->telegramUserId, $this->botId, $this->connection))->value();
+        return (new ByInternalTelegramUserIdAndBotId($this->telegramUserId, $this->botId, $this->connection))->value();
     }
 }

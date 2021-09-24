@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace RC\Activities\Cron\SendsSorryToDropouts;
+namespace RC\Activities\Cron\PromptsToFillAboutMeSection;
 
 use Meringue\Timeline\Point\Now;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
+use RC\Domain\BotUser\UserStatus\Pure\RegistrationIsInProgress;
+use RC\Domain\BotUser\WriteModel\PromptedToFillAboutMeSection;
 use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromMeetingRound;
 use RC\Domain\MeetingRound\ReadModel\LatestAlreadyStarted;
 use RC\Domain\MeetingRound\ReadModel\MeetingRound;
@@ -24,7 +26,8 @@ use RC\Infrastructure\UserStory\Existent;
 use RC\Infrastructure\UserStory\Response;
 use RC\Infrastructure\UserStory\Response\Successful;
 
-class SendsSorryToDropouts extends Existent
+// @todo: добавить в крон
+class PromptsToFillAboutMeSection extends Existent
 {
     private $botId;
     private $transport;
@@ -41,25 +44,14 @@ class SendsSorryToDropouts extends Existent
 
     public function response(): Response
     {
-        $this->logs->receive(new InformationMessage('Cron sends sorry to dropouts scenario started'));
-
-        $currentRound = new LatestAlreadyStarted($this->botId, new Now(), $this->connection);
-        if (!$currentRound->value()->isSuccessful()) {
-            $this->logs->receive(new FromNonSuccessfulImpureValue($currentRound->value()));
-            return new Successful(new Emptie());
-        }
-        if (!$currentRound->value()->pure()->isPresent()) {
-            $this->logs->receive(new ErrorMessage('There is no active meeting round. Check both cron and round start datetime in database.'));
-            return new Successful(new Emptie());
-        }
+        $this->logs->receive(new InformationMessage('Cron prompts to fill about me section scenario started'));
 
         array_map(
             function (array $dropout) {
                 $participantValue =
-                    (new ParticipantNotifiedThatSheIsADropout(
-                        new FromString($dropout['dropout_participant_id']),
-                        new FromInteger($dropout['dropout_telegram_id']),
-                        new ByBotId($this->botId, $this->connection),
+                    (new PromptedToFillAboutMeSection(
+                        new FromInteger($dropout['telegram_id']),
+                        $this->botId,
                         $this->transport,
                         $this->connection
                     ))
@@ -68,33 +60,25 @@ class SendsSorryToDropouts extends Existent
                     $this->logs->receive(new FromNonSuccessfulImpureValue($participantValue));
                 }
             },
-            $this->dropoutsToNotify($currentRound)
+            $this->usersWithEmptyAboutMeSection()
         );
 
-        $this->logs->receive(new InformationMessage('Cron sends sorry to dropouts scenario finished'));
+        $this->logs->receive(new InformationMessage('Cron prompts to fill about me section scenario finished'));
 
         return new Successful(new Emptie());
     }
 
-    private function dropoutsToNotify(MeetingRound $currentRound)
+    private function usersWithEmptyAboutMeSection()
     {
         return
             (new Selecting(
                 <<<q
-select
-    dropout.dropout_participant_id dropout_participant_id,
-    u.telegram_id dropout_telegram_id
-from meeting_round_dropout dropout
-    join meeting_round_participant p on dropout.dropout_participant_id = p.id
-    join telegram_user u on p.user_id = u.id
-    join meeting_round mr on mr.id = p.meeting_round_id
-    join bot_user bu on bu.user_id = u.id and bu.bot_id = mr.bot_id
-where p.meeting_round_id = ? and dropout.sorry_is_sent = false
-order by u.telegram_id asc
-limit 100
+select tu.telegram_id    
+from telegram_user tu join bot_user bu on tu.id = bu.user_id
+where bu.status = ? and bu.position is not null and bu.experience is not null and bu.about is null
 q
                 ,
-                [(new FromMeetingRound($currentRound))->value()->pure()->raw()],
+                [(new RegistrationIsInProgress())->value()],
                 $this->connection
             ))
                 ->response()->pure()->raw();

@@ -2,28 +2,25 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\BotUser;
+namespace RC\Domain\BotUser\ReadModel;
 
+use RC\Domain\BotUser\Id\Impure\BotUserId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
-use RC\Domain\Bot\BotId\BotId;
-use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
-class ByTelegramUserId implements BotUser
+class ById implements BotUser
 {
-    private $telegramUserId;
-    private $botId;
+    private $botUserId;
     private $connection;
     private $cached;
 
-    public function __construct(InternalTelegramUserId $telegramUserId, BotId $botId, OpenConnection $connection)
+    public function __construct(BotUserId $botUserId, OpenConnection $connection)
     {
-        $this->telegramUserId = $telegramUserId;
-        $this->botId = $botId;
+        $this->botUserId = $botUserId;
         $this->connection = $connection;
         $this->cached = null;
     }
@@ -39,16 +36,14 @@ class ByTelegramUserId implements BotUser
 
     private function doValue(): ImpureValue
     {
+        if (!$this->botUserId->value()->isSuccessful()) {
+            return $this->botUserId->value();
+        }
+
         $response =
             (new Selecting(
-                <<<q
-select bu.*
-from
-    bot_user bu join "telegram_user" u on u.id = bu.user_id
-where u.telegram_id = ? and bu.bot_id = ?
-q
-                ,
-                [$this->telegramUserId->value(), $this->botId->value()],
+                'select bu.* from bot_user bu where bu.id = ?',
+                [$this->botUserId->value()->pure()->raw()],
                 $this->connection
             ))
                 ->response();

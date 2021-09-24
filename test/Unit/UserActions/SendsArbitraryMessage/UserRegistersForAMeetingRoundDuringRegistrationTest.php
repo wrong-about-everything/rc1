@@ -12,7 +12,7 @@ use Meringue\Timeline\Point\Now;
 use Meringue\Timeline\Point\Past;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use RC\Domain\BotUser\ByTelegramUserId;
+use RC\Domain\BotUser\ReadModel\ByInternalTelegramUserIdAndBotId;
 use RC\Domain\Experience\ExperienceName\LessThanAYearName;
 use RC\Domain\MeetingRound\MeetingRoundId\Pure\FromString as MeetingRoundIdFromString;
 use RC\Domain\Participant\ReadModel\ByMeetingRoundAndUser;
@@ -27,7 +27,7 @@ use RC\Domain\RegistrationQuestion\RegistrationQuestionId\Impure\RegistrationQue
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\RegistrationQuestionType;
-use RC\Domain\BotUser\UserStatus\Impure\FromBotUser as UserStatusFromBotUser;
+use RC\Domain\BotUser\UserStatus\Impure\FromReadModelBotUser as UserStatusFromBotUser;
 use RC\Domain\BotUser\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
 use RC\Domain\BotUser\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Domain\BotUser\UserStatus\Pure\UserStatus;
@@ -180,7 +180,7 @@ q
     {
         $this->assertTrue(
             (new UserStatusFromBotUser(
-                new ByTelegramUserId($telegramUserId, $botId, $connection)
+                new ByInternalTelegramUserIdAndBotId($telegramUserId, $botId, $connection)
             ))
                 ->equals(
                     new ImpureUserStatusFromPure($userStatus)

@@ -13,7 +13,7 @@ use Meringue\Timeline\Point\Past;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use RC\Domain\About\Impure\FromBotUser as AboutBotUser;
-use RC\Domain\BotUser\ByTelegramUserId;
+use RC\Domain\BotUser\ReadModel\ByInternalTelegramUserIdAndBotId;
 use RC\Domain\Experience\ExperienceId\Impure\FromBotUser as ExperienceFromBotUser;
 use RC\Domain\Experience\ExperienceId\Impure\FromPure as ImpureExperienceFromPure;
 use RC\Domain\Experience\ExperienceId\Pure\Experience as UserExperience;
@@ -37,7 +37,7 @@ use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
 use RC\Domain\TelegramUser\UserId\TelegramUserId;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
-use RC\Domain\BotUser\UserStatus\Impure\FromBotUser as UserStatusFromBotUser;
+use RC\Domain\BotUser\UserStatus\Impure\FromReadModelBotUser as UserStatusFromBotUser;
 use RC\Domain\BotUser\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
 use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Domain\BotUser\UserStatus\Pure\RegistrationIsInProgress;
@@ -392,7 +392,7 @@ q
     {
         $this->assertTrue(
             (new FromBotUser(
-                new ByTelegramUserId($telegramUserId, $botId, $connection)
+                new ByInternalTelegramUserIdAndBotId($telegramUserId, $botId, $connection)
             ))
                 ->equals(
                     new FromPure($position)
@@ -404,7 +404,7 @@ q
     {
         $this->assertTrue(
             (new ExperienceFromBotUser(
-                new ByTelegramUserId($telegramUserId, $botId, $connection)
+                new ByInternalTelegramUserIdAndBotId($telegramUserId, $botId, $connection)
             ))
                 ->equals(
                     new ImpureExperienceFromPure($experience)
@@ -416,7 +416,7 @@ q
     {
         $this->assertTrue(
             (new AboutBotUser(
-                new ByTelegramUserId($telegramUserId, $botId, $connection)
+                new ByInternalTelegramUserIdAndBotId($telegramUserId, $botId, $connection)
             ))
                 ->empty()->pure()->raw()
         );
@@ -427,7 +427,7 @@ q
         $this->assertEquals(
             $about,
             (new AboutBotUser(
-                new ByTelegramUserId($telegramUserId, $botId, $connection)
+                new ByInternalTelegramUserIdAndBotId($telegramUserId, $botId, $connection)
             ))
                 ->value()->pure()->raw()
         );
@@ -437,7 +437,7 @@ q
     {
         $this->assertTrue(
             (new UserStatusFromBotUser(
-                new ByTelegramUserId($telegramUserId, $botId, $connection)
+                new ByInternalTelegramUserIdAndBotId($telegramUserId, $botId, $connection)
             ))
                 ->equals(
                     new ImpureUserStatusFromPure($userStatus)

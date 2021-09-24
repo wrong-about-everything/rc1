@@ -9,7 +9,7 @@ use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AcceptsOrDeclines
 use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQuestion\AnswersFeedbackQuestion;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\AnswersRoundRegistrationQuestion;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\AcceptsOrDeclinesInvitation;
-use RC\Domain\BotUser\ByTelegramUserId;
+use RC\Domain\BotUser\ReadModel\ByInternalTelegramUserIdAndBotId;
 use RC\Domain\FeedbackInvitation\ReadModel\LatestByFeedbackDate;
 use RC\Domain\FeedbackInvitation\ReadModel\FeedbackInvitation;
 use RC\Domain\FeedbackInvitation\Status\Impure\FromFeedbackInvitation;
@@ -33,7 +33,7 @@ use RC\Domain\RoundInvitation\Status\Impure\FromPure;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
 use RC\Domain\SentReplyToUser\InCaseOfAnyUncertainty;
 use RC\Domain\SentReplyToUser\NoRoundsAhead;
-use RC\Domain\BotUser\UserStatus\Impure\FromBotUser;
+use RC\Domain\BotUser\UserStatus\Impure\FromReadModelBotUser;
 use RC\Domain\BotUser\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
 use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Domain\BotUser\UserStatus\Pure\RegistrationIsInProgress;
@@ -114,8 +114,8 @@ class SendsArbitraryMessage extends Existent
     private function userStatus()
     {
         return
-            new FromBotUser(
-                new ByTelegramUserId(
+            new FromReadModelBotUser(
+                new ByInternalTelegramUserIdAndBotId(
                     new FromParsedTelegramMessage($this->message),
                     $this->botId(),
                     $this->connection

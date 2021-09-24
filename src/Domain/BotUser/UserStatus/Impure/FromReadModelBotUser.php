@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace RC\Domain\BotUser\UserStatus\Impure;
 
-use RC\Domain\BotUser\BotUser;
+use RC\Domain\BotUser\ReadModel\BotUser;
 use RC\Domain\BotUser\UserStatus\Pure\FromInteger;
 use RC\Domain\BotUser\UserStatus\Pure\NonExistent;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 
-class FromBotUser extends UserStatus
+class FromReadModelBotUser extends UserStatus
 {
     private $botUser;
     private $cached;

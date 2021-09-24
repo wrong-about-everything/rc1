@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Domain\Experience\ExperienceId\Impure;
 
-use RC\Domain\BotUser\BotUser;
+use RC\Domain\BotUser\ReadModel\BotUser;
 use RC\Domain\Experience\ExperienceId\Pure\FromInteger;
 use RC\Domain\Experience\ExperienceId\Pure\NonExistent;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;

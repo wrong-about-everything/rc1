@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace RC\UserActions\PressesStart;
 
+use RC\Domain\BotUser\Id\Impure\FromWriteModelBotUser;
+use RC\Domain\BotUser\ReadModel\ById;
+use RC\Domain\BotUser\ReadModel\ByInternalTelegramUserIdAndBotId;
 use RC\Domain\SentReplyToUser\FillInYourUserNameAndFirstName;
 use RC\Domain\SentReplyToUser\InCaseOfAnyUncertainty;
-use RC\Domain\BotUser\UserStatus\Impure\FromBotUser;
+use RC\Domain\BotUser\UserStatus\Impure\FromReadModelBotUser;
 use RC\Domain\BotUser\UserStatus\Impure\FromPure as ImpureUserStatusFromPure;
 use RC\Domain\BotUser\UserStatus\Impure\UserStatus;
 use RC\Domain\BotUser\UserStatus\Pure\Registered;
@@ -19,7 +22,7 @@ use RC\Infrastructure\Logging\LogItem\InformationMessage;
 use RC\Infrastructure\Logging\Logs;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
 use RC\Domain\SentReplyToUser\Sorry;
-use RC\Domain\BotUser\AddedIfNotYet;
+use RC\Domain\BotUser\WriteModel\AddedIfNotYet;
 use RC\Infrastructure\TelegramBot\UserId\Pure\FromParsedTelegramMessage;
 use RC\Infrastructure\UserStory\Body\Emptie;
 use RC\Infrastructure\UserStory\Existent;
@@ -100,13 +103,18 @@ class PressesStart extends Existent
     private function userStatus(): UserStatus
     {
         return
-            new FromBotUser(
-                new AddedIfNotYet(
-                    new FromParsedTelegramMessage($this->message),
-                    new FromUuid(new UuidFromString($this->botId)),
-                    $this->message['message']['from']['first_name'],
-                    $this->message['message']['from']['last_name'] ?? '',
-                    $this->message['message']['from']['username'],
+            new FromReadModelBotUser(
+                new ById(
+                    new FromWriteModelBotUser(
+                        new AddedIfNotYet(
+                            new FromParsedTelegramMessage($this->message),
+                            new FromUuid(new UuidFromString($this->botId)),
+                            $this->message['message']['from']['first_name'],
+                            $this->message['message']['from']['last_name'] ?? '',
+                            $this->message['message']['from']['username'],
+                            $this->connection
+                        )
+                    ),
                     $this->connection
                 )
             );

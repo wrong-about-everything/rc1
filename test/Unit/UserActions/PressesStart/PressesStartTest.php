@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\ApplicationConnection;
 use RC\Domain\Infrastructure\SqlDatabase\Agnostic\Connection\RootConnection;
-use RC\Domain\BotUser\ByTelegramUserId;
+use RC\Domain\BotUser\ReadModel\ByInternalTelegramUserIdAndBotId;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Domain\TelegramUser\ByTelegramId;
@@ -370,7 +370,7 @@ t
         $this->assertEquals('Vadim', $user->pure()->raw()['first_name']);
         $this->assertEquals('Samokhin', $user->pure()->raw()['last_name']);
         $this->assertEquals('dremuchee_bydlo', $user->pure()->raw()['telegram_handle']);
-        $profile = (new ByTelegramUserId($telegramUserId, $botId, $connection))->value();
+        $profile = (new ByInternalTelegramUserIdAndBotId($telegramUserId, $botId, $connection))->value();
         $this->assertTrue($profile->pure()->isPresent());
     }
 

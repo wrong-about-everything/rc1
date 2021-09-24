@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Domain\Position\PositionId\Impure;
 
-use RC\Domain\BotUser\BotUser;
+use RC\Domain\BotUser\ReadModel\BotUser;
 use RC\Domain\Position\PositionId\Pure\FromInteger;
 use RC\Domain\Position\PositionId\Pure\NonExistent;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;

@@ -9,7 +9,7 @@ use RC\Activities\User\RegistersInBot\UserStories\Domain\BotUser\RegisteredIfNoM
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\MeetingRound\ReadModel\LatestNotYetStartedWithFiveMinutesGap;
 use RC\Domain\MeetingRound\ReadModel\MeetingRound;
-use RC\Domain\BotUser\UserStatus\Impure\FromBotUser;
+use RC\Domain\BotUser\UserStatus\Impure\FromReadModelBotUser;
 use RC\Domain\BotUser\UserStatus\Impure\FromPure;
 use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Infrastructure\Http\Transport\HttpTransport;
@@ -86,7 +86,7 @@ class NextReplyToUserToUser implements SentReplyToUser
     private function userRegistered()
     {
         return
-            (new FromBotUser(
+            (new FromReadModelBotUser(
                 new RegisteredIfNoMoreQuestionsLeft(
                     $this->telegramUserId,
                     $this->botId,
