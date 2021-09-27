@@ -49,6 +49,7 @@ class FromInteger extends InterestId
             (new AllThingsDevelopment())->value() => new AllThingsDevelopment(),
             (new UX())->value() => new UX(),
             (new UserAcquisition())->value() => new UserAcquisition(),
+            (new Sales())->value() => new Sales(),
         ];
     }
 }

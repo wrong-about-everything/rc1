@@ -28,6 +28,7 @@ use RC\Domain\UserInterest\InterestName\Pure\MVPBuilding as MVPBuildingName;
 use RC\Domain\UserInterest\InterestName\Pure\AllThingsDevelopment as AllThingsDevelopmentName;
 use RC\Domain\UserInterest\InterestName\Pure\UX as UXName;
 use RC\Domain\UserInterest\InterestName\Pure\UserAcquisition as UserAcquisitionName;
+use RC\Domain\UserInterest\InterestName\Pure\Sales as SalesName;
 
 class FromInterestName extends InterestId
 {
@@ -74,6 +75,7 @@ class FromInterestName extends InterestId
             (new AllThingsDevelopmentName())->value() => new AllThingsDevelopment(),
             (new UXName())->value() => new UX(),
             (new UserAcquisitionName())->value() => new UserAcquisition(),
+            (new SalesName())->value() => new Sales(),
         ];
     }
 }
