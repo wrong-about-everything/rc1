@@ -18,10 +18,6 @@ class File implements Logs
 
     public function __construct(FilePath $filePath, LogId $logId)
     {
-        if (!$filePath->exists()) {
-            throw new Exception(sprintf('You must use existent files to write logs to. But file %s does not exist', $filePath));
-        }
-
         $this->filePath = $filePath;
         $this->logId = $logId;
     }
