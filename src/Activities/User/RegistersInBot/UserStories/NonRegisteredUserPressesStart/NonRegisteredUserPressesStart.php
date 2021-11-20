@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RegistersInBot\UserStories\NonRegisteredUserPressesStart;
 
-use RC\Activities\User\RegistersInBot\UserStories\Domain\Reply\NextReplyToUserToUser;
+use RC\Activities\User\RegistersInBot\UserStories\Domain\Reply\NextReplyToUser;
 use RC\Domain\Bot\BotId\FromUuid;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
@@ -55,7 +55,7 @@ class NonRegisteredUserPressesStart extends Existent
     private function nextReply()
     {
         return
-            new NextReplyToUserToUser(
+            new NextReplyToUser(
                 new FromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),
                 $this->httpTransport,

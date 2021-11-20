@@ -32,9 +32,11 @@ use RC\Domain\RoundInvitation\Status\Pure\FromInteger;
 use RC\Domain\RoundInvitation\Status\Pure\Sent;
 use RC\Domain\RoundInvitation\Status\Pure\Status;
 use RC\Domain\TelegramUser\ByTelegramId;
-use RC\Domain\TelegramUser\UserId\FromTelegramUser;
-use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
-use RC\Domain\TelegramUser\UserId\TelegramUserId;
+use RC\Domain\TelegramUser\UserId\Impure\FromTelegramUser;
+use RC\Domain\TelegramUser\UserId\Impure\TelegramUserId as ImpureTelegramUserId;
+use RC\Domain\TelegramUser\UserId\Pure\FromImpure;
+use RC\Domain\TelegramUser\UserId\Pure\FromUuid as UserIdFromUuid;
+use RC\Domain\TelegramUser\UserId\Pure\TelegramUserId;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
 use RC\Infrastructure\Http\Request\Url\Query\FromUrl;
 use RC\Infrastructure\Http\Transport\HttpTransport;
@@ -479,12 +481,12 @@ q
         );
     }
 
-    private function assertUserIsARoundParticipantWithAcceptedInvitation(MeetingRoundId $meetingRoundId, TelegramUserId $userId, OpenConnection $connection)
+    private function assertUserIsARoundParticipantWithAcceptedInvitation(MeetingRoundId $meetingRoundId, ImpureTelegramUserId $userId, OpenConnection $connection)
     {
         $participant =
             new ByMeetingRoundAndUser(
                 $meetingRoundId,
-                $userId,
+                new FromImpure($userId),
                 $connection
             );
         $this->assertTrue($participant->exists()->pure()->raw());
@@ -496,7 +498,7 @@ q
         );
         $this->assertTrue(
             (new FromInvitation(
-                new ByMeetingRoundIdAndUserId($meetingRoundId, $userId, $connection)
+                new ByMeetingRoundIdAndUserId($meetingRoundId, new FromImpure($userId), $connection)
             ))
                 ->equals(new ImpureInvitationStatusFromPure(new Accepted()))
         );

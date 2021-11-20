@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\TelegramUser\UserId;
+namespace RC\Domain\TelegramUser\UserId\Pure;
 
 use RC\Infrastructure\Uuid\UUID;
 
 class FromUuid extends TelegramUserId
 {
-    private $userId;
+    private $telegramUserId;
 
     public function __construct(UUID $telegramUserId)
     {
-        $this->userId = $telegramUserId;
+        $this->telegramUserId = $telegramUserId;
     }
 
     public function value(): string
     {
-        return $this->userId->value();
+        return $this->telegramUserId->value();
     }
 }

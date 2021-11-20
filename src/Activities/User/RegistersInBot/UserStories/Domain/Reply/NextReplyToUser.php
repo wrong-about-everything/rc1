@@ -19,7 +19,7 @@ use RC\Domain\SentReplyToUser\SentReplyToUser;
 use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 use RC\Activities\User\RegistersInBot\Domain\Reply\NextRegistrationQuestionReplyToUser;
 
-class NextReplyToUserToUser implements SentReplyToUser
+class NextReplyToUser implements SentReplyToUser
 {
     private $telegramUserId;
     private $botId;

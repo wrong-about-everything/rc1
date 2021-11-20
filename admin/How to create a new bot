@@ -1,0 +1,4 @@
+1. Завести в bot_father новый бот, добавить его в базу.
+2. Скопировать скрипт создания бота -- createGorgonzolaRound.php. Обновить там айдишник бота на новый.
+3. Задать боту webhook по аналогии с остальными: https://api.telegram.org/bot<BOT TOKEN>>/setWebhook?url=europe-central2-lyrical-bolt-318307.cloudfunctions.net/index?secret_smile=<bot id in a `bot` table>
+4.

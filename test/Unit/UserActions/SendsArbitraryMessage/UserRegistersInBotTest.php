@@ -33,8 +33,8 @@ use RC\Domain\RegistrationQuestion\RegistrationQuestionId\Impure\RegistrationQue
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\About;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\RegistrationQuestionType;
 use RC\Domain\TelegramBot\UserMessage\Pure\Skipped;
-use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
-use RC\Domain\TelegramUser\UserId\TelegramUserId;
+use RC\Domain\TelegramUser\UserId\Pure\FromUuid as UserIdFromUuid;
+use RC\Domain\TelegramUser\UserId\Pure\TelegramUserId;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Domain\BotUser\UserStatus\Impure\FromReadModelBotUser as UserStatusFromBotUser;

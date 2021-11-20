@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RC\Domain\TelegramUser\UserId;
+namespace RC\Domain\TelegramUser\UserId\Pure;
 
 abstract class TelegramUserId
 {

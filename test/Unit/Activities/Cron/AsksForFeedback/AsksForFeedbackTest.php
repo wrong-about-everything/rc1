@@ -27,7 +27,7 @@ use RC\Domain\MeetingRound\MeetingRoundId\Pure\MeetingRoundId;
 use RC\Domain\Participant\ParticipantId\Pure\FromString as ParticipantIdFromString;
 use RC\Domain\Participant\ParticipantId\Pure\ParticipantId;
 use RC\Domain\Participant\Status\Pure\Registered;
-use RC\Domain\TelegramUser\UserId\TelegramUserId;
+use RC\Domain\TelegramUser\UserId\Pure\TelegramUserId;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Http\Transport\Indifferent;
 use RC\Infrastructure\Logging\Logs\DevNull;

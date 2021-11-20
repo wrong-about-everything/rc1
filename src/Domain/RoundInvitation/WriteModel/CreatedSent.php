@@ -10,7 +10,7 @@ use RC\Domain\RoundInvitation\InvitationId\Pure\Generated;
 use RC\Domain\RoundInvitation\InvitationId\Pure\InvitationId;
 use RC\Domain\RoundInvitation\Status\Pure\Sent as SentStatus;
 use RC\Domain\TelegramUser\ByTelegramId;
-use RC\Domain\TelegramUser\UserId\FromTelegramUser;
+use RC\Domain\TelegramUser\UserId\Impure\FromTelegramUser;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Present;
@@ -68,7 +68,7 @@ q
                     (new FromTelegramUser(
                         new ByTelegramId($this->telegramUserId, $this->connection)
                     ))
-                        ->value(),
+                        ->value()->pure()->raw(),
                     (new SentStatus())->value()
                 ],
                 $this->connection

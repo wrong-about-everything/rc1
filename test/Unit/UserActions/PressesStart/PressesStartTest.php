@@ -13,8 +13,8 @@ use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Experience;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Pure\Position;
 use RC\Domain\TelegramUser\ByTelegramId;
 use RC\Domain\TelegramUser\RegisteredInBot;
-use RC\Domain\TelegramUser\UserId\FromUuid as UserIdFromUuid;
-use RC\Domain\TelegramUser\UserId\TelegramUserId;
+use RC\Domain\TelegramUser\UserId\Pure\FromUuid as UserIdFromUuid;
+use RC\Domain\TelegramUser\UserId\Pure\TelegramUserId;
 use RC\Domain\BotUser\UserStatus\Pure\Registered;
 use RC\Domain\BotUser\UserStatus\Pure\RegistrationIsInProgress;
 use RC\Infrastructure\Http\Request\Url\ParsedQuery\FromQuery;
@@ -333,6 +333,51 @@ t
         );
     }
 
+    public function testWhenUserRegisteredInOneBotPressesStartInAnotherOneThenHeSeesTheFirstQuestion()
+    {
+        $connection = new ApplicationConnection();
+        (new Bot($connection))
+            ->insert([
+                ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
+            ]);
+        (new Bot($connection))
+            ->insert([
+                ['id' => $this->anotherBotId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'fedya_bot']
+            ]);
+        (new TelegramUser($connection))
+            ->insert([
+                ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
+            ]);
+        (new BotUser($connection))
+            ->insert([
+                ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new Registered())->value()]
+            ]);
+        (new RegistrationQuestion($connection))
+            ->insert([
+                ['id' => Uuid::uuid4()->toString(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
+                ['id' => Uuid::uuid4()->toString(), 'profile_record_type' => (new Experience())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 2, 'text' => 'А опыт?'],
+            ]);
+        $transport = new Indifferent();
+
+        $response =
+            (new PressesStart(
+                (new StartCommandMessage($this->telegramUserId()))->value(),
+                $this->anotherBotId()->value(),
+                $transport,
+                $connection,
+                new DevNull()
+            ))
+                ->response();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertUserExists($this->telegramUserId(), $this->anotherBotId(), $connection);
+        $this->assertCount(1, $transport->sentRequests());
+        $this->assertEquals(
+            'Какая у вас должность?',
+            (new FromQuery(new FromUrl($transport->sentRequests()[0]->url())))->value()['text']
+        );
+    }
+
     protected function setUp(): void
     {
         (new Reset(new RootConnection()))->run();
@@ -346,6 +391,11 @@ t
     private function botId(): BotId
     {
         return new FromUuid(new Fixed());
+    }
+
+    private function anotherBotId(): BotId
+    {
+        return new FromUuid(new FromString('18c73371-497a-44ed-94eb-89071a2d04c3'));
     }
 
     private function firstRegistrationQuestionId()

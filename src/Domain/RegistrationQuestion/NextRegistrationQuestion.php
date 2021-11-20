@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RC\Domain\RegistrationQuestion;
 
 use RC\Domain\TelegramUser\ByTelegramId;
-use RC\Domain\TelegramUser\UserId\FromTelegramUser;
+use RC\Domain\TelegramUser\UserId\Impure\FromTelegramUser;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
@@ -53,7 +53,7 @@ class NextRegistrationQuestion implements RegistrationQuestion
         limit 1
         q
                 ,
-                [(new FromTelegramUser(new ByTelegramId($this->telegramUserId, $this->connection)))->value()],
+                [(new FromTelegramUser(new ByTelegramId($this->telegramUserId, $this->connection)))->value()->pure()->raw()],
                 $this->connection
             ))
                 ->response();

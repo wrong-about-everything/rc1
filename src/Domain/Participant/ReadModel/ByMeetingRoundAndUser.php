@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RC\Domain\Participant\ReadModel;
 
 use RC\Domain\MeetingRound\MeetingRoundId\Pure\MeetingRoundId;
-use RC\Domain\TelegramUser\UserId\TelegramUserId;
+use RC\Domain\TelegramUser\UserId\Pure\TelegramUserId;
 use RC\Infrastructure\ImpureInteractions\ImpureValue;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;

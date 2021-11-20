@@ -4,7 +4,6 @@
 .directory
 .env.dev
 .env.dev.testing_mode
-/test/phpunit.xml
 /tmp
 /logs
 composer.lock

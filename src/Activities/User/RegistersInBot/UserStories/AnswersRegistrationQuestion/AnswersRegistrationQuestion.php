@@ -10,7 +10,7 @@ use RC\Domain\Bot\BotId\FromUuid;
 use RC\Domain\Experience\ExperienceName\FromString;
 use RC\Domain\Position\PositionName\FromString as PositionNameFromString;
 use RC\Domain\RegistrationQuestion\NextRegistrationQuestion;
-use RC\Activities\User\RegistersInBot\UserStories\Domain\Reply\NextReplyToUserToUser;
+use RC\Activities\User\RegistersInBot\UserStories\Domain\Reply\NextReplyToUser;
 use RC\Domain\RegistrationQuestion\RegistrationQuestion;
 use RC\Domain\SentReplyToUser\ValidationError;
 use RC\Domain\RegistrationQuestion\RegistrationQuestionType\Impure\FromPure;
@@ -153,7 +153,7 @@ class AnswersRegistrationQuestion extends Existent
     private function nextReplyToUser()
     {
         return
-            new NextReplyToUserToUser(
+            new NextReplyToUser(
                 new FromParsedTelegramMessage($this->message),
                 new FromUuid(new UuidFromString($this->botId)),
                 $this->httpTransport,
