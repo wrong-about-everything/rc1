@@ -340,10 +340,6 @@ t
             ->insert([
                 ['id' => $this->botId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'vasya_bot']
             ]);
-        (new Bot($connection))
-            ->insert([
-                ['id' => $this->anotherBotId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'fedya_bot']
-            ]);
         (new TelegramUser($connection))
             ->insert([
                 ['id' => $this->userId()->value(), 'first_name' => 'Vadim', 'last_name' => 'Samokhin', 'telegram_id' => $this->telegramUserId()->value(), 'telegram_handle' => 'dremuchee_bydlo'],
@@ -352,11 +348,17 @@ t
             ->insert([
                 ['bot_id' => $this->botId()->value(), 'user_id' => $this->userId()->value(), 'status' => (new Registered())->value()]
             ]);
+
+        (new Bot($connection))
+            ->insert([
+                ['id' => $this->anotherBotId()->value(), 'token' => Uuid::uuid4()->toString(), 'name' => 'fedya_bot']
+            ]);
         (new RegistrationQuestion($connection))
             ->insert([
-                ['id' => Uuid::uuid4()->toString(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
-                ['id' => Uuid::uuid4()->toString(), 'profile_record_type' => (new Experience())->value(), 'bot_id' => $this->botId()->value(), 'ordinal_number' => 2, 'text' => 'А опыт?'],
+                ['id' => Uuid::uuid4()->toString(), 'profile_record_type' => (new Position())->value(), 'bot_id' => $this->anotherBotId()->value(), 'ordinal_number' => 1, 'text' => 'Какая у вас должность?'],
+                ['id' => Uuid::uuid4()->toString(), 'profile_record_type' => (new Experience())->value(), 'bot_id' => $this->anotherBotId()->value(), 'ordinal_number' => 2, 'text' => 'А опыт?'],
             ]);
+
         $transport = new Indifferent();
 
         $response =
