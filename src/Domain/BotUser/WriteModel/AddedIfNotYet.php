@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Domain\BotUser\WriteModel;
 
-use Ramsey\Uuid\Uuid;
 use RC\Domain\Bot\BotId\BotId;
-use RC\Domain\BotUser\Id\Impure\BotUserId;
 use RC\Domain\BotUser\Id\Impure\FromReadModelBotUser;
 use RC\Domain\BotUser\Id\Pure\BotUserId as PureBotUserId;
 use RC\Domain\BotUser\Id\Pure\Random;
@@ -73,8 +71,6 @@ class AddedIfNotYet implements BotUser
             return $telegramUser->value();
         }
         if ($telegramUser->value()->pure()->isPresent()) {
-            // insert user in a bot with his existing telegram user id, not randomly generated one
-            // Clear prod database from orphaned bot_users (the ones with non-existing telegram_user_id)
             $telegramUserId = new FromImpure(new FromTelegramUser($telegramUser));
             $generatedBotUserId = new Random();
             $insertBotUserResponse = $this->insertBotUser($telegramUserId, $generatedBotUserId);

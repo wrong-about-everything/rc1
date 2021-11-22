@@ -74,14 +74,19 @@ class UserRegistersInBotTest extends TestCase
         $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
         $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
         $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
-        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
-        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInFirstBot(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInFirstBot(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
+
+        $this->createBot($this->secondBotId(), $this->availablePositionIds(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInSecondBot(), new Position(), $this->secondBotId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInSecondBot(), new Experience(), $this->secondBotId(), 2, 'А опыт?', $connection);
+
         $transport = new Indifferent();
 
         $response = $this->userReply((new ProductManagerName())->value(), $transport, $connection)->response();
 
         $this->assertTrue($response->isSuccessful());
-        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionId(), $connection);
+        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionIdInFirstBot(), $connection);
         $this->assertPositionIs($this->telegramUserId(), $this->botId(), new ProductManager(), $connection);
         $this->assertCount(1, $transport->sentRequests());
         $this->assertEquals(
@@ -96,8 +101,13 @@ class UserRegistersInBotTest extends TestCase
         $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
         $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
         $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
-        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
-        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInFirstBot(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInFirstBot(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
+
+        $this->createBot($this->secondBotId(), $this->availablePositionIds(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInSecondBot(), new Position(), $this->secondBotId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInSecondBot(), new Experience(), $this->secondBotId(), 2, 'А опыт?', $connection);
+
         $transport = new Indifferent();
 
         $response = $this->userReply('что?', $transport, $connection)->response();
@@ -113,7 +123,7 @@ class UserRegistersInBotTest extends TestCase
         $secondResponse = $this->userReply((new ProductManagerName())->value(), $transport, $connection)->response();
 
         $this->assertTrue($secondResponse->isSuccessful());
-        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionId(), $connection);
+        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionIdInFirstBot(), $connection);
         $this->assertPositionIs($this->telegramUserId(), $this->botId(), new ProductManager(), $connection);
         $this->assertCount(2, $transport->sentRequests());
         $this->assertEquals(
@@ -128,8 +138,13 @@ class UserRegistersInBotTest extends TestCase
         $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
         $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
         $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
-        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
-        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInFirstBot(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInFirstBot(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
+
+        $this->createBot($this->secondBotId(), $this->availablePositionIds(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInSecondBot(), new Position(), $this->secondBotId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInSecondBot(), new Experience(), $this->secondBotId(), 2, 'А опыт?', $connection);
+
         $transport = new Indifferent();
 
         $response = $this->userReply('что?', $transport, $connection)->response();
@@ -148,15 +163,20 @@ class UserRegistersInBotTest extends TestCase
         $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
         $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
         $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
-        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
-        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
-        $this->createRegistrationProgress($this->firstRegistrationQuestionId(), $this->userId(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInFirstBot(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInFirstBot(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
+        $this->createRegistrationProgress($this->firstRegistrationQuestionIdInFirstBot(), $this->userId(), $connection);
+
+        $this->createBot($this->secondBotId(), $this->availablePositionIds(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInSecondBot(), new Position(), $this->secondBotId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInSecondBot(), new Experience(), $this->secondBotId(), 2, 'А опыт?', $connection);
+
         $transport = new Indifferent();
 
         $response = $this->userReply((new LessThanAYearName())->value(), $transport, $connection)->response();
 
         $this->assertTrue($response->isSuccessful());
-        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->secondRegistrationQuestionId(), $connection);
+        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->secondRegistrationQuestionIdInFirstBot(), $connection);
         $this->assertExperienceIs($this->telegramUserId(), $this->botId(), new LessThanAYear(), $connection);
         $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
         $this->assertCount(1, $transport->sentRequests());
@@ -172,15 +192,20 @@ class UserRegistersInBotTest extends TestCase
         $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
         $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
         $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
-        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
-        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new About(), $this->botId(), 2, 'Расскажите плз о себе, если хотите', $connection);
-        $this->createRegistrationProgress($this->firstRegistrationQuestionId(), $this->userId(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInFirstBot(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInFirstBot(), new About(), $this->botId(), 2, 'Расскажите плз о себе, если хотите', $connection);
+        $this->createRegistrationProgress($this->firstRegistrationQuestionIdInFirstBot(), $this->userId(), $connection);
+
+        $this->createBot($this->secondBotId(), $this->availablePositionIds(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInSecondBot(), new Position(), $this->secondBotId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInSecondBot(), new Experience(), $this->secondBotId(), 2, 'А опыт?', $connection);
+
         $transport = new Indifferent();
 
         $response = $this->userReply((new Skipped())->value(), $transport, $connection)->response();
 
         $this->assertTrue($response->isSuccessful());
-        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->secondRegistrationQuestionId(), $connection);
+        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->secondRegistrationQuestionIdInFirstBot(), $connection);
         $this->assertAboutMeIsEmpty($this->telegramUserId(), $this->botId(), $connection);
         $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
         $this->assertCount(1, $transport->sentRequests());
@@ -196,15 +221,20 @@ class UserRegistersInBotTest extends TestCase
         $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
         $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
         $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
-        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
-        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new About(), $this->botId(), 2, 'Расскажите плз о себе, если хотите', $connection);
-        $this->createRegistrationProgress($this->firstRegistrationQuestionId(), $this->userId(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInFirstBot(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInFirstBot(), new About(), $this->botId(), 2, 'Расскажите плз о себе, если хотите', $connection);
+        $this->createRegistrationProgress($this->firstRegistrationQuestionIdInFirstBot(), $this->userId(), $connection);
+
+        $this->createBot($this->secondBotId(), $this->availablePositionIds(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInSecondBot(), new Position(), $this->secondBotId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInSecondBot(), new Experience(), $this->secondBotId(), 2, 'А опыт?', $connection);
+
         $transport = new Indifferent();
 
         $response = $this->userReply('охохооо, как же много я могу о себе рассказать!', $transport, $connection)->response();
 
         $this->assertTrue($response->isSuccessful());
-        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->secondRegistrationQuestionId(), $connection);
+        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->secondRegistrationQuestionIdInFirstBot(), $connection);
         $this->assertAboutMeIs($this->telegramUserId(), $this->botId(), 'охохооо, как же много я могу о себе рассказать!', $connection);
         $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
         $this->assertCount(1, $transport->sentRequests());
@@ -220,6 +250,11 @@ class UserRegistersInBotTest extends TestCase
         $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
         $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
         $this->createBotUser($this->botId(), $this->userId(), new Registered(), $connection);
+
+        $this->createBot($this->secondBotId(), $this->availablePositionIds(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInSecondBot(), new Position(), $this->secondBotId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInSecondBot(), new Experience(), $this->secondBotId(), 2, 'А опыт?', $connection);
+
         $transport = new Indifferent();
 
         $response = $this->userReply((new LessThanAYearName())->value(), $transport, $connection)->response();
@@ -238,17 +273,22 @@ class UserRegistersInBotTest extends TestCase
         $this->createBot($this->botId(), $this->availablePositionIds(), $connection);
         $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
         $this->createBotUser($this->botId(), $this->userId(), new RegistrationIsInProgress(), $connection);
-        $this->createRegistrationQuestion($this->firstRegistrationQuestionId(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
-        $this->createRegistrationQuestion($this->secondRegistrationQuestionId(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
-        $this->createRegistrationProgress($this->firstRegistrationQuestionId(), $this->userId(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInFirstBot(), new Position(), $this->botId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInFirstBot(), new Experience(), $this->botId(), 2, 'А опыт?', $connection);
+        $this->createRegistrationProgress($this->firstRegistrationQuestionIdInFirstBot(), $this->userId(), $connection);
         $this->createMeetingRound(Uuid::uuid4()->toString(), $this->botId(), new Past(new Now(), new OneDay()), new Past(new Now(), new NDays(2)), $connection);
         $this->createMeetingRound($this->futureMeetingRoundId(), $this->botId(), new FromISO8601('2025-08-08T09:00:00+03'), new Now(), $connection);
+
+        $this->createBot($this->secondBotId(), $this->availablePositionIds(), $connection);
+        $this->createRegistrationQuestion($this->firstRegistrationQuestionIdInSecondBot(), new Position(), $this->secondBotId(), 1, 'Какая у вас должность?', $connection);
+        $this->createRegistrationQuestion($this->secondRegistrationQuestionIdInSecondBot(), new Experience(), $this->secondBotId(), 2, 'А опыт?', $connection);
+
         $transport = new Indifferent();
 
         $response = $this->userReply((new LessThanAYearName())->value(), $transport, $connection)->response();
 
         $this->assertTrue($response->isSuccessful());
-        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionId(), $connection);
+        $this->assertUserRegistrationProgressUpdated($this->userId(), $this->firstRegistrationQuestionIdInFirstBot(), $connection);
         $this->assertExperienceIs($this->telegramUserId(), $this->botId(), new LessThanAYear(), $connection);
         $this->assertUserIs($this->telegramUserId(), $this->botId(), new Registered(), $connection);
         $this->assertCount(1, $transport->sentRequests());
@@ -283,14 +323,24 @@ q
         return new FromUuid(new Fixed());
     }
 
+    private function secondBotId(): BotId
+    {
+        return new FromUuid(new FromString('b19a1fbe-4480-4c65-8d9b-0ca0e20173f2'));
+    }
+
     private function userId(): TelegramUserId
     {
         return new UserIdFromUuid(new FromString('103729d6-330c-4123-b856-d5196812d509'));
     }
 
-    private function firstRegistrationQuestionId(): RegistrationQuestionId
+    private function firstRegistrationQuestionIdInFirstBot(): RegistrationQuestionId
     {
         return new RegistrationQuestionIdFromString('203729d6-330c-4123-b856-d5196812d509');
+    }
+
+    private function firstRegistrationQuestionIdInSecondBot(): RegistrationQuestionId
+    {
+        return new RegistrationQuestionIdFromString('f016f0b9-34e7-4103-96f4-235b8920c5d8');
     }
 
     private function futureMeetingRoundId(): string
@@ -298,9 +348,14 @@ q
         return Uuid::uuid4()->toString();
     }
 
-    private function secondRegistrationQuestionId(): RegistrationQuestionId
+    private function secondRegistrationQuestionIdInFirstBot(): RegistrationQuestionId
     {
         return new RegistrationQuestionIdFromString('303729d6-330c-4123-b856-d5196812d509');
+    }
+
+    private function secondRegistrationQuestionIdInSecondBot(): RegistrationQuestionId
+    {
+        return new RegistrationQuestionIdFromString('c6282bc5-868f-4e86-aef6-c05de3c3edc7');
     }
 
     private function createBot(BotId $botId, array $availablePositionIds, OpenConnection $connection)

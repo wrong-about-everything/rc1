@@ -1,4 +1,8 @@
 1. Завести в bot_father новый бот, добавить его в базу.
 2. Скопировать скрипт создания бота -- createGorgonzolaRound.php. Обновить там айдишник бота на новый.
 3. Задать боту webhook по аналогии с остальными: https://api.telegram.org/bot<BOT TOKEN>>/setWebhook?url=europe-central2-lyrical-bolt-318307.cloudfunctions.net/index?secret_smile=<bot id in a `bot` table>
-4.
+4. Скопировать вопросы на регистрацию польхователя:
+begin; insert into registration_question select uuid_generate_v4(), profile_record_type, '9edcd2f4-4ccf-4f7f-ace8-0708f9c9ed59', ordinal_number, text from registration_question where bot_id = '1f6d0fd5-3179-47fb-b92d-f6bec4e8f016';
+5. Создать раунд:
+php ./admin/createProductStarRound.php --bot_id="<bot id>>" --start_date_time="2021-11-20 18:45:00+03" --invitation_date_time="2021-11-20 16:00:00+03" --feedback_date_time="2021-11-20 19:00:00+03"
+6. Скопировать все кроновские задачи.

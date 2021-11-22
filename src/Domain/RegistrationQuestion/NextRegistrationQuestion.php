@@ -48,12 +48,15 @@ class NextRegistrationQuestion implements RegistrationQuestion
         select rq.*
         from registration_question rq
             left join user_registration_progress urp on urp.registration_question_id = rq.id and urp.user_id = ?
-        where urp.registration_question_id is null
+        where urp.registration_question_id is null and rq.bot_id = ?
         order by rq.ordinal_number asc
         limit 1
         q
                 ,
-                [(new FromTelegramUser(new ByTelegramId($this->telegramUserId, $this->connection)))->value()->pure()->raw()],
+                [
+                    (new FromTelegramUser(new ByTelegramId($this->telegramUserId, $this->connection)))->value()->pure()->raw(),
+                    $this->botId->value()
+                ],
                 $this->connection
             ))
                 ->response();
