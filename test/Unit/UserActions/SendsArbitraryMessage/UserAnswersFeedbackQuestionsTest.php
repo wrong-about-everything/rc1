@@ -58,13 +58,13 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
     public function testGivenUserAcceptsInvitationWhenHeAnswersTheFirstAndTheOnlyQuestionThenHisAnswerIsSavedAndHeSeesThankYouMessage()
     {
         $connection = new ApplicationConnection();
-        $this->createBot($this->botId(), $connection);
+        $this->createBot($this->firstBotId(), $connection);
         $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
-        $this->createBotUser($this->botId(), $this->userId(), new Registered(), $connection);
-        $this->createMeetingRound($this->meetingRoundId(), $this->botId(), new Future(new Now(), new OneHour()), new Now(), $connection);
-        $this->createParticipant($this->meetingRoundId(), $this->participantId(), $this->userId(), $connection);
-        $this->createFeedbackInvitation($this->feedbackInvitationId(), $this->participantId(), new Sent(), $connection);
-        $this->createFeedbackQuestion($this->firstFeedbackQuestionId(), $this->meetingRoundId(), 'как дела?', 1, $connection);
+        $this->createBotUser($this->firstBotId(), $this->userId(), new Registered(), $connection);
+        $this->createMeetingRound($this->firstMeetingRoundId(), $this->firstBotId(), new Future(new Now(), new OneHour()), new Now(), $connection);
+        $this->createParticipant($this->firstMeetingRoundId(), $this->firstParticipantId(), $this->userId(), $connection);
+        $this->createFeedbackInvitation($this->firstFeedbackInvitationId(), $this->firstParticipantId(), new Sent(), $connection);
+        $this->createFeedbackQuestion($this->firstMeetingRoundFirstFeedbackQuestionId(), $this->firstMeetingRoundId(), 'как дела?', 1, $connection);
         $transport = new Indifferent();
 
         $firstResponse = $this->userReplies($this->telegramUserId(), (new Sure())->value(), $transport, $connection);
@@ -84,7 +84,7 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
             'Спасибо за ответы! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
             (new FromQuery(new FromUrl($transport->sentRequests()[1]->url())))->value()['text']
         );
-        $this->assertParticipantAnswerIs($this->firstFeedbackQuestionId(), $this->participantId(), 'Шикардос!', $connection);
+        $this->assertParticipantAnswerIs($this->firstMeetingRoundFirstFeedbackQuestionId(), $this->firstParticipantId(), 'Шикардос!', $connection);
 
         $thirdResponse = $this->userReplies($this->telegramUserId(), 'Кашердос!', $transport, $connection);
 
@@ -94,7 +94,7 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
             'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[2]->url())))->value()['text']
         );
-        $this->assertParticipantAnswerIs($this->firstFeedbackQuestionId(), $this->participantId(), 'Шикардос!', $connection);
+        $this->assertParticipantAnswerIs($this->firstMeetingRoundFirstFeedbackQuestionId(), $this->firstParticipantId(), 'Шикардос!', $connection);
 
         $fourthResponse = $this->userReplies($this->telegramUserId(), 'привет!', $transport, $connection);
 
@@ -104,20 +104,29 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
             'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[3]->url())))->value()['text']
         );
-        $this->assertParticipantAnswerIs($this->firstFeedbackQuestionId(), $this->participantId(), 'Шикардос!', $connection);
+        $this->assertParticipantAnswerIs($this->firstMeetingRoundFirstFeedbackQuestionId(), $this->firstParticipantId(), 'Шикардос!', $connection);
     }
 
     public function testGivenUserAcceptsInvitationWhenHeAnswersTheFirstQuestionThenHisAnswerIsSavedAndHeSeesTheSecondOne()
     {
         $connection = new ApplicationConnection();
-        $this->createBot($this->botId(), $connection);
+        $this->createBot($this->firstBotId(), $connection);
         $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
-        $this->createBotUser($this->botId(), $this->userId(), new Registered(), $connection);
-        $this->createMeetingRound($this->meetingRoundId(), $this->botId(), new Future(new Now(), new OneHour()), new Now(), $connection);
-        $this->createParticipant($this->meetingRoundId(), $this->participantId(), $this->userId(), $connection);
-        $this->createFeedbackInvitation($this->feedbackInvitationId(), $this->participantId(), new Sent(), $connection);
-        $this->createFeedbackQuestion($this->firstFeedbackQuestionId(), $this->meetingRoundId(), 'привет, как дела?', 1, $connection);
-        $this->createFeedbackQuestion($this->secondFeedbackQuestionId(), $this->meetingRoundId(), 'как здоровье, азаза?', 2, $connection);
+        $this->createBotUser($this->firstBotId(), $this->userId(), new Registered(), $connection);
+        $this->createMeetingRound($this->firstMeetingRoundId(), $this->firstBotId(), new Future(new Now(), new OneHour()), new Now(), $connection);
+        $this->createParticipant($this->firstMeetingRoundId(), $this->firstParticipantId(), $this->userId(), $connection);
+        $this->createFeedbackInvitation($this->firstFeedbackInvitationId(), $this->firstParticipantId(), new Sent(), $connection);
+        $this->createFeedbackQuestion($this->firstMeetingRoundFirstFeedbackQuestionId(), $this->firstMeetingRoundId(), 'привет, как дела?', 1, $connection);
+        $this->createFeedbackQuestion($this->firstMeetingRoundSecondFeedbackQuestionId(), $this->firstMeetingRoundId(), 'как здоровье, азаза?', 2, $connection);
+
+        $this->createBot($this->secondBotId(), $connection);
+        $this->createBotUser($this->secondBotId(), $this->userId(), new Registered(), $connection);
+        $this->createMeetingRound($this->secondMeetingRoundId(), $this->secondBotId(), new Future(new Now(), new OneHour()), new Now(), $connection);
+        $this->createParticipant($this->secondMeetingRoundId(), $this->secondParticipantId(), $this->userId(), $connection);
+        $this->createFeedbackInvitation($this->secondFeedbackInvitationId(), $this->secondParticipantId(), new Sent(), $connection);
+        $this->createFeedbackQuestion($this->secondMeetingRoundFirstFeedbackQuestionId(), $this->secondMeetingRoundId(), 'hey, how are you?', 1, $connection);
+        $this->createFeedbackQuestion($this->secondMeetingRoundSecondFeedbackQuestionId(), $this->secondMeetingRoundId(), 'whats up bro', 2, $connection);
+
         $transport = new Indifferent();
 
         $this->userReplies($this->telegramUserId(), (new Sure())->value(), $transport, $connection);
@@ -130,7 +139,7 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
 
         $this->userReplies($this->telegramUserId(), 'кометы не падают', $transport, $connection);
 
-        $this->assertParticipantAnswerIs($this->firstFeedbackQuestionId(), $this->participantId(), 'кометы не падают', $connection);
+        $this->assertParticipantAnswerIs($this->firstMeetingRoundFirstFeedbackQuestionId(), $this->firstParticipantId(), 'кометы не падают', $connection);
         $this->assertCount(2, $transport->sentRequests());
         $this->assertEquals(
             'как здоровье, азаза?',
@@ -139,8 +148,8 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
 
         $this->userReplies($this->telegramUserId(), 'и всё нормально', $transport, $connection);
 
-        $this->assertParticipantAnswerIs($this->secondFeedbackQuestionId(), $this->participantId(), 'и всё нормально', $connection);
-        $this->assertParticipantAnswerIs($this->firstFeedbackQuestionId(), $this->participantId(), 'кометы не падают', $connection);
+        $this->assertParticipantAnswerIs($this->firstMeetingRoundSecondFeedbackQuestionId(), $this->firstParticipantId(), 'и всё нормально', $connection);
+        $this->assertParticipantAnswerIs($this->firstMeetingRoundFirstFeedbackQuestionId(), $this->firstParticipantId(), 'кометы не падают', $connection);
         $this->assertCount(3, $transport->sentRequests());
         $this->assertEquals(
             'Спасибо за ответы! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
@@ -154,8 +163,8 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
             'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[3]->url())))->value()['text']
         );
-        $this->assertParticipantAnswerIs($this->secondFeedbackQuestionId(), $this->participantId(), 'и всё нормально', $connection);
-        $this->assertParticipantAnswerIs($this->firstFeedbackQuestionId(), $this->participantId(), 'кометы не падают', $connection);
+        $this->assertParticipantAnswerIs($this->firstMeetingRoundSecondFeedbackQuestionId(), $this->firstParticipantId(), 'и всё нормально', $connection);
+        $this->assertParticipantAnswerIs($this->firstMeetingRoundFirstFeedbackQuestionId(), $this->firstParticipantId(), 'кометы не падают', $connection);
 
         $this->userReplies($this->telegramUserId(), 'привет!', $transport, $connection);
 
@@ -164,8 +173,8 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
             'Хотите что-то уточнить? Смело пишите на @gorgonzola_support_bot!',
             (new FromQuery(new FromUrl($transport->sentRequests()[4]->url())))->value()['text']
         );
-        $this->assertParticipantAnswerIs($this->secondFeedbackQuestionId(), $this->participantId(), 'и всё нормально', $connection);
-        $this->assertParticipantAnswerIs($this->firstFeedbackQuestionId(), $this->participantId(), 'кометы не падают', $connection);
+        $this->assertParticipantAnswerIs($this->firstMeetingRoundSecondFeedbackQuestionId(), $this->firstParticipantId(), 'и всё нормально', $connection);
+        $this->assertParticipantAnswerIs($this->firstMeetingRoundFirstFeedbackQuestionId(), $this->firstParticipantId(), 'кометы не падают', $connection);
     }
 
     protected function setUp(): void
@@ -178,34 +187,64 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
         return new FromInteger(654987);
     }
 
-    private function botId(): BotId
+    private function firstBotId(): BotId
     {
         return new FromUuid(new Fixed());
     }
 
-    private function meetingRoundId(): MeetingRoundId
+    private function secondBotId(): BotId
+    {
+        return new FromUuid(new FromString('f0f5948b-90e4-4cb4-911a-8b5b0d97113c'));
+    }
+
+    private function firstMeetingRoundId(): MeetingRoundId
     {
         return new MeetingRoundIdFromString('e00729d6-330c-4123-b856-d5196812d111');
     }
 
-    private function firstFeedbackQuestionId(): FeedbackQuestionId
+    private function secondMeetingRoundId(): MeetingRoundId
+    {
+        return new MeetingRoundIdFromString('2969f443-0a45-4874-a529-d5ca45a2f093');
+    }
+
+    private function firstMeetingRoundFirstFeedbackQuestionId(): FeedbackQuestionId
     {
         return new FeedbackQuestionIdFromString('333729d6-330c-4123-b856-d5196812dddd');
     }
 
-    private function secondFeedbackQuestionId(): FeedbackQuestionId
+    private function firstMeetingRoundSecondFeedbackQuestionId(): FeedbackQuestionId
     {
         return new FeedbackQuestionIdFromString('444729d6-330c-4123-b856-d5196812dccc');
     }
 
-    private function feedbackInvitationId(): FeedbackInvitationId
+    private function secondMeetingRoundFirstFeedbackQuestionId(): FeedbackQuestionId
+    {
+        return new FeedbackQuestionIdFromString('555729d6-330c-4123-b856-d5196812d111');
+    }
+
+    private function secondMeetingRoundSecondFeedbackQuestionId(): FeedbackQuestionId
+    {
+        return new FeedbackQuestionIdFromString('666729d6-330c-4123-b856-d5196812d222');
+    }
+
+    private function firstFeedbackInvitationId(): FeedbackInvitationId
     {
         return new FeedbackInvitationIdFromString('111729d6-330c-4123-b856-d5196812dfff');
     }
 
-    private function participantId(): ParticipantId
+    private function secondFeedbackInvitationId(): FeedbackInvitationId
+    {
+        return new FeedbackInvitationIdFromString('480f8801-4b03-4f34-a142-19a4d145b75b');
+    }
+
+    private function firstParticipantId(): ParticipantId
     {
         return new ParticipantIdFromString('222729d6-330c-4123-b856-d5196812deee');
+    }
+
+    private function secondParticipantId(): ParticipantId
+    {
+        return new ParticipantIdFromString('333729d6-330c-4123-b856-d5196812dfff');
     }
 
     private function interestIds()
@@ -224,7 +263,7 @@ class UserAnswersFeedbackQuestionsTest extends TestCase
             (new SendsArbitraryMessage(
                 new Now(),
                 (new UserMessage($telegramUserId, $answer))->value(),
-                $this->botId()->value(),
+                $this->firstBotId()->value(),
                 $transport,
                 $connection,
                 new DevNull()
