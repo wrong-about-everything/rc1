@@ -18,6 +18,7 @@ class Text
     private $matchInterestedIn;
     private $aboutMatch;
     private $isInitiator;
+    private $meetingTips;
 
     public function __construct(
         string $participantFirstName,
@@ -26,7 +27,8 @@ class Text
         array $participantInterestedIn,
         array $matchInterestedIn,
         About $aboutMatch,
-        bool $isInitiator
+        bool $isInitiator,
+        ?string $meetingTips
     )
     {
         $this->participantFirstName = $participantFirstName;
@@ -36,6 +38,7 @@ class Text
         $this->matchInterestedIn = $matchInterestedIn;
         $this->aboutMatch = $aboutMatch;
         $this->isInitiator = $isInitiator;
+        $this->meetingTips = $meetingTips;
     }
 
     public function value(): string
@@ -51,6 +54,8 @@ class Text
                     .
                 $this->textForInitiators()
                     .
+                $this->meetingTips()
+                    .
                 $this->haveAGoodTime();
         } elseif (count($interestsInCommon) === 1) {
             return
@@ -61,6 +66,8 @@ class Text
                 $this->hereIsWhatYouMatchToldAboutHerself()
                 .
                 $this->textForInitiators()
+                .
+                $this->meetingTips()
                 .
                 $this->haveAGoodTime();
         }
@@ -73,6 +80,8 @@ class Text
             $this->hereIsWhatYouMatchToldAboutHerself()
             .
             $this->textForInitiators()
+            .
+            $this->meetingTips()
             .
             $this->haveAGoodTime();
     }
@@ -200,11 +209,17 @@ _«%s»_'
         return '';
     }
 
+    private function meetingTips()
+    {
+        if (is_null($this->meetingTips)) {
+            return '';
+        }
+
+        return $this->meetingTips . $this->newLine() . $this->newLine();
+    }
+
     private function haveAGoodTime()
     {
-        return
-            'Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.'
-                . $this->newLine() . $this->newLine() .
-            'Приятного общения\!';
+        return 'Приятного общения\!';
     }
 }

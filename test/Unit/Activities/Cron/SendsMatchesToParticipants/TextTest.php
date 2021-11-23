@@ -37,7 +37,8 @@ t
                 [(new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value()],
                 new FromString('Моя жизнь в огне!'),
-                false
+                false,
+                'Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.'
             ))
                 ->value()
         );
@@ -56,8 +57,6 @@ _«Моя жизнь в огне\!»_
 
 Каждый раз мы рандомно выбираем одного человека из пары, кто должен написать собеседнику и договориться о встрече, онлайн или оффлайн\. В этот раз ответственный — вы\. Советуем не откладывать и написать @polzzza прямо сейчас — так больше шансов не забыть про встречу\.
 
-Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.
-
 Приятного общения\!
 t
             ,
@@ -68,7 +67,8 @@ t
                 [(new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value()],
                 new FromString('Моя жизнь в огне!'),
-                true
+                true,
+                null
             ))
                 ->value()
         );
@@ -97,7 +97,8 @@ t
                 [(new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value(), (new DayDreaming())->value()],
                 new FromString('Моя жизнь в огне!'),
-                false
+                false,
+                'Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.'
             ))
                 ->value()
         );
@@ -116,8 +117,6 @@ _«Моя жизнь в огне\!»_
 
 Каждый раз мы рандомно выбираем одного человека из пары, кто должен написать собеседнику и договориться о встрече, онлайн или оффлайн\. В этот раз ответственный — вы\. Советуем не откладывать и написать @polzzza прямо сейчас — так больше шансов не забыть про встречу\.
 
-Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.
-
 Приятного общения\!
 t
             ,
@@ -128,7 +127,8 @@ t
                 [(new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value(), (new DayDreaming())->value()],
                 new FromString('Моя жизнь в огне!'),
-                true
+                true,
+                null
             ))
                 ->value()
         );
@@ -157,7 +157,8 @@ t
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
                 new FromString('Моя жизнь в огне!'),
-                false
+                false,
+                'Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.'
             ))
                 ->value()
         );
@@ -176,8 +177,6 @@ _«Моя жизнь в огне\!»_
 
 Каждый раз мы рандомно выбираем одного человека из пары, кто должен написать собеседнику и договориться о встрече, онлайн или оффлайн\. В этот раз ответственный — вы\. Советуем не откладывать и написать @polzzza прямо сейчас — так больше шансов не забыть про встречу\.
 
-Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.
-
 Приятного общения\!
 t
             ,
@@ -188,7 +187,8 @@ t
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
                 new FromString('Моя жизнь в огне!'),
-                true
+                true,
+                null
             ))
                 ->value()
         );
@@ -214,7 +214,8 @@ t
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
                 new Emptie(),
-                false
+                false,
+                'Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.'
             ))
                 ->value()
         );
@@ -230,8 +231,6 @@ t
 
 Каждый раз мы рандомно выбираем одного человека из пары, кто должен написать собеседнику и договориться о встрече, онлайн или оффлайн\. В этот раз ответственный — вы\. Советуем не откладывать и написать @polzzza прямо сейчас — так больше шансов не забыть про встречу\.
 
-Чтобы встреча прошла интересно и продуктивно, посмотрите нашу [статью о том, как назначить встречу и о чем на ней говорить](https://telegra.ph/Kak-podgotovitsya-i-provesti-vstrechu-09-06)\.
-
 Приятного общения\!
 t
             ,
@@ -242,7 +241,8 @@ t
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
                 [(new Networking())->value(), (new SkySurfing())->value(), (new DayDreaming())->value()],
                 new Emptie(),
-                true
+                true,
+                null
             ))
                 ->value()
         );

@@ -84,7 +84,8 @@ class SendsMatchesToParticipants extends Existent
                             json_decode($matchingPair['participant_interested_in'] ?? json_encode([])),
                             json_decode($matchingPair['match_interested_in'] ?? json_encode([])),
                             new FromMatchingPairArray($matchingPair),
-                            $matchingPair['is_initiator']
+                            $matchingPair['is_initiator'],
+                            $matchingPair['meeting_tips']
                         ))
                             ->value(),
                         new ByBotId($this->botId, $this->connection),
@@ -136,7 +137,8 @@ select
     match_participant.interested_in match_interested_in,
     bu.about about_match,
     pair.match_participant_contacts_sent,
-    pair.is_initiator
+    pair.is_initiator,
+    b.meeting_tips
 from meeting_round_pair pair
     join meeting_round_participant participant_to on pair.participant_id = participant_to.id
     join meeting_round_participant match_participant on pair.match_participant_id = match_participant.id
@@ -144,6 +146,7 @@ from meeting_round_pair pair
     join "telegram_user" match_user on match_participant.user_id = match_user.id
     join meeting_round mr on mr.id = participant_to.meeting_round_id
     join bot_user bu on bu.user_id = match_user.id and bu.bot_id = mr.bot_id
+    join bot b on b.id = bu.bot_id
 where participant_to.meeting_round_id = ? and match_participant.meeting_round_id = ? and pair.match_participant_contacts_sent = false
 limit 100
 q
