@@ -9,6 +9,7 @@ use RC\Activities\User\RepliesToRoundInvitation\Domain\Reply\RoundRegistrationCo
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\Participant\RegisteredIfNoMoreQuestionsLeft;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
+use RC\Domain\Bot\ById as BotById;
 use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromInvitation as MeetingRoundIdFromInvitation;
 use RC\Domain\MeetingRound\ReadModel\ById as MeetingRoundById;
 use RC\Domain\Participant\ParticipantId\Impure\FromWriteModelParticipant;
@@ -74,7 +75,7 @@ class NextReplyToUser implements SentReplyToUser
         return
             (new InvitationDeclinedAndSeeYouNextTime(
                 $this->telegramUserId,
-                new ByBotId($this->botId, $this->connection),
+                new BotById($this->botId, $this->connection),
                 $this->httpTransport
             ))
                 ->value();
@@ -86,7 +87,12 @@ class NextReplyToUser implements SentReplyToUser
             (new RoundRegistrationCongratulations(
                 $this->telegramUserId,
                 $this->botId,
-                new MeetingRoundById(new MeetingRoundIdFromInvitation(new ByImpureId($this->invitationId, $this->connection)), $this->connection),
+                new MeetingRoundById(
+                    new MeetingRoundIdFromInvitation(
+                        new ByImpureId($this->invitationId, $this->connection)
+                    ),
+                    $this->connection
+                ),
                 $this->connection,
                 $this->httpTransport
             ))

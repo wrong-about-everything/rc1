@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RepliesToFeedbackInvitation\Domain\Reply;
 
+use RC\Domain\Bot\BotToken\Impure\FromBot;
+use RC\Domain\Bot\ById;
+use RC\Domain\Bot\SupportBotName\Impure\FromBot as SupportBotName;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -39,9 +42,14 @@ class ThanksForFeedback implements SentReplyToUser
 
     public function value(): ImpureValue
     {
-        $botToken = new ByBotId($this->botId, $this->connection);
+        $bot = new ById($this->botId, $this->connection);
+        $botToken = new FromBot($bot);
         if (!$botToken->value()->isSuccessful() || !$botToken->value()->pure()->isPresent()) {
             return $botToken->value();
+        }
+        $supportBotName = new SupportBotName($bot);
+        if (!$supportBotName->value()->isSuccessful() || !$supportBotName->value()->pure()->isPresent()) {
+            return $supportBotName->value();
         }
 
         $telegramResponse =
@@ -53,7 +61,7 @@ class ThanksForFeedback implements SentReplyToUser
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Спасибо за ответы! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
+                                'text' => sprintf('Спасибо за ответы! Если хотите что-то спросить или уточнить, смело пишите на @%s', $supportBotName->value()->pure()->raw()),
                                 'reply_markup' => json_encode(['remove_keyboard' => true])
                             ]),
                             new FromImpure($botToken)

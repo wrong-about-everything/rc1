@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\Reply;
 
-use RC\Domain\Bot\BotToken\Impure\BotToken;
+use RC\Domain\Bot\Bot;
+use RC\Domain\Bot\BotToken\Impure\FromBot;
 use RC\Domain\Bot\BotToken\Pure\FromImpure;
+use RC\Domain\Bot\SupportBotName\Impure\FromBot as SupportBotName;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -23,14 +25,14 @@ use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 class InvitationDeclinedAndSeeYouNextTime implements SentReplyToUser
 {
     private $telegramUserId;
-    private $botToken;
+    private $bot;
     private $httpTransport;
     private $cached;
 
-    public function __construct(InternalTelegramUserId $telegramUserId, BotToken $botToken, HttpTransport $httpTransport)
+    public function __construct(InternalTelegramUserId $telegramUserId, Bot $bot, HttpTransport $httpTransport)
     {
         $this->telegramUserId = $telegramUserId;
-        $this->botToken = $botToken;
+        $this->bot = $bot;
         $this->httpTransport = $httpTransport;
         $this->cached = null;
     }
@@ -46,8 +48,12 @@ class InvitationDeclinedAndSeeYouNextTime implements SentReplyToUser
 
     private function doValue(): ImpureValue
     {
-        if (!$this->botToken->value()->isSuccessful()) {
-            return $this->botToken->value();
+        if (!$this->bot->value()->isSuccessful()) {
+            return $this->bot->value();
+        }
+        $supportBotName = new SupportBotName($this->bot);
+        if (!$supportBotName->value()->isSuccessful() || !$supportBotName->value()->pure()->isPresent()) {
+            return $supportBotName->value();
         }
 
         $response =
@@ -59,10 +65,10 @@ class InvitationDeclinedAndSeeYouNextTime implements SentReplyToUser
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Хорошо, тогда до следующего раза! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
+                                'text' => sprintf('Хорошо, тогда до следующего раза! Если хотите что-то спросить или уточнить, смело пишите на @%s', $supportBotName->value()->pure()->raw()),
                                 'reply_markup' => json_encode(['remove_keyboard' => true])
                             ]),
-                            new FromImpure($this->botToken)
+                            new FromImpure(new FromBot($this->bot))
                         ),
                         [],
                         ''

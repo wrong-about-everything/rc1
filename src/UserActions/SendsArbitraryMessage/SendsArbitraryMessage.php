@@ -9,6 +9,7 @@ use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AcceptsOrDeclines
 use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQuestion\AnswersFeedbackQuestion;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\AnswersRoundRegistrationQuestion;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\AcceptsOrDeclinesInvitation;
+use RC\Domain\Bot\ById as BotById;
 use RC\Domain\BotUser\ReadModel\ByInternalTelegramUserIdAndBotId;
 use RC\Domain\FeedbackInvitation\ReadModel\LatestByFeedbackDate;
 use RC\Domain\FeedbackInvitation\ReadModel\FeedbackInvitation;
@@ -141,7 +142,7 @@ class SendsArbitraryMessage extends Existent
         return
             new NoRoundsAhead(
                 new FromParsedTelegramMessage($this->message),
-                new ByBotId(
+                new BotById(
                     $this->botId(),
                     $this->connection
                 ),
@@ -167,7 +168,7 @@ class SendsArbitraryMessage extends Existent
         return
             new Sorry(
                 new FromParsedTelegramMessage($this->message),
-                new ByBotId(
+                new BotById(
                     $this->botId(),
                     $this->connection
                 ),

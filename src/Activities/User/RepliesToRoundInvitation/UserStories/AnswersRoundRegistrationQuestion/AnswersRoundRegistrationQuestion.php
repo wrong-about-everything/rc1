@@ -6,6 +6,7 @@ namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRe
 
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Reply\NextReplyToUser;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AnswersRoundRegistrationQuestion\Domain\Participant\ParticipantAnsweredRoundRegistrationQuestion;
+use RC\Domain\Bot\ById;
 use RC\Domain\SentReplyToUser\ReplyOptions\ReplyOptions;
 use RC\Domain\SentReplyToUser\ReplyOptions\FromRoundRegistrationQuestion as AnswerOptionsFromRoundRegistrationQuestion;
 use RC\Domain\Bot\BotId\FromUuid;
@@ -88,7 +89,7 @@ class AnswersRoundRegistrationQuestion extends Existent
             new ValidationError(
                 $answerOptions,
                 new FromParsedTelegramMessage($this->message),
-                new ByBotId(
+                new ById(
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->connection
                 ),
@@ -134,7 +135,7 @@ class AnswersRoundRegistrationQuestion extends Existent
         return
             new Sorry(
                 new FromParsedTelegramMessage($this->message),
-                new ByBotId(
+                new ById(
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->connection
                 ),

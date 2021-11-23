@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\UserActions\PressesStart;
 
+use RC\Domain\Bot\ById as BotById;
 use RC\Domain\BotUser\Id\Impure\FromWriteModelBotUser;
 use RC\Domain\BotUser\ReadModel\ById;
 use RC\Domain\BotUser\ReadModel\ByInternalTelegramUserIdAndBotId;
@@ -149,7 +150,7 @@ class PressesStart extends Existent
         return
             new Sorry(
                 new FromParsedTelegramMessage($this->message),
-                new ByBotId(
+                new BotById(
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->connection
                 ),

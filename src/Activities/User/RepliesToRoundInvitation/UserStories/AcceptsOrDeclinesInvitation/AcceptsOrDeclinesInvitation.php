@@ -7,6 +7,7 @@ namespace RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDecli
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\Participant\RepliedToInvitation;
 use RC\Activities\User\RepliesToRoundInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\Reply\NextReplyToUser;
 use RC\Domain\Bot\BotId\FromUuid;
+use RC\Domain\Bot\ById;
 use RC\Domain\Participant\WriteModel\Participant;
 use RC\Domain\RoundInvitation\InvitationId\Impure\FromInvitation as InvitationIdFromInvitation;
 use RC\Domain\RoundInvitation\InvitationId\Impure\InvitationId;
@@ -99,7 +100,7 @@ class AcceptsOrDeclinesInvitation extends Existent
         return
             new Sorry(
                 new FromParsedTelegramMessage($this->message),
-                new ByBotId(
+                new ById(
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->connection
                 ),

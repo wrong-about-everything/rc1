@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace RC\Domain\SentReplyToUser;
 
+use RC\Domain\Bot\Bot;
+use RC\Domain\Bot\BotToken\Impure\FromBot;
+use RC\Domain\Bot\SupportBotName\Impure\FromBot as SupportBotName;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -15,21 +18,20 @@ use RC\Infrastructure\ImpureInteractions\ImpureValue\Successful;
 use RC\Infrastructure\ImpureInteractions\PureValue\Emptie;
 use RC\Infrastructure\TelegramBot\BotApiUrl;
 use RC\Domain\Bot\BotToken\Pure\FromImpure;
-use RC\Domain\Bot\BotToken\Impure\BotToken;
 use RC\Infrastructure\TelegramBot\Method\SendMessage;
 use RC\Infrastructure\TelegramBot\UserId\Pure\InternalTelegramUserId;
 
 class Sorry implements SentReplyToUser
 {
     private $telegramUserId;
-    private $botToken;
+    private $bot;
     private $httpTransport;
     private $cached;
 
-    public function __construct(InternalTelegramUserId $telegramUserId, BotToken $botToken, HttpTransport $httpTransport)
+    public function __construct(InternalTelegramUserId $telegramUserId, Bot $bot, HttpTransport $httpTransport)
     {
         $this->telegramUserId = $telegramUserId;
-        $this->botToken = $botToken;
+        $this->bot = $bot;
         $this->httpTransport = $httpTransport;
         $this->cached = null;
     }
@@ -45,8 +47,12 @@ class Sorry implements SentReplyToUser
 
     private function doValue(): ImpureValue
     {
-        if (!$this->botToken->value()->isSuccessful()) {
-            return $this->botToken->value();
+        if (!$this->bot->value()->isSuccessful()) {
+            return $this->bot->value();
+        }
+        $supportBotName = new SupportBotName($this->bot);
+        if (!$supportBotName->value()->isSuccessful() || !$supportBotName->value()->pure()->isPresent()) {
+            return $supportBotName->value();
         }
 
         $response =
@@ -58,9 +64,9 @@ class Sorry implements SentReplyToUser
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Простите, у нас что-то сломалось. Попробуйте ещё пару раз, и если не заработает — напишите, пожалуйста, в @gorgonzola_support_bot',
+                                'text' => sprintf('Простите, у нас что-то сломалось. Попробуйте ещё пару раз, и если не заработает — напишите, пожалуйста, в @%s', $supportBotName->value()->pure()->raw()),
                             ]),
-                            new FromImpure($this->botToken)
+                            new FromImpure(new FromBot($this->bot))
                         ),
                         [],
                         ''

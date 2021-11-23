@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace RC\Activities\User\RegistersInBot\UserStories\Domain\Reply;
 
 use RC\Domain\Bot\BotToken\Impure\BotToken;
+use RC\Domain\Bot\BotToken\Impure\FromBot;
+use RC\Domain\Bot\ById;
+use RC\Domain\Bot\SupportBotName\Impure\FromBot as SupportBotName;
+use RC\Domain\Bot\SupportBotName\Impure\SupportBotName as ImpureSupportBotName;
 use RC\Infrastructure\Http\Request\Method\Post;
 use RC\Infrastructure\Http\Request\Outbound\OutboundRequest;
 use RC\Infrastructure\Http\Request\Url\Query\FromArray;
@@ -40,12 +44,17 @@ class RegistrationCongratulations implements SentReplyToUser
 
     public function value(): ImpureValue
     {
-        $botToken = new ByBotId($this->botId, $this->connection);
+        $bot = new ById($this->botId, $this->connection);
+        $botToken = new FromBot($bot);
         if (!$botToken->value()->isSuccessful() || !$botToken->value()->pure()->isPresent()) {
             return $botToken->value();
         }
+        $supportBotName = new SupportBotName($bot);
+        if (!$supportBotName->value()->isSuccessful() || !$supportBotName->value()->pure()->isPresent()) {
+            return $supportBotName->value();
+        }
 
-        $telegramResponse = $this->congratulations($botToken);
+        $telegramResponse = $this->congratulations($botToken, $supportBotName);
         if (!$telegramResponse->isAvailable()) {
             return new Failed(new SilentDeclineWithDefaultUserMessage('Response from telegram is not available', []));
         }
@@ -53,7 +62,7 @@ class RegistrationCongratulations implements SentReplyToUser
         return new Successful(new Emptie());
     }
 
-    private function congratulations(BotToken $botToken)
+    private function congratulations(BotToken $botToken, ImpureSupportBotName $supportBotName)
     {
         return
             $this->httpTransport
@@ -64,7 +73,7 @@ class RegistrationCongratulations implements SentReplyToUser
                             new SendMessage(),
                             new FromArray([
                                 'chat_id' => $this->telegramUserId->value(),
-                                'text' => 'Поздравляю, вы зарегистрировались! Если хотите что-то спросить или уточнить, смело пишите на @gorgonzola_support_bot',
+                                'text' => sprintf('Поздравляю, вы зарегистрировались! Если хотите что-то спросить или уточнить, смело пишите на @%s', $supportBotName->value()->pure()->raw()),
                                 'reply_markup' => json_encode(['remove_keyboard' => true])
                             ]),
                             new FromImpure($botToken)

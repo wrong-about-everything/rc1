@@ -8,6 +8,7 @@ use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQu
 use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AnswersFeedbackQuestion\Domain\Reply\NextReplyToUser;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
+use RC\Domain\Bot\ById;
 use RC\Domain\FeedbackInvitation\ReadModel\FeedbackInvitation;
 use RC\Domain\FeedbackInvitation\ReadModel\LatestByFeedbackDate;
 use RC\Domain\FeedbackQuestion\FeedbackQuestion;
@@ -97,7 +98,7 @@ class AnswersFeedbackQuestion extends Existent
         return
             new Sorry(
                 new FromParsedTelegramMessage($this->message),
-                new ByBotId(
+                new ById(
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->connection
                 ),

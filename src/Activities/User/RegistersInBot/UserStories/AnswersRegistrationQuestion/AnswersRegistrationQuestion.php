@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RC\Activities\User\RegistersInBot\UserStories\AnswersRegistrationQuestion;
 
+use RC\Domain\Bot\ById;
 use RC\Domain\SentReplyToUser\ReplyOptions\ReplyOptions;
 use RC\Domain\SentReplyToUser\ReplyOptions\FromRegistrationQuestion as AnswerOptionsFromRegistrationQuestion;
 use RC\Domain\Bot\BotId\FromUuid;
@@ -101,7 +102,7 @@ class AnswersRegistrationQuestion extends Existent
             new ValidationError(
                 $answerOptions,
                 new FromParsedTelegramMessage($this->message),
-                new ByBotId(
+                new ById(
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->connection
                 ),
@@ -142,7 +143,7 @@ class AnswersRegistrationQuestion extends Existent
         return
             new Sorry(
                 new FromParsedTelegramMessage($this->message),
-                new ByBotId(
+                new ById(
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->connection
                 ),

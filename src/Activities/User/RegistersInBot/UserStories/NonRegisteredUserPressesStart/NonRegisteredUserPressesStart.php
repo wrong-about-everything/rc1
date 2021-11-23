@@ -6,6 +6,7 @@ namespace RC\Activities\User\RegistersInBot\UserStories\NonRegisteredUserPresses
 
 use RC\Activities\User\RegistersInBot\UserStories\Domain\Reply\NextReplyToUser;
 use RC\Domain\Bot\BotId\FromUuid;
+use RC\Domain\Bot\ById;
 use RC\Infrastructure\Http\Transport\HttpTransport;
 use RC\Infrastructure\Logging\LogItem\FromNonSuccessfulImpureValue;
 use RC\Infrastructure\Logging\LogItem\InformationMessage;
@@ -68,7 +69,7 @@ class NonRegisteredUserPressesStart extends Existent
         return
             new Sorry(
                 new FromParsedTelegramMessage($this->message),
-                new ByBotId(
+                new ById(
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->connection
                 ),

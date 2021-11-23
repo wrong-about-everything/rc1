@@ -8,6 +8,7 @@ use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AcceptsOrDeclines
 use RC\Activities\User\RepliesToFeedbackInvitation\UserStories\AcceptsOrDeclinesInvitation\Domain\Reply\NextReplyToUser;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotId\FromUuid;
+use RC\Domain\Bot\ById;
 use RC\Domain\FeedbackInvitation\ReadModel\FeedbackInvitation;
 use RC\Domain\FeedbackInvitation\ReadModel\LatestByFeedbackDate;
 use RC\Domain\FeedbackInvitation\ReadModel\Refreshed;
@@ -104,7 +105,7 @@ class AcceptsOrDeclinesFeedbackInvitation extends Existent
         return
             new Sorry(
                 new FromParsedTelegramMessage($this->message),
-                new ByBotId(
+                new ById(
                     new FromUuid(new UuidFromString($this->botId)),
                     $this->connection
                 ),

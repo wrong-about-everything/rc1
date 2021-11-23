@@ -21,7 +21,7 @@ class Bot
     {
         $response =
             (new SingleMutatingQueryWithMultipleValueSets(
-                'insert into bot (id, token, is_private, name, available_positions, available_experiences) values (?, ?, ?, ?, ?, ?)',
+                'insert into bot (id, token, is_private, name, available_positions, available_experiences, support_bot_name) values (?, ?, ?, ?, ?, ?, ?)',
                 array_map(
                     function (array $record) {
                         $values = array_merge($this->defaultValues(), $record);
@@ -31,7 +31,8 @@ class Bot
                             $values['is_private'],
                             $values['name'],
                             json_encode($values['available_positions']),
-                            json_encode($values['available_experiences'])
+                            json_encode($values['available_experiences']),
+                            $values['support_bot_name']
                         ];
                     },
                     $records
@@ -52,6 +53,7 @@ class Bot
             'name' => 'vasya_bot',
             'available_positions' => [],
             'available_experiences' => [],
+            'support_bot_name' => 'gorgonzola_support_bot',
         ];
     }
 }

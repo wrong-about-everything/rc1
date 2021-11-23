@@ -8,6 +8,7 @@ use RC\Activities\User\RepliesToFeedbackInvitation\Domain\Reply\NextFeedbackQues
 use RC\Activities\User\RepliesToFeedbackInvitation\Domain\Reply\ThanksForFeedback;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\BotToken\Impure\ByBotId;
+use RC\Domain\Bot\ById;
 use RC\Domain\FeedbackInvitation\ReadModel\FeedbackInvitation;
 use RC\Domain\FeedbackInvitation\Status\Impure\FromFeedbackInvitation;
 use RC\Domain\FeedbackInvitation\Status\Impure\FromPure;
@@ -66,7 +67,7 @@ class NextReplyToUser implements SentReplyToUser
         return
             (new FeedbackInvitationDeclinedAndSeeYouNextTime(
                 $this->telegramUserId,
-                new ByBotId($this->botId, $this->connection),
+                new ById($this->botId, $this->connection),
                 $this->httpTransport
             ))
                 ->value();
