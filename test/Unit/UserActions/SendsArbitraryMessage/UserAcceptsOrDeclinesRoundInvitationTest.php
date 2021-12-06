@@ -6,6 +6,7 @@ namespace RC\Tests\Unit\UserActions\SendsArbitraryMessage;
 
 use Meringue\ISO8601DateTime;
 use Meringue\ISO8601Interval\Floating\NHours;
+use Meringue\ISO8601Interval\Floating\NMinutes;
 use Meringue\ISO8601Interval\Floating\OneDay;
 use Meringue\ISO8601Interval\Floating\OneHour;
 use Meringue\Timeline\Point\Future;
@@ -144,7 +145,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         $this->createBotUser($this->botId(), $this->firstUserId(), new Registered(), $connection);
         $this->createTelegramUser($this->secondUserId(), $this->secondTelegramUserId(), $connection);
         $this->createBotUser($this->botId(), $this->secondUserId(), new Registered(), $connection);
-        $this->createMeetingRound($this->pastMeetingRoundId(), $this->botId(), new Past(new Now(), new OneHour()), new Past(new Now(), new OneDay()), $connection);
+        $this->createMeetingRound($this->pastMeetingRoundId(), $this->botId(), new Future(new Now(), new NMinutes(6)), new Past(new Now(), new OneDay()), $connection);
         $this->createMeetingRoundInvitation($this->pastMeetingRoundId(), $this->firstUserId(), new Sent(), $connection);
         $this->createMeetingRoundInvitation($this->pastMeetingRoundId(), $this->secondUserId(), new Sent(), $connection);
         $transport = new Indifferent();
@@ -217,7 +218,7 @@ class UserAcceptsOrDeclinesRoundInvitationTest extends TestCase
         $this->createBot($this->botId(), $connection);
         $this->createTelegramUser($this->firstUserId(), $this->firstTelegramUserId(), $connection);
         $this->createBotUser($this->botId(), $this->firstUserId(), new Registered(), $connection);
-        $this->createMeetingRound($this->meetingRoundId(), $this->botId(), new Past(new Now(), new OneHour()), new Now(), $connection);
+        $this->createMeetingRound($this->meetingRoundId(), $this->botId(), new Past(new Now(), new OneHour()), new Past(new Now(), new OneDay()), $connection);
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->firstUserId(), new Sent(), $connection);
         $transport = new Indifferent();
 

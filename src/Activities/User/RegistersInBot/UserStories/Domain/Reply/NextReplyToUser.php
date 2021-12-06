@@ -7,7 +7,7 @@ namespace RC\Activities\User\RegistersInBot\UserStories\Domain\Reply;
 use Meringue\Timeline\Point\Now;
 use RC\Activities\User\RegistersInBot\UserStories\Domain\BotUser\RegisteredIfNoMoreQuestionsLeft;
 use RC\Domain\Bot\BotId\BotId;
-use RC\Domain\MeetingRound\ReadModel\LatestNotYetStartedWithFiveMinutesGap;
+use RC\Domain\MeetingRound\ReadModel\OpenForRegistration;
 use RC\Domain\MeetingRound\ReadModel\MeetingRound;
 use RC\Domain\BotUser\UserStatus\Impure\FromReadModelBotUser;
 use RC\Domain\BotUser\UserStatus\Impure\FromPure;
@@ -37,7 +37,7 @@ class NextReplyToUser implements SentReplyToUser
     public function value(): ImpureValue
     {
         if ($this->userRegistered()) {
-            $latestMeetingRound = new LatestNotYetStartedWithFiveMinutesGap($this->botId, new Now(), $this->connection);
+            $latestMeetingRound = new OpenForRegistration($this->botId, new Now(), $this->connection);
             if (!$latestMeetingRound->value()->isSuccessful()) {
                 return $latestMeetingRound->value();
             }

@@ -29,7 +29,7 @@ OneAndOnly::createUnsafeImmutable(dirname(dirname(__FILE__)), './deploy/.env.pro
 if (PHP_SAPI !== 'cli') {
     exit;
 }
-// 9edcd2f4-4ccf-4f7f-ace8-0708f9c9ed59
+// bot_id is 9edcd2f4-4ccf-4f7f-ace8-0708f9c9ed59
 $x = rand(10, 50);
 $y = rand(10, 50);
 echo "Do you want to create new round? $x + $y = ";
