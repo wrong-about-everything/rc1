@@ -114,7 +114,7 @@ from feedback_invitation fi
     join meeting_round_participant mrp on fi.participant_id = mrp.id
     join telegram_user tu on tu.id = mrp.user_id
 where mrp.meeting_round_id = ? and fi.status in (?)
-limit 50
+limit 100
 q
                 ,
                 [(new FromMeetingRound($round))->value()->pure()->raw(), [(new Generated())->value(), (new ErrorDuringSending())->value()]],

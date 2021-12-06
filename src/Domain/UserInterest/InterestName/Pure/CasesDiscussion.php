@@ -8,7 +8,7 @@ class CasesDiscussion extends InterestName
 {
     public function value(): string
     {
-        return 'Обсуждение кейсов';
+        return 'Обсуждение продуктовых кейсов';
     }
 
     public function exists(): bool

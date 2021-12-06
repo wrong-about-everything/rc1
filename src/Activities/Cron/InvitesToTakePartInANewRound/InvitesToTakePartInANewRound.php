@@ -8,7 +8,7 @@ use Meringue\Timeline\Point\Now;
 use RC\Domain\Bot\BotId\BotId;
 use RC\Domain\Bot\ById;
 use RC\Domain\MeetingRound\MeetingRoundId\Impure\FromMeetingRound;
-use RC\Domain\MeetingRound\ReadModel\ByLatestPassedInvitationDate;
+use RC\Domain\MeetingRound\ReadModel\OpenForRegistration;
 use RC\Domain\RoundInvitation\InvitationId\Pure\FromUuid;
 use RC\Domain\RoundInvitation\Status\Pure\_New;
 use RC\Domain\RoundInvitation\Status\Pure\ErrorDuringSending;
@@ -73,7 +73,7 @@ q
                 ,
                 [
                     (new FromMeetingRound(
-                        new ByLatestPassedInvitationDate($this->botId, new Now(), $this->connection)
+                        new OpenForRegistration($this->botId, new Now(), $this->connection)
                     ))
                         ->value()->pure()->raw(),
                     [(new _New())->value(), (new ErrorDuringSending())->value()]
