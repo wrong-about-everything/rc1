@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RC\Tests\Unit\UserActions\SendsArbitraryMessage;
 
 use Meringue\ISO8601DateTime;
+use Meringue\ISO8601Interval\Floating\NMinutes;
 use Meringue\ISO8601Interval\Floating\OneHour;
 use Meringue\ISO8601Interval\Floating\OneMinute;
 use Meringue\Timeline\Point\Future;
@@ -12,7 +13,6 @@ use Meringue\Timeline\Point\Now;
 use Meringue\Timeline\Point\Past;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
-use RC\Domain\BooleanAnswer\BooleanAnswerName\BooleanAnswerName;
 use RC\Domain\MeetingRound\MeetingRoundId\Pure\FromString as MeetingRoundIdFromString;
 use RC\Domain\Participant\ReadModel\ByMeetingRoundAndUser;
 use RC\Domain\Participant\ReadModel\Participant;
@@ -74,7 +74,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->createBotUser($this->botId(), $this->userId(), new Registered(), $connection);
         $this->createMeetingRound($this->olderMeetingRoundId(), $this->botId(), new Past(new Now(), new OneMinute()), new Past(new Now(), new OneHour()), $connection);
         $this->createMeetingRoundInvitation($this->olderMeetingRoundId(), $this->userId(), new Sent(), $connection);
-        $this->createMeetingRound($this->meetingRoundId(), $this->botId(), new Future(new Now(), new OneMinute()), new Past(new Now(), new OneHour()), $connection);
+        $this->createMeetingRound($this->meetingRoundId(), $this->botId(), new Future(new Now(), new NMinutes(6)), new Past(new Now(), new OneMinute()), $connection);
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->userId(), new Sent(), $connection);
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new NetworkingOrSomeSpecificArea(), 1, 'Вопрос про цель общения', $connection);
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new SpecificAreaChoosing(), 2, 'Вопрос про интересы', $connection);
@@ -126,7 +126,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->createBot($this->botId(), $connection);
         $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
         $this->createBotUser($this->botId(), $this->userId(), new Registered(), $connection);
-        $this->createMeetingRound($this->meetingRoundId(), $this->botId(), new Future(new Now(), new OneMinute()), new Past(new Now(), new OneHour()), $connection);
+        $this->createMeetingRound($this->meetingRoundId(), $this->botId(), new Future(new Now(), new NMinutes(6)), new Past(new Now(), new OneHour()), $connection);
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->userId(), new Sent(), $connection);
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new NetworkingOrSomeSpecificArea(), 1, 'Вопрос про цель общения', $connection);
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new SpecificAreaChoosing(), 2, 'Вопрос про интересы', $connection);
@@ -178,7 +178,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->createBot($this->botId(), $connection);
         $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
         $this->createBotUser($this->botId(), $this->userId(), new Registered(), $connection);
-        $this->createMeetingRound($this->meetingRoundId(), $this->botId(), new Future(new Now(), new OneMinute()), new Past(new Now(), new OneHour()), $connection);
+        $this->createMeetingRound($this->meetingRoundId(), $this->botId(), new Future(new Now(), new NMinutes(6)), new Past(new Now(), new OneHour()), $connection);
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->userId(), new Sent(), $connection);
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new NetworkingOrSomeSpecificArea(), 1, 'Вопрос про цель общения', $connection);
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new SpecificAreaChoosing(), 2, 'Вопрос про интересы', $connection);
@@ -239,7 +239,7 @@ class UserRegistersForAMeetingRoundTest extends TestCase
         $this->createBot($this->botId(), $connection);
         $this->createTelegramUser($this->userId(), $this->telegramUserId(), $connection);
         $this->createBotUser($this->botId(), $this->userId(), new Registered(), $connection);
-        $this->createMeetingRound($this->meetingRoundId(), $this->botId(), new Future(new Now(), new OneMinute()), new Past(new Now(), new OneHour()), $connection);
+        $this->createMeetingRound($this->meetingRoundId(), $this->botId(), new Future(new Now(), new NMinutes(6)), new Past(new Now(), new OneHour()), $connection);
         $this->createMeetingRoundInvitation($this->meetingRoundId(), $this->userId(), new Sent(), $connection);
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new NetworkingOrSomeSpecificArea(), 1, 'Вопрос про цель общения', $connection);
         $this->createRoundRegistrationQuestion(new RandomUUID(), $this->meetingRoundId(), new SpecificAreaChoosing(), 2, 'Вопрос про интересы', $connection);

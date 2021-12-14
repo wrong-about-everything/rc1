@@ -15,17 +15,17 @@ use RC\Infrastructure\ImpureInteractions\PureValue\Present;
 use RC\Infrastructure\SqlDatabase\Agnostic\OpenConnection;
 use RC\Infrastructure\SqlDatabase\Agnostic\Query\Selecting;
 
-class LatestNotYetStartedWithFiveMinutesGap implements MeetingRound
+class OpenForRegistration implements MeetingRound
 {
     private $botId;
-    private $startDateTime;
+    private $now;
     private $connection;
     private $cached;
 
-    public function __construct(BotId $botId, ISO8601DateTime $startDateTime, OpenConnection $connection)
+    public function __construct(BotId $botId, ISO8601DateTime $now, OpenConnection $connection)
     {
         $this->botId = $botId;
-        $this->startDateTime = $startDateTime;
+        $this->now = $now;
         $this->connection = $connection;
         $this->cached = null;
     }
@@ -43,8 +43,8 @@ class LatestNotYetStartedWithFiveMinutesGap implements MeetingRound
     {
         $meetingRound =
             (new Selecting(
-                'select * from meeting_round where bot_id = ? and start_date > ? order by start_date desc limit 1',
-                [$this->botId->value(), (new Future($this->startDateTime, new NMinutes(5)))->value()],
+                'select * from meeting_round where bot_id = ? and start_date > ? and invitation_date <= ? order by invitation_date desc limit 1',
+                [$this->botId->value(), (new Future($this->now, new NMinutes(5)))->value(), $this->now->value()],
                 $this->connection
             ))
                 ->response();
