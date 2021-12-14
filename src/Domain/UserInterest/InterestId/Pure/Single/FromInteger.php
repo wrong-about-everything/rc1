@@ -51,6 +51,7 @@ class FromInteger extends InterestId
             (new UserAcquisition())->value() => new UserAcquisition(),
             (new Sales())->value() => new Sales(),
             (new BusinessModelsAndMonetization())->value() => new BusinessModelsAndMonetization(),
+            (new InvestmentAttraction())->value() => new InvestmentAttraction(),
         ];
     }
 }

@@ -30,6 +30,7 @@ use RC\Domain\UserInterest\InterestName\Pure\UX as UXName;
 use RC\Domain\UserInterest\InterestName\Pure\UserAcquisition as UserAcquisitionName;
 use RC\Domain\UserInterest\InterestName\Pure\Sales as SalesName;
 use RC\Domain\UserInterest\InterestName\Pure\BusinessModelsAndMonetization as BusinessModelsAndMonetizationName;
+use RC\Domain\UserInterest\InterestName\Pure\InvestmentAttraction as InvestmentAttractionName;
 
 class FromInterestName extends InterestId
 {
@@ -78,6 +79,7 @@ class FromInterestName extends InterestId
             (new UserAcquisitionName())->value() => new UserAcquisition(),
             (new SalesName())->value() => new Sales(),
             (new BusinessModelsAndMonetizationName())->value() => new BusinessModelsAndMonetization(),
+            (new InvestmentAttractionName())->value() => new InvestmentAttraction(),
         ];
     }
 }
