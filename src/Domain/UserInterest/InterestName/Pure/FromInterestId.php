@@ -29,6 +29,7 @@ use RC\Domain\UserInterest\InterestId\Pure\Single\AllThingsDevelopment as AllThi
 use RC\Domain\UserInterest\InterestId\Pure\Single\UX as UXId;
 use RC\Domain\UserInterest\InterestId\Pure\Single\UserAcquisition as UserAcquisitionId;
 use RC\Domain\UserInterest\InterestId\Pure\Single\Sales as SalesId;
+use RC\Domain\UserInterest\InterestId\Pure\Single\BusinessModelsAndMonetization as BusinessModelsAndMonetizationId;
 
 class FromInterestId extends InterestName
 {
@@ -76,6 +77,7 @@ class FromInterestId extends InterestName
             (new UXId())->value() => new UX(),
             (new UserAcquisitionId())->value() => new UserAcquisition(),
             (new SalesId())->value() => new Sales(),
+            (new BusinessModelsAndMonetizationId())->value() => new BusinessModelsAndMonetization(),
         ];
     }
 }
